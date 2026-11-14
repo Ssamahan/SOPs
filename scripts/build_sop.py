@@ -37,7 +37,7 @@ META = {
     "effective": "01 December 2026",
     "review": "01 December 2028",
     "supersedes": "\u2014 (First issue)",
-    "owner": "Quality Officer",
+    "owner": "Quality Manager \u2014 Jean Paul NSENGIYUMVA",
     "classification": "Controlled Document \u2014 Master copy retained by the Quality Office",
 }
 
@@ -69,7 +69,7 @@ APPROVAL_STATEMENT = (
 
 REVISION_HEADERS = ["Version", "Date", "Description of change", "Prepared", "Approved"]
 REVISION_ROWS = [
-    ["1.0", "14 Nov 2026", "First issue \u2014 initial release", "[Name]", "[Name]"],
+    ["1.0", "14 Nov 2026", "First issue \u2014 initial release", "J.P. NSENGIYUMVA", "[Name]"],
     ["", "", "", "", ""],
     ["", "", "", "", ""],
 ]
@@ -143,7 +143,7 @@ BODY = [
              ["Laboratory Manager",
               "Ensure sufficient trained and authorised personnel; formally authorise staff to perform "
               "venipuncture after competence assessment (6.2); review quality indicators."],
-             ["Quality Officer",
+             ["Quality Manager",
               "Maintain this SOP under document control (8.3); monitor sample rejection and haemolysis "
               "indicators; coordinate corrective actions (8.7); schedule periodic review."],
              ["Health & Safety Officer",
@@ -281,7 +281,7 @@ BODY = [
     ]),
     ("8. Quality Control and Monitoring", [
         ("b", [
-            "Quality indicators monitored monthly by the Quality Officer: sample rejection rate "
+            "Quality indicators monitored monthly by the Quality Manager: sample rejection rate "
             "(target at most 2% of all samples); haemolysis rate (target at most 1%); mislabelled "
             "samples (target zero); samples delivered within the defined turnaround time.",
             "Indicator results are reported at the monthly quality meeting and reviewed in management "
@@ -371,7 +371,7 @@ TRAINING_NOTE = (
     "Complete one row per staff member (15 rows provided \u2014 at least 12 anticipated). "
     "If more rows are needed, attach continuation sheet F-TRN-001-2 and staple it to this page. "
     "File the completed form in the personnel training record; reference it in the SOP training "
-    "register maintained by the Quality Officer."
+    "register maintained by the Quality Manager."
 )
 
 FOOTER_LEFT = (META["doc_no"] + "  |  Version " + META["version"] +
