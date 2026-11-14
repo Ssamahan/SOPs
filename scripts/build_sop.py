@@ -35,6 +35,14 @@ GREY = "#595959"
 
 LAB = "Ruli District Hospital Laboratory Department"
 
+# Official letterhead (from the Laboratory Normal Ranges / Critical Results / TAT lists)
+LETTERHEAD = [
+    ("REPUBLIC OF RWANDA · MINISTRY OF HEALTH · GAKENKE DISTRICT", "kind"),
+    ("Ruli District Hospital", "lab"),
+    ("Laboratory Department", "kind"),
+    ("P.O. Box 1285 Kigali · ruli.hospital@moh.gov.rw · (+250) 0782 000 853 · rulihospital.rw", "small"),
+]
+
 # (role, name, designation) — designation is printed below the name
 APPROVAL_ROWS = [
     ("Prepared by (Author)", "Jean Paul NSENGIYUMVA", "Lab Quality Manager"),
@@ -918,19 +926,19 @@ GLUCOSE = {
             ]),
         ]),
         ("14. Reference Intervals, Clinical Decision Limits, and Critical Results", [
-            ("p", "Reference intervals for venous serum or plasma (verify in the laboratory’s "
-                  "reference interval file before first use and after any method change — ISO "
-                  "15189:2022, 7.3.5):"),
+            ("p", "Normal range in use at this laboratory (Laboratory Normal Ranges list, "
+                  "Ruli District Hospital, approved 08/07/2025 by the Laboratory Manager and "
+                  "the Hospital Director General):"),
             ("tbl",
-             ["State", "Reference interval (mmol/L)", "Reference interval (mg/dL)"],
+             ["Test / specimen", "Normal range (in use)", "Normal range (mmol/L)"],
              [
-                 ["Fasting (adult)", "3.9 – 5.5", "70 – 99"],
-                 ["Random (adult, non-fasting)", "below 7.8", "below 140"],
-                 ["Paediatric / neonatal", "per the verified paediatric reference list",
-                  "per the verified paediatric reference list"],
+                 ["Serum glucose", "70 – 110 mg/dL", "3.9 – 6.1"],
              ],
              [6.0, 5.5, 5.5]),
-            ("p", "Clinical decision limits (WHO / ADA diagnostic criteria):"),
+            ("p", "The range is verified before first use and after any method or reagent "
+                  "change (ISO 15189:2022, 7.3.5). Interpret paediatric and neonatal results "
+                  "in the clinical context."),
+            ("p", "Clinical decision limits for the diagnosis of diabetes (WHO/ADA criteria):"),
             ("tbl",
              ["Test / state", "Decision limit", "Meaning"],
              [
@@ -948,23 +956,26 @@ GLUCOSE = {
                   "Treat without delay"],
              ],
              [5.6, 5.9, 5.5]),
-            ("p", "Critical results — telephone the requester immediately and record the call "
-                  "(name of the person informed, date, time): glucose <= 2.8 mmol/L "
-                  "(<= 50 mg/dL) or >= 25.0 mmol/L (>= 450 mg/dL). Confirm these limits "
-                  "against the critical value list approved by the Laboratory Manager "
-                  "(ISO 15189:2022, 7.4.1.3)."),
+            ("p", "Critical results (Laboratory Critical Results list, Ruli District Hospital): "
+                  "glucose below 40 mg/dL (2.2 mmol/L) or at 399.6 mg/dL (22.2 mmol/L) and "
+                  "above. Report every critical result immediately after verification, even if "
+                  "other tests in the panel are still in progress. Notification follows the "
+                  "mandatory ‘Write Down and Read Back’ process; record the name of the "
+                  "person informed and the date and time (ISO 15189:2022, 7.4.1.3)."),
         ]),
         ("15. Reporting and Release of Results", [
+            ("p", "Turnaround time (Laboratory Tests TAT list, Ruli District Hospital): 45 "
+                  "minutes from specimen receipt to result communication. Results are "
+                  "communicated immediately after verification, even if other tests in the "
+                  "panel remain in progress."),
             ("b", [
-                "The report shows: patient identifiers, examination, result with units "
-                "(mmol/L, with mg/dL where requested), reference interval for the patient’s "
-                "state, specimen notes, collection time and the reporting laboratory.",
-                "Turnaround time: routine within 2 hours of receipt; urgent (STAT) within 30 "
-                "minutes. Monitor TAT as a quality indicator.",
-                "Critical results (14) are telephoned immediately with read-back, and the "
-                "communication is recorded.",
-                "Corrected reports: issue an amended report that identifies the change, the "
-                "reason and the date; notify the requester; retain the original entry.",
+                "The report shows: patient identifiers, examination, result with units (mg/dL "
+                "and mmol/L), the normal range in use for this laboratory, specimen notes, "
+                "collection time and the reporting laboratory.",
+                "Critical results (14) are reported immediately using the mandatory ‘Write "
+                "Down and Read Back’ process, and the communication is recorded.",
+                "Corrected reports: issue an amended report identifying the change, the reason "
+                "and the date; notify the requester; retain the original entry.",
                 "Patient information is confidential (ISO 15189:2022, 4.2).",
             ]),
         ]),
@@ -1029,6 +1040,9 @@ GLUCOSE = {
                 "Venous Blood Collection (RliDHL-IH-SOP-001).",
                 "Equipment Management and Maintenance procedure.",
                 "Internal Quality Control and EQA procedure.",
+                "Laboratory Normal Ranges list (approved 08/07/2025).",
+                "Laboratory Critical Results list.",
+                "Laboratory Tests TAT list (2026).",
                 "Result Reporting and Release procedure.",
                 "Laboratory Safety Manual; Laboratory Waste Management procedure.",
             ]),
@@ -1244,12 +1258,23 @@ def build_docx(cfg):
     if LOGO_PATH.exists():
         p.add_run().add_picture(str(LOGO_PATH), height=Cm(2.4))
 
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run(LAB)
-    r.font.size = Pt(15)
-    r.font.bold = True
-    r.font.color.rgb = RGBColor.from_string(INK.lstrip("#"))
+    for text, style in LETTERHEAD:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.space_after = Pt(1)
+        r = p.add_run(text)
+        if style == "lab":
+            r.font.size = Pt(15)
+            r.font.bold = True
+            r.font.color.rgb = RGBColor.from_string(INK.lstrip("#"))
+        elif style == "kind":
+            r.font.size = Pt(10)
+            r.font.bold = True
+            r.font.color.rgb = RGBColor.from_string(GREY.lstrip("#"))
+        else:
+            r.font.size = Pt(7.5)
+            r.font.italic = True
+            r.font.color.rgb = RGBColor.from_string(GREY.lstrip("#"))
 
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -1421,6 +1446,8 @@ def build_pdf(cfg):
                                 leading=10.4, textColor=colors.black),
         "cellhead": ParagraphStyle("cellhead", fontName="Helvetica-Bold", fontSize=8.5,
                                    leading=10.4, textColor=colors.white),
+        "small": ParagraphStyle("small", fontName="Helvetica-Oblique", fontSize=8,
+                                textColor=grey, leading=10),
         "appname": ParagraphStyle("appname", fontName="Helvetica-Bold", fontSize=9.5,
                                   leading=11.5, textColor=colors.black),
         "appdesig": ParagraphStyle("appdesig", fontName="Helvetica", fontSize=8.5,
@@ -1542,7 +1569,7 @@ def build_pdf(cfg):
         Spacer(1, 0.4 * cm),
         logo_flowable(2.2),
         Spacer(1, 0.25 * cm),
-        P(LAB, "lab"),
+        *[P(t, st) for t, st in LETTERHEAD],
         P("STANDARD OPERATING PROCEDURE", "kind"),
         P(meta["title"], "title"),
         make_pdf_table(["Field", "Detail"],
