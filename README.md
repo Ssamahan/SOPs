@@ -1,25 +1,33 @@
-# SOPs
+# SOPs — Ruli District Hospital Laboratory Department
 
-Standard Operating Procedure materials for the medical laboratory, built to the current
-international standard **ISO 15189:2022** (Medical laboratories — requirements for quality
-and competence).
+Standard Operating Procedure materials built to **ISO 15189:2022** and the laboratory's
+2026 standard SOP layout, designed for **paperless operation** (Rwanda, since 01 August 2026:
+electronic requests and records in the EMR; only referred specimens travel with a printed
+Sample Referral Manifest).
 
 ## Contents
 
 | Path | Description |
 |---|---|
-| [`docs/ISO-15189-2022-SOP-Guide.md`](docs/ISO-15189-2022-SOP-Guide.md) | How a compliant SOP must look: clause map, mandatory content, signature requirements, pagination & document-control rules |
-| [`sop/SOP-PRE-001-Venous-Blood-Collection.pdf`](sop/SOP-PRE-001-Venous-Blood-Collection.pdf) | Print-exact sample SOP (7 pages) — cover with approval signatures, revision history + TOC, full procedure body, 15-row staff training signature sheet |
-| [`sop/SOP-PRE-001-Venous-Blood-Collection.docx`](sop/SOP-PRE-001-Venous-Blood-Collection.docx) | Editable Word version of the same sample — use as the template for new SOPs |
+| `docs/ISO-15189-2022-SOP-Guide.md` | How a compliant SOP must look: clause map, mandatory content, signatures, pagination & document control |
+| `sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.pdf` | Print/screen-exact sample SOP (12 pages): cover with hospital logo and real signatories, review history + TOC, 22-section body, signature page (15 rows, IPPIS No. column), amendment page |
+| `sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.docx` | Editable Word version of the same document |
+| `assets/Ruli-District-Hospital-logo.png` | Hospital logo used on covers |
 | `scripts/build_sop.py` | Regenerates both files from one content model |
 
-## Key conventions
+## Conventions
 
-- Fresh page starts: **cover** · **revision history + table of contents** · **body** ·
-  **Annex A training & signature sheet**; body text flows continuously to save pages.
-- Footer on every page: `SOP no | version | Page X of Y | uncontrolled-copy notice`.
-- Signature capacity: Annex A provides **15 signature rows** (at least 12 staff per page,
-  continuation sheet for more).
+- **Document codes carry the facility acronym**: `RliDHL-XXX-SOP-NNN-VERS-NNN`
+  (e.g. `RliDHL-IH-SOP-001-VERS-001`). Forms: `F-TRN-001` etc. as named in the SOPs.
+- **Signatories**: Prepared by the author (Lab Quality Manager Jean Paul NSENGIYUMVA),
+  Reviewed by the Laboratory Manager (Kelvin SAMAHANI), Authorized by the Hospital's
+  Director General (Dr. Déogratias KANEZA).
+- **Employee IDs are IPPIS numbers** (staff cards are not numbered).
+- **Paperless**: controlled electronic document; e-signatures and electronic acknowledgement
+  in the training module; printed copies are contingency-only ("CONTINGENCY COPY");
+  footer marks every page "printed copies are uncontrolled".
+- Fresh page starts: cover · review history + controlled copies + TOC · body (1–20) ·
+  signature page (21) · amendment page (22).
 
 ## Rebuilding
 

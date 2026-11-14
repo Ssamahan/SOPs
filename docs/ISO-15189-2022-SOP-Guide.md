@@ -151,3 +151,24 @@ statement.
 └───────────────────────────────────────────────┘
    Footer on every page: SOP no | version | "Page X of Y" | uncontrolled-copy notice
 ```
+
+---
+
+## Notes for the Ruli District Hospital rollout
+
+- **Document codes**: every code carries the facility acronym — `RliDHL-XXX-SOP-NNN-VERS-NNN`
+  (hyphens throughout), e.g. `RliDHL-IH-SOP-001-VERS-001`. Section codes are the three-letter
+  codes of the Document and Record Control SOP (ADM, BAC, BIO, HEM, IMM, MOL, MYC, PAR, REC,
+  SER, STC, SAF). A number belongs to one document for life and never changes at revision;
+  only the version rises.
+- **Employee ID on the signature page** = the **IPPIS number** (Integrated Personnel and
+  Payroll Information System), since staff cards are not numbered. It is the unique staff
+  identifier used in personnel and training records (ISO 15189:2022, 6.2).
+- **Paperless operation (since 01 August 2026)**: SOPs are controlled electronic documents;
+  authorisation and staff acknowledgement are electronic (user account + timestamp in the
+  training module); records live in the EMR/LIS. The only routine print is the Sample Referral
+  Manifest for referred specimens. Printed SOP copies are contingency-only, stamped
+  "CONTINGENCY COPY", used during information-system downtime (ISO 15189:2022, 7.8) and
+  destroyed afterwards — which is why every page carries "printed copies are uncontrolled".
+  Design SOPs to be read on screen first: bookmarks/TOC links, no layout that depends on
+  printing.

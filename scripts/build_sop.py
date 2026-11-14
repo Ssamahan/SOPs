@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Build an ISO 15189:2022-compliant sample SOP in two formats from one
-content model:
+Build the Ruli District Hospital Laboratory SOP sample/template in two formats:
 
-  sop/SOP-PRE-001-Venous-Blood-Collection.docx   (editable Word template)
-  sop/SOP-PRE-001-Venous-Blood-Collection.pdf    (print-exact preview)
+  sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.docx
+  sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.pdf
 
-Layout rules implemented (see docs/ISO-15189-2022-SOP-Guide.md):
-  * Fresh page starts: cover | revision history + table of contents |
-    body | Annex A training & signature sheet.
-  * Continuous flow inside the body (no wasted pages).
-  * Footer on every page: document number | version | "Page X of Y" |
-    controlled-copy statement.
-  * Approval signatures (prepared / reviewed / approved) on the cover.
-  * Annex A provides 15 signature rows so at least 12 staff can sign.
+Conventions implemented:
+  * Facility acronym in every document code: RliDHL-XXX-SOP-NNN-VERS-NNN.
+  * 22-section technical-SOP layout (2026 standard layout mapped to ISO 15189:2022).
+  * Paperless operation (Rwanda, since 01 August 2026): electronic controlled
+    document, e-signatures, EMR records; only referred specimens carry a printed
+    Sample Referral Manifest; printed SOP copies are contingency-only.
+  * Signature page: 15 rows (IPPIS No. column) so at least 12 staff fit on one page.
+  * Fresh page starts: cover | review history + controlled copies + TOC |
+    body (1-20) | 21 Signature Page | 22 Amendment Page.
 
 Usage:  .venv/bin/python scripts/build_sop.py
 """
@@ -21,181 +21,319 @@ Usage:  .venv/bin/python scripts/build_sop.py
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCX_PATH = ROOT / "sop" / "SOP-PRE-001-Venous-Blood-Collection.docx"
-PDF_PATH = ROOT / "sop" / "SOP-PRE-001-Venous-Blood-Collection.pdf"
+LOGO_PATH = ROOT / "assets" / "Ruli-District-Hospital-logo.png"
+OUT_STEM = "RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection"
+DOCX_PATH = ROOT / "sop" / (OUT_STEM + ".docx")
+PDF_PATH = ROOT / "sop" / (OUT_STEM + ".pdf")
 
 # ---------------------------------------------------------------------------
 # Shared content model
 # ---------------------------------------------------------------------------
 
 META = {
-    "lab_name": "[LABORATORY NAME]",
-    "logo": "[ LABORATORY LOGO ]",
-    "doc_no": "SOP-PRE-001",
+    "lab": "Ruli District Hospital Laboratory Department",
+    "doc_no": "RliDHL-IH-SOP-001-VERS-001",
     "title": "Venous Blood Sample Collection by Venipuncture",
-    "version": "1.0",
-    "effective": "01 December 2026",
-    "review": "01 December 2028",
-    "supersedes": "\u2014 (First issue)",
-    "owner": "Lab Quality Manager \u2014 Jean Paul NSENGIYUMVA",
-    "classification": "Controlled Document \u2014 Master copy retained by the Quality Office",
+    "version": "001",
+    "effective": "____/____/________  (entered at authorisation)",
+    "review": "____/____/________  (two years after the effective date)",
+    "supersedes": "\u2014 (first issue to the 2026 standard layout)",
+    "owner": "Kelvin SAMAHANI \u2014 Laboratory Manager",
 }
 
 DOC_CONTROL_ROWS = [
-    ("Document Number", META["doc_no"]),
-    ("Document Title", META["title"]),
-    ("Version / Revision", META["version"]),
+    ("SOP Number", META["doc_no"]),
+    ("SOP Title", META["title"]),
+    ("Version", META["version"]),
     ("Effective Date", META["effective"]),
-    ("Next Review Date", META["review"] + "  (review at least every 2 years or on change)"),
+    ("Next Review Date", META["review"]),
     ("Supersedes", META["supersedes"]),
     ("Document Owner", META["owner"]),
-    ("Classification", META["classification"]),
+    ("Classification", "Controlled electronic document \u2014 master copy in the laboratory "
+                       "document control system (RliDHL-ADM-SOP-004)"),
 ]
 
 APPROVAL_ROWS = [
-    ("Prepared by (Author)", "Jean Paul NSENGIYUMVA (Lab Quality Manager)"),
-    ("Reviewed by", "[Name \u2014 Laboratory Manager]"),
-    ("Approved by", "[Name \u2014 Laboratory Director]"),
+    ("Prepared by (Author)", "Jean Paul NSENGIYUMVA \u2014 Lab Quality Manager"),
+    ("Reviewed by", "Kelvin SAMAHANI \u2014 Laboratory Manager"),
+    ("Authorized by", "Dr. D\u00e9ogratias KANEZA \u2014 Hospital\u2019s Director General"),
 ]
 
 APPROVAL_STATEMENT = (
-    "This document is the property of " + META["lab_name"] +
-    ". It is a controlled document and becomes effective on the date approved above. "
-    "It must not be modified, copied, or distributed without written authorization of the "
-    "Laboratory Director. Uncontrolled when printed unless stamped \u201cCONTROLLED COPY\u201d in red. "
-    "Control of documents and records is maintained in accordance with ISO 15189:2022, "
-    "Clauses 8.3 and 8.4."
+    "This is a controlled electronic document of the Ruli District Hospital Laboratory "
+    "Department. It becomes effective when authorised above. Authorisation is applied "
+    "electronically in the document control system and is traceable to the signatory\u2019s "
+    "user account. Paperless operation applies since 01 August 2026: a printed copy is "
+    "uncontrolled unless stamped \u201cCONTINGENCY COPY\u201d and verified against the document "
+    "control system. Control of documents and records: ISO 15189:2022, Clauses 8.3 and 8.4; "
+    "RliDHL-ADM-SOP-004."
 )
 
-REVISION_HEADERS = ["Version", "Date", "Description of change", "Prepared", "Approved"]
+REVISION_HEADERS = ["Prepared/Reviewed by", "Version", "Date", "Description of Change"]
 REVISION_ROWS = [
-    ["1.0", "14 Nov 2026", "First issue \u2014 initial release", "J.P. NSENGIYUMVA", "[Name]"],
-    ["", "", "", "", ""],
-    ["", "", "", "", ""],
+    ["J.P. NSENGIYUMVA", "001", "Pending authorisation",
+     "First issue to the 2026 standard layout (ISO 15189:2022). Rewritten for paperless "
+     "operation: electronic requests, labels and records in the EMR; printed Sample Referral "
+     "Manifest only for referred specimens."],
+    ["", "", "", ""],
+    ["", "", "", ""],
 ]
 
-DISTRIBUTION = [
-    "Master copy (signed): Quality Office \u2014 document control register.",
-    "Controlled copies: Phlebotomy station; Sample reception; Laboratory Manager\u2019s office; "
-    "each collection point.",
-    "A read-only copy is published on the laboratory intranet. Printed copies are "
-    "uncontrolled unless stamped \u201cCONTROLLED COPY\u201d in red and listed in the distribution register "
-    "(ISO 15189:2022, 8.3).",
+CONTROLLED_COPIES = [
+    "Controlled copies \u2014 Original (electronic master): document control system, "
+    "Laboratory Manager\u2019s office. Controlled electronic copies (read-only): laboratory "
+    "network and EMR document module; collection stations.",
+    "Printed copies: paperless operation applies since 01 August 2026. A printout is made "
+    "only for contingency use during information-system downtime, is stamped "
+    "\u201cCONTINGENCY COPY\u201d, and is destroyed when the electronic version is restored.",
+    "Supersedes: \u2014 (first issue). When this SOP replaces an earlier document, the "
+    "superseded number, version, effective date and review date are recorded here and in "
+    "the review history.",
 ]
 
 # Body blocks: ('p', text) | ('b', [items]) | ('h2', title) |
 #              ('steps', [(label, text), ...]) | ('tbl', headers, rows, widths)
 BODY = [
-    ("1. Purpose", [
-        ("p", "This Standard Operating Procedure (SOP) defines the standard method for collecting "
-              "venous blood samples by peripheral venipuncture at " + META["lab_name"] + ". Following "
-              "this procedure protects patient safety, guarantees positive patient identification and "
-              "sample integrity, and supports reliable examination results in accordance with "
-              "ISO 15189:2022, in particular the pre-examination process requirements of Clause 7.2 "
-              "and the personnel competence requirements of Clause 6.2."),
+    ("1. Introduction", [
+        ("p", "Venous blood collection is the most frequently performed pre-examination "
+              "activity of the laboratory, and pre-examination errors \u2014 wrong patient, wrong "
+              "tube, insufficient volume, haemolysis \u2014 are the largest source of unusable "
+              "specimens. This procedure standardises how venous blood is collected at Ruli "
+              "District Hospital so that every specimen is correctly identified, safely "
+              "collected, and fit for examination."),
+        ("p", "The hospital operates on an electronic medical record (EMR). Requests, patient "
+              "identification, specimen tracking and results are electronic: no paper request "
+              "forms accompany specimens inside the hospital. Referred specimens travel with a "
+              "printed Sample Referral Manifest, as required by the national referral system."),
     ]),
-    ("2. Scope", [
-        ("p", "This SOP applies to all personnel (employees, students and contractors) who collect "
-              "venous blood samples at the main laboratory and at every collection point operated by "
-              "the laboratory, and to all patient populations served."),
-        ("p", "Out of scope \u2014 covered by separate procedures:"),
-        ("b", [
-            "arterial blood collection (SOP-PRE-004);",
-            "capillary blood sampling (SOP-PRE-005);",
-            "blood culture collection (SOP-PRE-002);",
-            "blood donation and donor phlebotomy (SOP-BB-001).",
-        ]),
+    ("2. Principle of the Test", [
+        ("p", "Blood is drawn from a peripheral vein through a hollow needle into evacuated "
+              "tubes. The vacuum in each tube draws a fixed volume of blood and mixes it with "
+              "the additive (anticoagulant, clot activator or preservative) that the requested "
+              "examination requires. Filling the tubes in a fixed order of draw prevents "
+              "additive carry-over between tubes; gentle inversion mixes blood and additive "
+              "without damaging the cells."),
     ]),
-    ("3. Definitions and Abbreviations", [
+    ("3. Purpose", [
+        ("p", "This SOP standardises the pre-examination steps for the collection of venous "
+              "blood by peripheral venipuncture, so that specimens are collected safely, "
+              "identified without error, and remain fit for the examinations requested."),
+    ]),
+    ("4. Scope", [
+        ("p", "This SOP applies to all laboratory personnel \u2014 biotechnologists, technicians, "
+              "interns and students under supervision \u2014 who collect venous blood at the main "
+              "laboratory and at every collection point of Ruli District Hospital. It covers "
+              "adult and paediatric venipuncture and all evacuated tube types listed in 6.3."),
+        ("p", "It does not cover: arterial blood collection; capillary blood sampling; blood "
+              "culture collection; blood donation and donor phlebotomy; or venous access "
+              "devices (cannulas, ports). These are covered by separate SOPs listed in the "
+              "document control master list."),
+    ]),
+    ("5. Definitions and Abbreviations", [
+        ("h2", "5.1 Definitions"),
         ("tbl",
-         ["Term", "Definition"],
+         ["No.", "Term", "Definition"],
          [
-             ["Positive patient identification",
-              "Verification of patient identity using at least two unique identifiers (full name and "
-              "date of birth or national identification number) matched to the request."],
-             ["Order of draw",
-              "The standard sequence in which blood collection tubes are filled during a single "
-              "venipuncture, preventing additive cross-contamination between tubes."],
-             ["Haemolysis",
-              "Rupture of red blood cells releasing intracellular constituents into plasma or serum; "
-              "may invalidate results and is a cause for sample rejection."],
-             ["Mislabelled sample",
-              "A sample whose label does not correctly and uniquely identify the patient from whom "
-              "it was collected; always treated as nonconforming work (ISO 15189:2022, 7.5)."],
-             ["EDTA / LIS / PPE / TAT / NC / IQC",
-              "Ethylenediaminetetraacetic acid (tube anticoagulant) / laboratory information system / "
-              "personal protective equipment / turnaround time / nonconforming (work) / internal "
-              "quality control."],
+             ["1", "Positive patient identification",
+              "Verification of identity with at least two identifiers (full name plus date of "
+              "birth or patient number) matched to the EMR request before collection."],
+             ["2", "Order of draw",
+              "The fixed sequence in which tubes are filled during one venipuncture, preventing "
+              "additive carry-over between tubes."],
+             ["3", "Haemolysis",
+              "Rupture of red blood cells releasing intracellular constituents into serum or "
+              "plasma; a common cause of specimen rejection."],
+             ["4", "Mislabelled specimen",
+              "A specimen whose label does not correctly and uniquely identify the patient; "
+              "always handled as nonconforming work (ISO 15189:2022, 7.5)."],
+             ["5", "Contingency copy",
+              "A printout of this SOP made only during information-system downtime, stamped "
+              "\u201cCONTINGENCY COPY\u201d, and destroyed when the system is restored."],
+             ["6", "Referred specimen",
+              "A specimen sent to another laboratory for examination; travels with the printed "
+              "Sample Referral Manifest."],
          ],
-         [4.5, 12.5]),
-    ]),
-    ("4. Responsibilities", [
+         [1.2, 4.3, 11.5]),
+        ("h2", "5.2 Abbreviations"),
         ("tbl",
-         ["Role", "Responsibility"],
+         ["No.", "Acronym", "Full Meaning"],
          [
-             ["Phlebotomist / sample collector",
-              "Perform venipuncture exactly as written in this SOP; identify every patient with two "
-              "identifiers; label samples at the point of collection; report and record incidents and "
-              "nonconformities."],
-             ["Reception / clerical staff",
-              "Verify completeness of the request form; register samples in the LIS; protect patient "
-              "confidentiality (ISO 15189:2022, 4.2)."],
-             ["Laboratory Manager",
-              "Ensure sufficient trained and authorised personnel; formally authorise staff to perform "
-              "venipuncture after competence assessment (6.2); review quality indicators."],
-             ["Lab Quality Manager",
-              "Maintain this SOP under document control (8.3); monitor sample rejection and haemolysis "
-              "indicators; coordinate corrective actions (8.7); schedule periodic review."],
-             ["Health & Safety Officer",
-              "Maintain sharps disposal infrastructure and PPE availability; investigate exposure "
-              "incidents; oversee hepatitis B vaccination of collectors."],
+             ["1", "EMR", "Electronic Medical Record"],
+             ["2", "EQA", "External Quality Assessment"],
+             ["3", "EDTA", "Ethylenediaminetetraacetic acid (tube anticoagulant)"],
+             ["4", "IPPIS", "Integrated Personnel and Payroll Information System"],
+             ["5", "IQC", "Internal Quality Control"],
+             ["6", "LIS", "Laboratory Information System"],
+             ["7", "NC", "Nonconforming (work)"],
+             ["8", "NRL", "National Reference Laboratory (RBC)"],
+             ["9", "PPE", "Personal Protective Equipment"],
+             ["10", "RBC", "Rwanda Biomedical Centre"],
+             ["11", "RliDHL", "Ruli District Hospital Laboratory"],
+             ["12", "SOP", "Standard Operating Procedure"],
+             ["13", "TAT", "Turnaround Time"],
          ],
-         [4.5, 12.5]),
+         [1.2, 4.3, 11.5]),
     ]),
-    ("5. Safety and Precautions", [
+    ("6. Specimen Requirements", [
+        ("h2", "6.1 Request and patient identification"),
         ("b", [
-            "Apply standard precautions for every patient regardless of diagnosis: hand hygiene before "
-            "and after every collection, gloves for every procedure, gloves changed between patients.",
-            "Wear a protective gown and eye protection when splashing of blood is anticipated.",
-            "Never recap needles. Activate the needle safety device immediately after withdrawal and "
-            "dispose of the complete assembly in a puncture-resistant sharps container at the point of use.",
-            "Hepatitis B vaccination is mandatory for all personnel who perform venipuncture.",
-            "Needlestick or mucous-membrane exposure: wash or irrigate immediately, report at once to "
-            "the Health & Safety Officer and follow SOP-SAF-003. Record the event; raise a "
-            "nonconformity if procedural failure contributed (ISO 15189:2022, 7.5).",
-            "Keep all patient information confidential at all times (ISO 15189:2022, 4.2).",
+            "Accept only requests entered in the EMR by an authorised requester. An oral "
+            "(verbal) request is accepted only in an emergency: record who made it and when, "
+            "and have it entered in the EMR within 24 hours.",
+            "Identify the patient with at least two identifiers \u2014 full name plus date of birth "
+            "or patient number \u2014 matched to the EMR request. Scan the wristband where one is "
+            "worn. Never collect on a name alone.",
+            "The request states the examinations requested and, where relevant, the patient\u2019s "
+            "state (fasting, random, timed) and the exact time of collection.",
+            "Each specimen receives its unique laboratory number at reception; the number is "
+            "scanned onto the tube label and follows the specimen, aliquots and report in the "
+            "LIS/EMR so that every result traces to one patient.",
         ]),
-    ]),
-    ("6. Materials and Equipment", [
+        ("h2", "6.2 Patient preparation and collection"),
         ("b", [
-            "Disposable vacuum blood collection tubes with approved additives: serum (plain red or "
-            "gold top), sodium citrate 3.2% (light blue), EDTA (lavender), lithium heparin (green), "
-            "fluoride/oxalate (grey).",
-            "Safety-engineered needles 21G or 22G; butterfly sets for difficult veins and for "
-            "paediatric patients.",
-            "70% isopropyl alcohol swabs, dry sterile gauze, adhesive plaster.",
+            "Confirm the request (examinations, tube types, fasting or timing requirements) "
+            "before approaching the patient.",
+            "Explain the procedure, confirm the patient\u2019s consent, and seat or lie the patient "
+            "comfortably. Do not leave a patient unattended in a collection chair.",
+            "For fasting specimens, confirm at least 8 hours without food or drink other than "
+            "water, and record the fasting state in the EMR.",
+            "Do not collect from an arm with a running infusion, a fistula, a mastectomy side, "
+            "or burn/scarred skin unless no alternative exists \u2014 if used, note it in the EMR.",
+        ]),
+        ("h2", "6.3 Specimen types, volume, and storage"),
+        ("tbl",
+         ["Tube (cap colour / additive)", "Minimum volume", "Handling and storage"],
+         [
+             ["Blood culture bottles (yellow) \u2014 if requested", "Per manufacturer\u2019s fill mark",
+              "Incubate promptly; do not refrigerate"],
+             ["Light blue \u2014 sodium citrate 3.2%", "Fill to the mark (9:1 blood to citrate)",
+              "Invert gently 8\u201310 times; transport upright; analyse within 24 h at 15\u201325 \u00b0C"],
+             ["Red / gold \u2014 plain or clot activator", "3 mL",
+              "Allow to clot (30 min); centrifuge; serum 8 h at 15\u201325 \u00b0C, 72 h at 2\u20138 \u00b0C"],
+             ["Green \u2014 lithium heparin", "3 mL",
+              "Invert gently; centrifuge promptly; as for serum"],
+             ["Lavender \u2014 EDTA", "1 mL (2 mL paediatric)",
+              "Invert gently 8\u201310 times; do not shake; examine for clots before testing"],
+             ["Grey \u2014 fluoride/oxalate", "2 mL",
+              "Invert gently; glucose preserved in the unseparated tube (24 h at 15\u201325 \u00b0C)"],
+         ],
+         [5.6, 4.1, 7.3]),
+        ("h2", "6.4 Specimen acceptance and rejection criteria"),
+        ("tbl",
+         ["Criterion", "Acceptable", "Reject / request recollection"],
+         [
+             ["Identification", "Label complete; matches the EMR request; two identifiers present",
+              "Unlabelled, mislabelled, or mismatch with the request"],
+             ["Container", "Correct tube type for the test; intact and closed",
+              "Wrong tube or additive; leaking or broken tube"],
+             ["Volume", "At or above the minimum in 6.3",
+              "Below the minimum; citrate or EDTA not filled to the mark"],
+             ["Quality", "Clear serum or plasma; slight haemolysis noted on the report",
+              "Gross haemolysis; clots in an EDTA tube; drawn from an infusion arm"],
+             ["Timing", "Within the limits in 6.3; collection time recorded",
+              "Limits exceeded; collection time unknown"],
+             ["Transport", "Within 2 hours internally; manifest present for referrals",
+              "Delayed beyond stability; referral without Sample Referral Manifest"],
+         ],
+         [3.2, 6.9, 6.9]),
+        ("p", "Record every rejected specimen in the specimen rejection register and inform the "
+              "requester at once so that a new specimen is collected. If a specimen that fails "
+              "these criteria is irreplaceable or clinically critical, the Laboratory Manager "
+              "or designee may authorise testing; the report then states the problem and the "
+              "caution needed to interpret the result."),
+    ]),
+    ("7. Responsibilities and Authorisation", [
+        ("tbl",
+         ["Task", "Responsible Person(s)"],
+         [
+             ["Authorise this SOP and provide the resources needed to apply it",
+              "Hospital Director General \u2014 Dr. D\u00e9ogratias KANEZA"],
+             ["Review this SOP at least every two years; ensure that users are trained, "
+              "competence-assessed and authorised; approve recollection exceptions",
+              "Laboratory Manager \u2014 Kelvin SAMAHANI"],
+             ["Maintain this SOP under document control; monitor indicators, nonconformities "
+              "and corrective actions; maintain training and authorisation records",
+              "Lab Quality Manager \u2014 Jean Paul NSENGIYUMVA"],
+             ["Perform venipuncture; identify the patient; label at the bedside; record the "
+              "collection in the EMR",
+              "Authorised Laboratory Biotechnologists"],
+             ["Receive specimens; decide acceptance and rejection (6.4); maintain the "
+              "specimen rejection register",
+              "Laboratory Receptionist / Senior Biotechnologist"],
+             ["Manage exposure incidents, sharps and waste; keep PPE and vaccination current",
+              "Health & Safety Focal Person; all laboratory staff"],
+         ],
+         [9.0, 8.0]),
+        ("p", "Authorisation. Only staff trained on this SOP, assessed as competent and "
+              "authorised by the Laboratory Manager perform venipuncture and label specimens "
+              "without supervision. Students and staff in training work under the direct "
+              "supervision of an authorised person, who checks and countersigns their work. "
+              "Training, competence assessment and authorisation are recorded electronically "
+              "in the personnel training module; acknowledgement of this SOP is recorded as "
+              "described on the Signature Page (section 21). Competence is reassessed at the "
+              "interval set in the competence assessment procedure and whenever this SOP "
+              "changes."),
+    ]),
+    ("8. Equipment, Reagents, and Consumables", [
+        ("h2", "8.1 Equipment"),
+        ("b", [
+            "Vacuum tube holders and safety-engineered needles 21G or 22G; butterfly sets for "
+            "difficult veins and paediatric patients.",
             "Disposable single-patient tourniquets.",
-            "Pre-printed barcode labels and/or LIS request forms; ballpoint pen for manual labels.",
-            "Biohazard transport bags, rigid transport containers and cooled carriers where required.",
-            "Puncture-resistant sharps containers and clinical waste bags.",
+            "Mobile label printer and barcode scanner linked to the EMR (collection stations).",
+            "Cooled carriers (2\u20138 \u00b0C) and ambient transport boxes where required.",
+        ]),
+        ("h2", "8.2 Reagents, calibrators and controls"),
+        ("p", "Not applicable \u2014 this procedure uses no reagents, calibrators or controls. "
+              "Alcohol swabs and collection tubes are consumables (8.3)."),
+        ("h2", "8.3 Consumables"),
+        ("b", [
+            "Evacuated tubes listed in 6.3, within expiry and stored as the manufacturer directs.",
+            "70% isopropyl alcohol swabs, dry sterile gauze, adhesive plaster.",
+            "Pre-printed barcode tube labels (EMR-generated); biohazard transport bags.",
+            "Puncture-resistant sharps containers; clinical waste bags; 10% sodium hypochlorite; "
+            "70% ethanol.",
+        ]),
+        ("h2", "8.4 Calibration and metrological traceability"),
+        ("p", "Not applicable \u2014 no measuring equipment is used in this procedure. Centrifuges "
+              "and analysers used downstream are controlled under the laboratory equipment "
+              "management procedure (6.4 and 6.5 of ISO 15189:2022)."),
+    ]),
+    ("9. Environment and Biosafety Measures", [
+        ("b", [
+            "Treat every specimen as potentially infectious and apply standard precautions for "
+            "every patient.",
+            "Wear a laboratory coat and gloves; change gloves between patients; add eye "
+            "protection where splashing is possible. Perform hand hygiene before and after "
+            "every collection.",
+            "Never recap needles. Activate the safety device and drop the assembly into the "
+            "sharps container at the point of use.",
+            "Hepatitis B vaccination is mandatory for all staff who collect blood.",
+            "After any exposure (needle-stick or splash): wash the area immediately, inform the "
+            "Laboratory Manager and follow the post-exposure procedure in the Laboratory Safety "
+            "Manual. Record the event; raise a nonconformity where procedural failure "
+            "contributed (7.5).",
+            "Clean spills at once with 10% sodium hypochlorite; decontaminate benches with 70% "
+            "ethanol. Discard used tubes and materials as infectious waste under the Laboratory "
+            "Waste Management procedure.",
+            "Keep all patient information confidential (ISO 15189:2022, 4.2): what is seen on "
+            "the ward or screen is not repeated outside the work.",
         ]),
     ]),
-    ("7. Procedure", [
-        ("h2", "7.1 Patient preparation and identification"),
-        ("b", [
-            "Confirm the request: tests requested, patient details, fasting status and any special "
-            "timing requirements.",
-            "Identify the patient using two unique identifiers \u2014 full name plus date of birth or "
-            "national identification number \u2014 matched against the request form and, where available, "
-            "the patient\u2019s wristband. Ask inpatients to state their own name.",
-            "Explain the procedure, confirm consent and position the patient comfortably, seated or "
-            "lying down. Never leave a patient unattended in a collection chair.",
-            "Perform hand hygiene and put on gloves.",
+    ("10. Procedural Steps", [
+        ("h2", "10.1 Preparation and patient identification"),
+        ("steps", [
+            ("1.", "Open the collection worklist on the EMR station or tablet; verify the "
+                   "pending requests."),
+            ("2.", "Assemble the tubes in the order of draw (10.2), needle, swabs, gauze, "
+                   "labels and sharps container within reach."),
+            ("3.", "Identify the patient with two identifiers matched to the EMR request; scan "
+                   "the wristband where present. Perform hand hygiene and put on gloves."),
         ]),
-        ("h2", "7.2 Order of draw"),
-        ("p", "When more than one tube is collected during a single venipuncture, fill the tubes in "
-              "the sequence below (consistent with CLSI GP41). Invert each filled tube gently 8 to 10 "
-              "times; never shake. Fill citrate and EDTA tubes to the marked fill volume."),
+        ("h2", "10.2 Order of draw"),
+        ("p", "When more than one tube is collected during one venipuncture, fill the tubes in "
+              "the sequence below (consistent with CLSI GP41). Invert each filled tube gently "
+              "8 to 10 times; never shake. Fill citrate and EDTA tubes to the marked volume."),
         ("tbl",
          ["Order", "Tube cap colour / additive", "Typical examinations"],
          [
@@ -207,181 +345,245 @@ BODY = [
              ["6", "Grey \u2014 fluoride / oxalate", "Glucose, lactate"],
          ],
          [1.8, 7.2, 8.0]),
-        ("h2", "7.3 Venipuncture"),
+        ("h2", "10.3 Venipuncture"),
         ("steps", [
-            ("1.", "Assemble all required materials within reach before approaching the patient."),
-            ("2.", "Select the site: prefer the median cubital vein of the forearm. Avoid the arm on "
-                   "the side of a mastectomy, arteriovenous fistula, active infusion, burn or scar."),
-            ("3.", "Apply the tourniquet 3 to 4 cm above the intended puncture site, tight enough to "
-                   "impede venous return but not arterial flow. Do not leave the tourniquet on for "
-                   "more than 1 minute."),
-            ("4.", "Palpate the vein with the index finger. Clean the site with a 70% isopropyl "
-                   "alcohol swab using a circular motion from the centre outwards over at least 2 cm "
-                   "and allow to air-dry for at least 30 seconds. Do not touch, blow on or fan the site."),
-            ("5.", "Anchor the vein with the thumb of the non-dominant hand, holding the skin taut "
-                   "below the puncture point."),
-            ("6.", "Insert the needle with the bevel upwards at an angle of 15 to 30 degrees, in a "
-                   "single smooth motion, in the direction of the vein."),
-            ("7.", "When blood flows, fill the tubes in the order of draw given in 7.2. Under-filling "
+            ("1.", "Select the site: prefer the median cubital vein of the forearm. Avoid the "
+                   "areas listed in 6.2."),
+            ("2.", "Apply the tourniquet 3 to 4 cm above the site, tight enough to impede "
+                   "venous return but not arterial flow. Do not leave it on for more than 1 minute."),
+            ("3.", "Palpate the vein. Clean the site with a 70% isopropyl swab in a widening "
+                   "circle over at least 2 cm and allow to air-dry for at least 30 seconds. Do "
+                   "not touch, blow on or fan the site."),
+            ("4.", "Anchor the vein, holding the skin taut below the puncture point. Insert the "
+                   "needle bevel upwards at 15 to 30 degrees in one smooth motion."),
+            ("5.", "When blood flows, fill the tubes in the order of draw (10.2). Under-filling "
                    "or over-filling citrate and EDTA tubes is a cause for rejection."),
-            ("8.", "Release the tourniquet before withdrawing the needle. Withdraw the needle and "
-                   "apply dry gauze with firm pressure for 2 to 3 minutes; apply plaster if needed."),
-            ("9.", "Activate the needle safety device immediately and drop the entire unit into the "
-                   "sharps container at the point of use \u2014 never carry an unsheathed needle and never recap."),
-            ("10.", "Keep the patient\u2019s arm extended and observe for haematoma or dizziness before "
-                    "the patient leaves the collection area."),
-            ("11.", "If blood does not flow or flows slowly: do not probe more than twice. Release the "
-                    "tourniquet, withdraw, apply pressure, and use a second site or the other arm. "
-                    "Record every difficult draw."),
+            ("6.", "Release the tourniquet before withdrawing the needle. Withdraw, apply dry "
+                   "gauze with firm pressure for 2 to 3 minutes, and apply plaster if needed."),
+            ("7.", "Activate the needle safety device immediately and discard the assembly in "
+                   "the sharps container at the point of use."),
+            ("8.", "If blood does not flow: do not probe more than twice. Release the "
+                   "tourniquet, withdraw, apply pressure, and use a second site or the other "
+                   "arm. Record every difficult draw in the EMR."),
         ]),
-        ("h2", "7.4 Labelling and documentation"),
+        ("h2", "10.4 Labelling and identification"),
         ("b", [
-            "Label every tube at the bedside, at the point of collection, immediately after filling. "
-            "Never pre-label tubes and never label tubes away from the patient.",
-            "Minimum label data: patient full name; unique identifier (date of birth or national ID / "
-            "LIS number); collection date and exact time; collector\u2019s initials.",
-            "Verify that every label matches the request form before leaving the patient. Place the "
-            "label lengthwise on the tube without covering the cap.",
-            "For manual labels, write legibly with a ballpoint pen. Correct errors with a single line "
-            "through the error, the correct data, an initial and the date (ISO 15189:2022, 8.4).",
+            "Label every tube at the bedside, in the patient\u2019s presence, immediately after "
+            "filling: scan the wristband, then scan/print the tube label from the EMR. Never "
+            "pre-label tubes and never label away from the patient.",
+            "Verify each label against the request before leaving the patient. The label "
+            "carries the patient name, patient number, laboratory number, collection date and "
+            "time, and the collector\u2019s identifier.",
+            "For referred specimens, record the Sample Referral Manifest number on the tube "
+            "label and in the EMR.",
+            "Corrections: in the EMR only, traceable to the user account and time (never "
+            "overwritten); on a printed manifest, single line through, correct entry, initial "
+            "and date.",
         ]),
-        ("h2", "7.5 Transport to the laboratory"),
+        ("h2", "10.5 Transport to the laboratory"),
         ("b", [
-            "Place tubes upright in a biohazard bag; keep the request form from direct contact with "
-            "the tubes.",
-            "Deliver to the laboratory within 2 hours of collection, at 18 to 25 degrees C unless "
-            "otherwise specified (for example cooled carriers at 2 to 8 degrees C for glucose and "
-            "lactate).",
-            "Do not use the pneumatic tube system for coagulation samples or blood culture bottles "
-            "unless the system has been validated for them.",
+            "Internal transport: no paper accompanies the specimen \u2014 the EMR/LIS carries the "
+            "request and tracking. Deliver within 2 hours at 15\u201325 \u00b0C, or at 2\u20138 \u00b0C in a "
+            "cooled carrier where required.",
+            "Do not use the pneumatic tube system for coagulation samples or blood culture "
+            "bottles unless validated for them.",
+            "Referred specimens: print the Sample Referral Manifest as required by the national "
+            "referral system \u2014 the only paper that travels with a specimen. The sender and "
+            "the receiving laboratory sign the manifest; a scanned copy is attached to the EMR "
+            "episode after use.",
         ]),
-        ("h2", "7.6 Sample acceptance and rejection criteria"),
-        ("p", "Samples are checked at reception against the criteria below. Rejected samples are "
-              "recorded in the Sample Rejection Register and, where the cause is a systemic failure, "
-              "handled as nonconforming work (ISO 15189:2022, 7.5)."),
-        ("tbl",
-         ["Observation", "Action"],
-         [
-             ["Patient identification missing, incomplete, or not matching the request form",
-              "Reject; notify the requester; arrange recollection; record as mislabelling NC"],
-             ["Visible haemolysis in plasma/serum, or analyser haemolysis flag",
-              "Reject the affected test(s); notify; recollect"],
-             ["Incorrect tube or additive for the test requested",
-              "Reject the affected test(s); recollect"],
-             ["Insufficient volume (especially citrate and EDTA tubes)",
-              "Reject the affected test(s); recollect"],
-             ["Clots present in an EDTA tube (haematology)",
-              "Reject; recollect immediately"],
-             ["Transport time or temperature outside defined limits",
-              "Assess analyte stability; if stability is not demonstrated, reject and recollect"],
-             ["Damaged or leaking container",
-              "Reject; recollect; decontaminate the transport container"],
-         ],
-         [7.0, 10.0]),
-    ]),
-    ("8. Quality Control and Monitoring", [
+        ("h2", "10.6 Post-collection"),
         ("b", [
-            "Quality indicators monitored monthly by the Lab Quality Manager: sample rejection rate "
-            "(target at most 2% of all samples); haemolysis rate (target at most 1%); mislabelled "
-            "samples (target zero); samples delivered within the defined turnaround time.",
-            "Indicator results are reported at the monthly quality meeting and reviewed in management "
-            "review (ISO 15189:2022, 8.8 and 8.9).",
-            "Where available, the laboratory participates in external quality assessment schemes for "
-            "pre-analytical phases and acts on unsatisfactory performance (8.7).",
-            "Phlebotomy technique is observed directly at least annually for each collector as part of "
-            "competence assessment (6.2).",
+            "Record in the EMR: collection time, collector, tube types, fasting state where "
+            "relevant, and any note (difficult draw, haematoma, infusion arm).",
+            "Dispose of waste and decontaminate the collection area as in section 9.",
         ]),
     ]),
-    ("9. Risk Considerations", [
-        ("p", "Risks relevant to this procedure are recorded below in line with the risk-based approach "
-              "of ISO 15189:2022 (Clauses 5.6 and 8.5). Residual risks are reviewed at each periodic "
-              "review of this SOP."),
+    ("11. Quality Control and External Quality Assessment", [
+        ("h2", "11.1 Quality indicators (internal monitoring)"),
+        ("b", [
+            "Specimen rejection rate: target at most 2% of specimens per month.",
+            "Haemolysis rate: target at most 1% per month.",
+            "Mislabelled specimens: target zero \u2014 every case is a nonconformity.",
+            "Specimens delivered within 2 hours: target at least 95%.",
+            "The Lab Quality Manager extracts these indicators monthly from the EMR/LIS, "
+            "reviews them with the Laboratory Manager, and records the review.",
+        ]),
+        ("h2", "11.2 External quality assessment"),
+        ("p", "The laboratory takes part in the pre-analytical or relevant EQA schemes that "
+              "RBC/NRL organises or designates, and acts on unsatisfactory performance (11.3)."),
+        ("h2", "11.3 Actions when monitoring fails"),
+        ("p", "When an indicator misses its target or an EQA result is unsatisfactory: "
+              "investigate the cause, define corrective action, and evaluate its "
+              "effectiveness (ISO 15189:2022, 8.7). Where wrong-patient or mislabelled "
+              "specimens were involved, perform a look-back to the patients affected and "
+              "inform the Laboratory Manager immediately."),
+    ]),
+    ("12. Result Interpretation and Validation", [
+        ("p", "Not applicable \u2014 this procedure produces no examination result. The decision "
+              "on specimen fitness is made at reception (6.4). Interpretation and validation of "
+              "results are covered by the examination SOP concerned and the result release "
+              "procedure."),
+    ]),
+    ("13. Performance Characteristics and Limitations", [
+        ("b", [
+            "Tourniquet time beyond 1 minute causes haemoconcentration and raises protein and "
+            "lipid results.",
+            "Squeezing the puncture site causes haemolysis and tissue-fluid contamination.",
+            "Difficult veins, paedemic collection and infusion arms limit volume and quality; "
+            "record the limitation in the EMR where it may affect a result.",
+            "This procedure controls the pre-examination phase only; method performance is "
+            "stated in the examination SOP concerned.",
+        ]),
+    ]),
+    ("14. Reference Intervals, Clinical Decision Limits, and Critical Results", [
+        ("p", "Not applicable \u2014 no values are produced by this procedure. Reference intervals, "
+              "decision limits and critical results are defined in the examination SOPs and the "
+              "result release procedure."),
+    ]),
+    ("15. Reporting and Release of Results", [
+        ("p", "Not applicable for results \u2014 reporting is covered by the examination SOPs and "
+              "the result release procedure. The collection event, specimen status "
+              "(accepted/rejected) and any recollection request are recorded in the EMR and are "
+              "traceable to the collector\u2019s user account. Patient information seen during "
+              "collection is confidential (ISO 15189:2022, 4.2)."),
+    ]),
+    ("16. Specimen Retention and Disposal", [
+        ("b", [
+            "Collected specimens are held and transported under the conditions in 6.3 and 10.5.",
+            "Retention of specimens after examination, and their disposal, follow the "
+            "examination SOP concerned and national requirements.",
+            "Used tubes, swabs and dressings are discarded as infectious waste; sharps go into "
+            "the puncture-resistant container at the point of use (Laboratory Waste Management "
+            "procedure).",
+        ]),
+    ]),
+    ("17. Risk Management, Nonconforming Work, and Contingency", [
         ("tbl",
          ["Risk", "Control measure"],
          [
              ["Wrong-patient identification",
-              "Two identifiers confirmed at the bedside; labelling at the point of collection; "
-              "labels verified against the request before leaving the patient"],
+              "Two identifiers at the bedside; wristband scan; label printed and scanned in the "
+              "patient\u2019s presence; never pre-label"],
              ["Needlestick injury",
               "Safety-engineered devices; no recapping; sharps container at the point of use; "
-              "mandatory hepatitis B vaccination; SOP-SAF-003 for exposure management"],
-             ["Haemolysed or clotted samples",
-              "Correct tube fill volumes; gentle inversion; order of draw; avoid prolonged "
-              "tourniquet time; prompt transport"],
-             ["Delayed transport affecting analyte stability",
-              "Two-hour delivery rule; scheduled courier runs; temperature-controlled carriers"],
+              "hepatitis B vaccination; post-exposure procedure"],
+             ["Haemolysed or clotted specimens",
+              "Correct fill volumes; gentle inversion; order of draw; tourniquet under 1 "
+              "minute; prompt transport"],
+             ["Delayed transport affecting stability",
+              "Two-hour delivery rule; scheduled collection runs; cooled carriers"],
+             ["Mislabelling or lost traceability during EMR downtime",
+              "Downtime procedure below: manual labels double-checked by a second person; "
+              "back-entry within 24 hours"],
          ],
          [6.0, 11.0]),
+        ("p", "Nonconforming work (ISO 15189:2022, 7.5): if any step was not followed \u2014 wrong "
+              "tube, missed identification, unlabelled tube \u2014 stop, report to the Laboratory "
+              "Manager, and record the event in the nonconformity log. The Laboratory Manager "
+              "decides on the affected specimens, arranges recollection, and determines whether "
+              "a look-back to released results is needed. Patient safety comes first."),
+        ("p", "Contingency (ISO 15189:2022, 7.8): when the EMR/LIS is unavailable \u2014 use the "
+              "approved downtime request form and manual tube labels; a second person "
+              "double-checks every label; keep a written collection log; enter all data into "
+              "the EMR within 24 hours of restoration; use stamped \u201cCONTINGENCY COPY\u201d "
+              "printouts of this SOP and destroy them after restoration. Referral manifests "
+              "continue to be printed as required by the national referral system."),
     ]),
-    ("10. Documentation and Records", [
+    ("18. Records", [
+        ("tbl",
+         ["Record", "Where kept", "Retention"],
+         [
+             ["Collection events, labels, collector identity", "EMR / LIS (electronic)",
+              "As set in the laboratory records policy and national requirements"],
+             ["Specimen rejection register", "EMR / LIS (electronic)", "As above"],
+             ["Nonconformity and corrective action records", "Quality module (electronic)", "As above"],
+             ["Training, competence and authorisation (incl. section 21 acknowledgement)",
+              "Personnel training module (electronic)", "Duration of employment plus the period "
+              "required by national rules"],
+             ["Exposure incident reports", "Health & Safety file", "As above"],
+             ["Sample Referral Manifest (printed)", "Referral file; scanned copy in the EMR",
+              "Per national referral policy"],
+             ["Downtime collection log and forms (temporary)", "Scanned into the EMR after use",
+              "Per records policy"],
+         ],
+         [6.5, 5.5, 5.0]),
+        ("p", "Records are created at the time the activity is performed, are legible and "
+              "traceable to the person or user account, and are retrievable (ISO 15189:2022, "
+              "8.4; RliDHL-ADM-SOP-004)."),
+    ]),
+    ("19. Supporting Documents", [
         ("b", [
-            "Records generated by this procedure: blood collection register / LIS collection log; "
-            "sample rejection register (F-PRE-002); exposure incident reports (F-SAF-001); the "
-            "training acknowledgement in Annex A (F-TRN-001).",
-            "Records are created at the time the activity is performed, and remain legible, traceable "
-            "to the collector and retrievable (ISO 15189:2022, 8.4).",
-            "Corrections: single line through the error, the correct value, an initial and the date. "
-            "The original entry must remain legible.",
-            "Retention: at least 5 years, or as required by national regulation where longer; disposal "
-            "by approved confidential destruction.",
+            "Document and Record Control (RliDHL-ADM-SOP-004).",
+            "Pre-Examination Procedure (RliDHL-ADM-SOP-005).",
+            "Laboratory Safety Manual (post-exposure procedure).",
+            "Laboratory Waste Management procedure.",
+            "Result Reporting and Release procedure.",
+            "Sample Referral procedure and the national Sample Referral Manifest.",
+            "Competence Assessment and Training procedure.",
         ]),
     ]),
-    ("11. References", [
+    ("20. References", [
         ("b", [
             "ISO 15189:2022 \u2014 Medical laboratories: requirements for quality and competence "
-            "(in particular Clauses 4.2, 4.3, 5.6, 6.2, 7.2, 7.5, 8.3, 8.4, 8.5).",
+            "(Clauses 4.2, 4.3, 5.4, 5.6, 6.2, 6.3, 7.2, 7.5, 7.8, 8.3, 8.4, 8.5, 8.7).",
             "CLSI GP41 \u2014 Collection of Diagnostic Venous Blood Specimens.",
             "CLSI H3 \u2014 Procedures for the Handling and Processing of Blood Specimens.",
             "WHO \u2014 Laboratory Quality Management System (LQMS) Handbook.",
-            "[National phlebotomy, sharps-safety and infection-prevention guidelines \u2014 adapt to "
-            "the applicable national authority].",
+            "Government of Rwanda paperless operations policy (in force since 01 August 2026).",
+            "RBC/NRL guidance on specimen referral and EQA schemes.",
         ]),
-    ]),
-    ("12. Related Documents and Forms", [
-        ("tbl",
-         ["Reference", "Title"],
-         [
-             ["SOP-PRE-002", "Sample Reception, Accessioning and Rejection"],
-             ["SOP-SAF-003", "Occupational Exposure and Post-Exposure Management"],
-             ["SOP-QM-004", "Control of Documents and Records"],
-             ["F-PRE-001", "Blood Collection Register"],
-             ["F-PRE-002", "Sample Rejection Register / Nonconforming Work Form"],
-             ["F-TRN-001", "Training Acknowledgement and Competence Record (Annex A)"],
-         ],
-         [3.5, 13.5]),
     ]),
 ]
 
-TRAINING_TITLE = "Annex A \u2014 Training and Competence Acknowledgement (Form F-TRN-001)"
-TRAINING_STATEMENT = (
-    "I confirm that I have received training on this Standard Operating Procedure, that I have read "
-    "and understood its contents including the safety precautions, and that I agree to perform the "
-    "procedure as written. I understand that I must not perform this procedure until this form has "
-    "been signed and filed in my training record. Training, competence assessment and authorisation "
-    "of personnel are maintained in accordance with ISO 15189:2022, Clause 6.2; the completed form "
-    "is retained as a record in accordance with Clause 8.4."
+SIG_TITLE = "21. Signature Page \u2014 Training and Competence Acknowledgement (Form F-TRN-001)"
+SIG_STATEMENT = (
+    "In normal operation this acknowledgement is electronic: each member of staff opens this "
+    "SOP in the document module and confirms \u201cI have read and understood this version\u201d; "
+    "the training module records the user account, date and SOP version (ISO 15189:2022, 6.2 "
+    "and 8.4). The table below is the contingency record, used only when the training module "
+    "is unavailable or for staff without individual system accounts. I confirm that I have "
+    "been trained on this SOP, understand it including the safety precautions, and agree to "
+    "perform it as written. I must not perform it unsupervised until this acknowledgement is "
+    "recorded."
 )
-TRAINING_HEADERS = ["S/No", "Full Name (print)", "Staff / Employee ID", "Designation", "Signature", "Date"]
-TRAINING_ROWS = [[f"{i}", "", "", "", "", ""] for i in range(1, 16)]
-TRAINING_WIDTHS = [1.2, 5.0, 2.6, 3.2, 3.0, 2.0]
-TRAINING_FOOTER = (
-    "Trainer / Supervisor: ______________________    Name (print): ______________    Date: ____________"
+SIG_HEADERS = ["S/No", "Full Name (print)", "IPPIS No.", "Designation", "Signature", "Date"]
+SIG_ROWS = [[str(i), "", "", "", "", ""] for i in range(1, 16)]
+SIG_WIDTHS = [1.2, 4.6, 2.6, 3.4, 3.0, 2.2]
+SIG_TRAINER = ("Trainer / Supervisor: ______________________    Name (print): ______________    "
+               "Date: ____________")
+SIG_NOTE = (
+    "Enter the IPPIS number (staff cards are not numbered). 15 rows are provided \u2014 at least "
+    "12 staff fit on this page. If more rows are needed, attach continuation sheet F-TRN-001-2. "
+    "File the completed form in the personnel training record (electronic scan) and reference "
+    "it in the SOP training register maintained by the Lab Quality Manager."
 )
-TRAINING_NOTE = (
-    "Complete one row per staff member (15 rows provided \u2014 at least 12 anticipated). "
-    "If more rows are needed, attach continuation sheet F-TRN-001-2 and staple it to this page. "
-    "File the completed form in the personnel training record; reference it in the SOP training "
-    "register maintained by the Lab Quality Manager."
+
+AMEND_TITLE = "22. Amendment Page"
+AMEND_STATEMENT = (
+    "In normal operation, amendments are made only by revision of the electronic document "
+    "through the document control system (RliDHL-ADM-SOP-004): a new version is authorised and "
+    "the review history records the change. Handwritten amendments are permitted only on a "
+    "stamped \u201cCONTINGENCY COPY\u201d during information-system downtime. Each such amendment "
+    "must be authorised in writing by the Laboratory Manager, entered here word for word, and "
+    "superseded by a formal revision within 30 days."
+)
+AMEND_HEADERS = ["Date", "Section", "Amendment (word for word)", "Reason", "Authorised by"]
+AMEND_ROWS = [["", "", "", "", ""] for _ in range(6)]
+AMEND_WIDTHS = [2.4, 2.0, 6.4, 3.4, 2.8]
+AMEND_NOTE = (
+    "Only the Laboratory Manager may authorise a handwritten amendment. The original text "
+    "must remain legible. This page is retained with the document (ISO 15189:2022, 8.3)."
 )
 
 FOOTER_LEFT = (META["doc_no"] + "  |  Version " + META["version"] +
-               "  |  Uncontrolled when printed unless stamped \u201cCONTROLLED COPY\u201d in red")
+               "  |  Controlled electronic document \u2014 printed copies are uncontrolled")
 HEADER_LEFT = META["doc_no"] + " \u2014 " + META["title"]
-HEADER_RIGHT = "Version " + META["version"] + "  |  Effective " + META["effective"]
+HEADER_RIGHT = "Version " + META["version"]
 
-INK = "#1F4E79"      # headings
-INK2 = "#2E74B5"     # subheadings
-GREY = "#595959"     # running text
+INK = "#1F4E79"
+INK2 = "#2E74B5"
+GREY = "#595959"
 
 # ---------------------------------------------------------------------------
 # DOCX builder
@@ -397,7 +599,6 @@ def build_docx():
 
     doc = Document()
 
-    # -- page setup ---------------------------------------------------------
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
     sec.left_margin = sec.right_margin = Cm(2.0)
@@ -407,7 +608,6 @@ def build_docx():
     sec.footer_distance = Cm(0.9)
     sec.different_first_page_header_footer = True
 
-    # -- base styles --------------------------------------------------------
     normal = doc.styles["Normal"]
     normal.font.name = "Calibri"
     normal.font.size = Pt(10.5)
@@ -417,7 +617,6 @@ def build_docx():
     for name, size, color, before, after in (
         ("Heading 1", 13.5, INK, 10, 5),
         ("Heading 2", 11.5, INK2, 8, 3),
-        ("Title", 20, INK, 0, 4),
     ):
         st = doc.styles[name]
         st.font.name = "Calibri"
@@ -427,7 +626,6 @@ def build_docx():
         st.paragraph_format.space_before = Pt(before)
         st.paragraph_format.space_after = Pt(after)
 
-    # -- helpers ------------------------------------------------------------
     def shade(cell, hexfill):
         tcPr = cell._tc.get_or_add_tcPr()
         shd = OxmlElement("w:shd")
@@ -495,7 +693,7 @@ def build_docx():
         tabs = OxmlElement("w:tabs")
         tab = OxmlElement("w:tab")
         tab.set(qn("w:val"), "right")
-        tab.set(qn("w:pos"), str(int(pos_cm * 567)))  # twips (1 cm = 567 twips)
+        tab.set(qn("w:pos"), str(int(pos_cm * 567)))
         tabs.append(tab)
         pPr.append(tabs)
 
@@ -525,11 +723,10 @@ def build_docx():
         mid = p.add_run(" of ")
         mid.font.size = Pt(7.5)
         mid.font.color.rgb = RGBColor.from_string(GREY.lstrip("#"))
-        add_field(p, "NUMPAGES", placeholder="1", size=7.5)
+        add_field(p, "NUMPAGES", size=7.5)
         tab_stop(p, 17.0)
         bottom_border(p)
 
-    # -- running header (all pages except the first) ------------------------
     hp = sec.header.paragraphs[0]
     hr = hp.add_run(HEADER_LEFT)
     hr.font.size = Pt(8)
@@ -543,22 +740,18 @@ def build_docx():
 
     fill_footer(sec.footer)
     fill_footer(sec.first_page_footer)
-    # first page: no header text
-    fph = sec.first_page_header.paragraphs[0]
-    fph.text = ""
+    sec.first_page_header.paragraphs[0].text = ""
 
-    # -- page 1: cover ------------------------------------------------------
+    # -- cover --------------------------------------------------------------
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run(META["logo"])
-    r.font.size = Pt(10)
-    r.font.color.rgb = RGBColor.from_string(GREY.lstrip("#"))
-    r.font.italic = True
+    if LOGO_PATH.exists():
+        p.add_run().add_picture(str(LOGO_PATH), height=Cm(2.4))
 
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run(META["lab_name"])
-    r.font.size = Pt(16)
+    r = p.add_run(META["lab"])
+    r.font.size = Pt(15)
     r.font.bold = True
     r.font.color.rgb = RGBColor.from_string(INK.lstrip("#"))
 
@@ -566,7 +759,7 @@ def build_docx():
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_after = Pt(2)
     r = p.add_run("STANDARD OPERATING PROCEDURE")
-    r.font.size = Pt(13)
+    r.font.size = Pt(12)
     r.font.bold = True
     r.font.color.rgb = RGBColor.from_string(GREY.lstrip("#"))
 
@@ -574,7 +767,7 @@ def build_docx():
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_after = Pt(10)
     r = p.add_run(META["title"])
-    r.font.size = Pt(19)
+    r.font.size = Pt(18)
     r.font.bold = True
     r.font.color.rgb = RGBColor.from_string(INK.lstrip("#"))
 
@@ -582,17 +775,16 @@ def build_docx():
                body_size=9.5, first_col_bold=True)
 
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(110)
+    p.paragraph_format.space_before = Pt(28)
     p.paragraph_format.space_after = Pt(3)
     r = p.add_run("Approval and Authorisation")
     r.font.size = Pt(11)
     r.font.bold = True
     r.font.color.rgb = RGBColor.from_string(INK.lstrip("#"))
 
-    ap = make_table(["Role", "Name (print)", "Signature", "Date"],
-                    [[role, name, "", ""] for role, name in APPROVAL_ROWS],
-                    [4.2, 5.3, 4.5, 3.0], body_size=9.5, first_col_bold=True,
-                    row_height=1.05)
+    make_table(["Role", "Name (print)", "Signature", "Date"],
+               [[role, name, "", ""] for role, name in APPROVAL_ROWS],
+               [4.2, 5.3, 4.5, 3.0], body_size=9.5, first_col_bold=True, row_height=1.05)
 
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(8)
@@ -603,18 +795,17 @@ def build_docx():
 
     doc.add_page_break()
 
-    # -- page 2: revision history + TOC ------------------------------------
-    doc.add_heading("Revision History", level=1)
-    make_table(REVISION_HEADERS, REVISION_ROWS, [2.0, 2.6, 7.4, 2.5, 2.5], body_size=9.5)
+    # -- review history + controlled copies + TOC ---------------------------
+    doc.add_heading("Review History", level=1)
+    make_table(REVISION_HEADERS, REVISION_ROWS, [3.0, 1.8, 3.2, 9.0], body_size=9.5)
 
-    doc.add_heading("Distribution and Control of Copies", level=1)
-    for item in DISTRIBUTION:
+    doc.add_heading("Controlled Copies and Supersedes", level=1)
+    for item in CONTROLLED_COPIES:
         bp = doc.add_paragraph()
         bp.paragraph_format.left_indent = Cm(0.6)
         bp.paragraph_format.first_line_indent = Cm(-0.4)
         bp.paragraph_format.space_after = Pt(2)
-        r = bp.add_run("\u2022  " + item)
-        r.font.size = Pt(9.5)
+        bp.add_run("\u2022  " + item)
 
     tp_head = doc.add_paragraph()
     tp_head.paragraph_format.space_before = Pt(10)
@@ -630,7 +821,7 @@ def build_docx():
 
     doc.add_page_break()
 
-    # -- body pages (flow continuously) ------------------------------------
+    # -- body sections 1-20 -------------------------------------------------
     for title, blocks in BODY:
         doc.add_heading(title, level=1)
         for block in blocks:
@@ -663,27 +854,35 @@ def build_docx():
 
     doc.add_page_break()
 
-    # -- Annex A: training & signature sheet -------------------------------
-    doc.add_heading(TRAINING_TITLE, level=1)
-    sp = doc.add_paragraph(TRAINING_STATEMENT)
+    # -- 21. Signature Page -------------------------------------------------
+    doc.add_heading(SIG_TITLE, level=1)
+    sp = doc.add_paragraph(SIG_STATEMENT)
     sp.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-
-    make_table(TRAINING_HEADERS, TRAINING_ROWS, TRAINING_WIDTHS,
-               body_size=9.5, row_height=0.82)
-
+    make_table(SIG_HEADERS, SIG_ROWS, SIG_WIDTHS, body_size=9.5, row_height=0.82)
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(10)
-    r = p.add_run(TRAINING_FOOTER)
-    r.font.size = Pt(9.5)
-
+    p.add_run(SIG_TRAINER).font.size = Pt(9.5)
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(4)
-    r = p.add_run(TRAINING_NOTE)
+    r = p.add_run(SIG_NOTE)
     r.font.size = Pt(8.5)
     r.font.italic = True
     r.font.color.rgb = RGBColor.from_string(GREY.lstrip("#"))
 
-    # -- update fields (TOC, page numbers) on open -------------------------
+    doc.add_page_break()
+
+    # -- 22. Amendment Page -------------------------------------------------
+    doc.add_heading(AMEND_TITLE, level=1)
+    sp = doc.add_paragraph(AMEND_STATEMENT)
+    sp.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    make_table(AMEND_HEADERS, AMEND_ROWS, AMEND_WIDTHS, body_size=9.5, row_height=1.2)
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(8)
+    r = p.add_run(AMEND_NOTE)
+    r.font.size = Pt(8.5)
+    r.font.italic = True
+    r.font.color.rgb = RGBColor.from_string(GREY.lstrip("#"))
+
     settings = doc.settings.element
     upd = OxmlElement("w:updateFields")
     upd.set(qn("w:val"), "true")
@@ -693,12 +892,12 @@ def build_docx():
     doc.save(DOCX_PATH)
     print(f"DOCX written: {DOCX_PATH.relative_to(ROOT)}")
 
-
 # ---------------------------------------------------------------------------
 # PDF builder
 # ---------------------------------------------------------------------------
 
 def build_pdf():
+    import struct
     from xml.sax.saxutils import escape
 
     from reportlab.lib import colors
@@ -706,8 +905,8 @@ def build_pdf():
     from reportlab.lib.styles import ParagraphStyle
     from reportlab.lib.units import cm
     from reportlab.pdfgen import canvas as pdfcanvas
-    from reportlab.platypus import (BaseDocTemplate, Frame, PageBreak, PageTemplate,
-                                    Paragraph, Spacer, Table, TableStyle)
+    from reportlab.platypus import (BaseDocTemplate, Frame, Image, PageBreak,
+                                    PageTemplate, Paragraph, Spacer, Table, TableStyle)
     from reportlab.platypus.tableofcontents import TableOfContents
 
     ink = colors.HexColor(INK)
@@ -717,21 +916,18 @@ def build_pdf():
     head_fill = colors.HexColor(INK)
 
     styles = {
-        "logo": ParagraphStyle("logo", fontName="Helvetica-Oblique", fontSize=10,
-                               textColor=grey, alignment=1, spaceAfter=2),
-        "lab": ParagraphStyle("lab", fontName="Helvetica-Bold", fontSize=15,
+        "lab": ParagraphStyle("lab", fontName="Helvetica-Bold", fontSize=14,
                               textColor=ink, alignment=1, spaceAfter=4),
         "kind": ParagraphStyle("kind", fontName="Helvetica-Bold", fontSize=11.5,
                                textColor=grey, alignment=1, spaceAfter=2),
-        "title": ParagraphStyle("title", fontName="Helvetica-Bold", fontSize=18,
-                                textColor=ink, alignment=1, spaceAfter=12),
+        "title": ParagraphStyle("title", fontName="Helvetica-Bold", fontSize=17,
+                                textColor=ink, alignment=1, spaceAfter=10),
         "h1": ParagraphStyle("h1", fontName="Helvetica-Bold", fontSize=12,
                              textColor=ink, spaceBefore=10, spaceAfter=5),
         "h2": ParagraphStyle("h2", fontName="Helvetica-Bold", fontSize=10.5,
                              textColor=ink2, spaceBefore=7, spaceAfter=3),
         "p": ParagraphStyle("p", fontName="Helvetica", fontSize=9.5, leading=12.4,
-                            textColor=colors.black, spaceAfter=4,
-                            alignment=4),
+                            textColor=colors.black, spaceAfter=4, alignment=4),
         "b": ParagraphStyle("b", fontName="Helvetica", fontSize=9.5, leading=12.2,
                             textColor=colors.black, spaceAfter=2.5,
                             leftIndent=14, firstLineIndent=-10),
@@ -746,12 +942,6 @@ def build_pdf():
                                    leading=10.4, textColor=colors.white),
         "small": ParagraphStyle("small", fontName="Helvetica-Oblique", fontSize=8,
                                 textColor=grey, leading=10),
-        "smallplain": ParagraphStyle("smallplain", fontName="Helvetica", fontSize=8.5,
-                                     textColor=grey, leading=11),
-        "coverlabel": ParagraphStyle("coverlabel", fontName="Helvetica-Bold", fontSize=8.5,
-                                     leading=10.5, textColor=colors.black),
-        "coverval": ParagraphStyle("coverval", fontName="Helvetica", fontSize=8.5,
-                                   leading=10.5, textColor=colors.black),
     }
 
     PAGE_W, PAGE_H = A4
@@ -813,8 +1003,7 @@ def build_pdf():
         para.toc_entry = text
         return para
 
-    def make_pdf_table(headers, rows, widths_cm, *, first_col_bold=False,
-                       repeat_header=True, row_heights=None):
+    def make_pdf_table(headers, rows, widths_cm, *, first_col_bold=False, row_heights=None):
         data = [[Paragraph(escape(str(h)), styles["cellhead"]) for h in headers]]
         for row in rows:
             cells = []
@@ -823,8 +1012,8 @@ def build_pdf():
                 cells.append(Paragraph(escape(str(val)), styles[st]))
             data.append(cells)
         t = Table(data, colWidths=[w * cm for w in widths_cm],
-                  rowHeights=row_heights, repeatRows=1 if repeat_header else 0)
-        style_cmds = [
+                  rowHeights=row_heights, repeatRows=1)
+        t.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), head_fill),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
             ("GRID", (0, 0), (-1, -1), 0.5, line_grey),
@@ -833,49 +1022,59 @@ def build_pdf():
             ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
             ("LEFTPADDING", (0, 0), (-1, -1), 4),
             ("RIGHTPADDING", (0, 0), (-1, -1), 4),
-        ]
-        t.setStyle(TableStyle(style_cmds))
+        ]))
         return t
+
+    def logo_flowable(height_cm=2.2):
+        if not LOGO_PATH.exists():
+            return Spacer(1, 0.1 * cm)
+        raw = LOGO_PATH.read_bytes()
+        w, h = struct.unpack(">II", raw[16:24])
+        width = height_cm * (w / h)
+        img = Image(str(LOGO_PATH), width=width * cm, height=height_cm * cm)
+        img.hAlign = "CENTER"
+        return img
 
     story = []
 
     # -- cover --------------------------------------------------------------
     story += [
-        Spacer(1, 0.6 * cm),
-        P(META["logo"], "logo"),
-        P(META["lab_name"], "lab"),
+        Spacer(1, 0.4 * cm),
+        logo_flowable(2.2),
+        Spacer(1, 0.25 * cm),
+        P(META["lab"], "lab"),
         P("STANDARD OPERATING PROCEDURE", "kind"),
         P(META["title"], "title"),
         make_pdf_table(["Field", "Detail"],
                        [[k, v] for k, v in DOC_CONTROL_ROWS],
                        [5.0, 12.0], first_col_bold=True),
-        Spacer(1, 1.9 * cm),
+        Spacer(1, 1.1 * cm),
         P("Approval and Authorisation", "h2"),
         make_pdf_table(["Role", "Name (print)", "Signature", "Date"],
                        [[role, name, "", ""] for role, name in APPROVAL_ROWS],
                        [4.2, 5.3, 4.5, 3.0], first_col_bold=True,
                        row_heights=[None] + [0.95 * cm] * len(APPROVAL_ROWS)),
-        Spacer(1, 0.35 * cm),
+        Spacer(1, 0.3 * cm),
         P(APPROVAL_STATEMENT, "small"),
         PageBreak(),
     ]
 
-    # -- revision history + TOC --------------------------------------------
-    story.append(H1("Revision History"))
+    # -- review history + controlled copies + TOC ---------------------------
+    story.append(H1("Review History"))
     story.append(make_pdf_table(REVISION_HEADERS, REVISION_ROWS,
-                                [2.0, 2.6, 7.4, 2.5, 2.5],
-                                row_heights=[None] + [0.55 * cm] * len(REVISION_ROWS)))
-    story.append(H1("Distribution and Control of Copies"))
-    for item in DISTRIBUTION:
+                                [3.0, 1.8, 3.2, 9.0],
+                                row_heights=[None] + [0.9 * cm] * len(REVISION_ROWS)))
+    story.append(H1("Controlled Copies and Supersedes"))
+    for item in CONTROLLED_COPIES:
         story.append(P("\u2022  " + item, "b"))
-    story.append(Paragraph(escape("Table of Contents"), styles["h1"]))  # not itself a TOC entry
+    story.append(Paragraph(escape("Table of Contents"), styles["h1"]))
     toc = TableOfContents()
     toc.levelStyles = [ParagraphStyle("toc0", fontName="Helvetica", fontSize=9.5,
                                       leading=13.5, textColor=colors.black)]
     story.append(toc)
     story.append(PageBreak())
 
-    # -- body ---------------------------------------------------------------
+    # -- body 1-20 ----------------------------------------------------------
     for title, blocks in BODY:
         story.append(H1(title))
         for block in blocks:
@@ -897,26 +1096,36 @@ def build_pdf():
 
     story.append(PageBreak())
 
-    # -- Annex A ------------------------------------------------------------
-    story.append(H1(TRAINING_TITLE))
-    story.append(P(TRAINING_STATEMENT))
+    # -- 21. Signature Page -------------------------------------------------
+    story.append(H1(SIG_TITLE))
+    story.append(P(SIG_STATEMENT))
     story.append(Spacer(1, 0.15 * cm))
-    story.append(make_pdf_table(TRAINING_HEADERS, TRAINING_ROWS, TRAINING_WIDTHS,
-                                row_heights=[None] + [0.82 * cm] * len(TRAINING_ROWS)))
-    story.append(Spacer(1, 0.45 * cm))
-    story.append(P(TRAINING_FOOTER, "p"))
+    story.append(make_pdf_table(SIG_HEADERS, SIG_ROWS, SIG_WIDTHS,
+                                row_heights=[None] + [0.82 * cm] * len(SIG_ROWS)))
+    story.append(Spacer(1, 0.4 * cm))
+    story.append(P(SIG_TRAINER, "p"))
     story.append(Spacer(1, 0.15 * cm))
-    story.append(P(TRAINING_NOTE, "small"))
+    story.append(P(SIG_NOTE, "small"))
+
+    story.append(PageBreak())
+
+    # -- 22. Amendment Page -------------------------------------------------
+    story.append(H1(AMEND_TITLE))
+    story.append(P(AMEND_STATEMENT))
+    story.append(Spacer(1, 0.15 * cm))
+    story.append(make_pdf_table(AMEND_HEADERS, AMEND_ROWS, AMEND_WIDTHS,
+                                row_heights=[None] + [1.2 * cm] * len(AMEND_ROWS)))
+    story.append(Spacer(1, 0.3 * cm))
+    story.append(P(AMEND_NOTE, "small"))
 
     PDF_PATH.parent.mkdir(parents=True, exist_ok=True)
     doc = SOPDoc(str(PDF_PATH), pagesize=A4,
                  leftMargin=2.0 * cm, rightMargin=2.0 * cm,
                  topMargin=2.0 * cm, bottomMargin=2.0 * cm,
                  title=META["doc_no"] + " \u2014 " + META["title"],
-                 author=META["lab_name"],
-                 subject="ISO 15189:2022-compliant SOP sample")
-    frame = Frame(doc.leftMargin, doc.bottomMargin, FRAME_W, PAGE_H - 4.0 * cm,
-                  id="main")
+                 author="Ruli District Hospital Laboratory Department",
+                 subject="ISO 15189:2022-compliant SOP \u2014 2026 standard layout")
+    frame = Frame(doc.leftMargin, doc.bottomMargin, FRAME_W, PAGE_H - 4.0 * cm, id="main")
     doc.addPageTemplates([PageTemplate(id="all", frames=[frame], onPage=on_page)])
     doc.multiBuild(story, canvasmaker=NumberedCanvas)
     print(f"PDF written:  {PDF_PATH.relative_to(ROOT)}  ({doc.page} pages)")
