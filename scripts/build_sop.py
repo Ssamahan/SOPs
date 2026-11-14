@@ -40,7 +40,7 @@ LETTERHEAD = [
     ("REPUBLIC OF RWANDA · MINISTRY OF HEALTH · GAKENKE DISTRICT", "kind"),
     ("Ruli District Hospital", "lab"),
     ("Laboratory Department", "kind"),
-    ("P.O. Box 1285 Kigali · ruli.hospital@moh.gov.rw · (+250) 0782 000 853 · rulihospital.rw", "small"),
+    ("P.O. Box 1285 Kigali · ruli.hospital@moh.gov.rw · (+250) 0781 316 368 · rulihospital.rw", "small"),
 ]
 
 # (role, name, designation) — designation is printed below the name
@@ -738,8 +738,12 @@ GLUCOSE = {
         ("8. Equipment, Reagents, and Consumables", [
             ("h2", "8.1 Equipment"),
             ("b", [
-                "Roche cobas c 111 analyser; serial number and asset tag in the instrument "
-                "logbook.",
+                "Roche cobas c 111 analyser (in service: serial 65053, hospital tag "
+                "RULIDH/LAB/ME/0486, Biochemistry Room — Laboratory Medical Equipment "
+                "Presence List, 16/06/2025); the serial number and asset tag are also "
+                "recorded in the instrument logbook.",
+                "Technical service and installation (electrodes, interface, corrective "
+                "maintenance): MediSell Rwanda Ltd.",
                 "Uninterruptible power supply (UPS).",
                 "Centrifuge; refrigerator at 2–8 °C for reagents, calibrator and controls "
                 "(temperature recorded twice daily).",
@@ -767,6 +771,13 @@ GLUCOSE = {
                 "to the Laboratory Manager, who records it and informs the supplier and, where "
                 "required, RBC/NRL and the Rwanda Food and Drugs Authority.",
             ]),
+            ("p", "Procurement traceability. Reagent packs are ordered through Rwanda "
+                  "Medical Supply (RMS) local purchase orders — PO 2100000988 (SO 2096), "
+                  "PO 2100001448 (SO 2700), PO 2100001746 (SO 3011) and PO 2100002205 "
+                  "(SO 3660, delivered 17/03/2026) — fulfilled by MediSell Rwanda Ltd "
+                  "(TIN 101897275); the GLUC2 400-test pack is Roche item code "
+                  "04657527190. Delivery notes showing lot numbers and expiry dates are "
+                  "retained with the stock records."),
             ("h2", "8.3 Consumables"),
             ("b", [
                 "Sample cups, cuvette segments, pipette tips, tube racks.",
@@ -938,6 +949,9 @@ GLUCOSE = {
             ("p", "The range is verified before first use and after any method or reagent "
                   "change (ISO 15189:2022, 7.3.5). Interpret paediatric and neonatal results "
                   "in the clinical context."),
+            ("p", "In the Laboratory Normal Ranges list, an entry written as ‘>x’ "
+                  "means that any result under x is normal: the stated figure is the upper "
+                  "limit of the normal range."),
             ("p", "Clinical decision limits for the diagnosis of diabetes (WHO/ADA criteria):"),
             ("tbl",
              ["Test / state", "Decision limit", "Meaning"],
@@ -1043,6 +1057,9 @@ GLUCOSE = {
                 "Laboratory Normal Ranges list (approved 08/07/2025).",
                 "Laboratory Critical Results list.",
                 "Laboratory Tests TAT list (2026).",
+                "Laboratory Medical Equipment Presence List (16/06/2025).",
+                "RMS local purchase orders and MediSell Rwanda Ltd delivery notes for "
+                "cobas c 111 reagents (PO 2100000988, 2100001448, 2100001746, 2100002205).",
                 "Result Reporting and Release procedure.",
                 "Laboratory Safety Manual; Laboratory Waste Management procedure.",
             ]),

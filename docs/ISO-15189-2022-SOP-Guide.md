@@ -172,3 +172,9 @@ statement.
   destroyed afterwards — which is why every page carries "printed copies are uncontrolled".
   Design SOPs to be read on screen first: bookmarks/TOC links, no layout that depends on
   printing.
+
+## Local conventions (Ruli District Hospital)
+
+- **Hospital contact (from 14/11/2026): Tel (+250) 0781 316 368** — replaces (+250) 0782 000 853 on every document once it is updated or revised.
+- **Normal Ranges list notation:** an entry written `>x` means any result under `x` is normal — `x` is the upper limit of the normal range (e.g. Gamma GT `>51 IU/L` → normal under 51 IU/L). Quote such entries as "up to x" or "< x" in SOPs.
+- **Values source order:** newest approved local list first (Normal Ranges 2026, Critical Results, TAT 2026), then equipment/stock records (Laboratory Medical Equipment Presence List, RMS purchase orders via MediSell Rwanda Ltd), then manufacturer documentation.
