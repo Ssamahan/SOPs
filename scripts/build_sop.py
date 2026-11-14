@@ -53,7 +53,7 @@ DOC_CONTROL_ROWS = [
 ]
 
 APPROVAL_ROWS = [
-    ("Prepared by", "[Name \u2014 Quality Officer]"),
+    ("Prepared by (Author)", "Jean Paul NSENGIYUMVA (Quality Manager)"),
     ("Reviewed by", "[Name \u2014 Laboratory Manager]"),
     ("Approved by", "[Name \u2014 Laboratory Director]"),
 ]
