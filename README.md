@@ -12,6 +12,7 @@ Sample Referral Manifest).
 | `docs/ISO-15189-2022-SOP-Guide.md` | How a compliant SOP must look: clause map, mandatory content, signatures, pagination & document control |
 | `sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.pdf` | Print/screen-exact sample SOP (12 pages): cover with hospital logo and real signatories, review history + TOC, 22-section body, signature page (15 rows, IPPIS No. column), amendment page |
 | `sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.docx` | Editable Word version of the same document |
+| `sop/RliDHL-BIO-SOP-001-VERS-005 - Glucose Testing using Cobas c 111.{pdf,docx}` | Glucose examination SOP sample — shows handling of reference intervals (both units), clinical decision limits, critical values and interpretive notes (causes of high/low glucose) |
 | `assets/Ruli-District-Hospital-logo.png` | Hospital logo used on covers |
 | `scripts/build_sop.py` | Regenerates both files from one content model |
 
