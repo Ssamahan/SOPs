@@ -69,7 +69,7 @@ Two further elements decide the outcome of a 2022 assessment and are often misse
    perform the procedure: printed name, staff ID (IPPIS No.), designation, **signature**,
    date. The sample provides **18 rows** on one page, so a section of **at least 12 staff
    signs without turning over**, with spare rows for the same page. Continuation sheet
-   `RliDHL-ADM-SOP-060-F01-2` covers larger teams.
+   `RliDHL-ADM-SOP-064-F01-2` covers larger teams.
    Acknowledgement alone is not enough: the standard requires competence to be **assessed**
    — direct observation of routine work, review of work records, assessment of
    problem-solving, or examination of provided samples — and personnel then **authorised**
@@ -114,7 +114,7 @@ start a page. Two failures this template was corrected for:
   `RliDHL-ADM-SOP-004-VERS-004`. Serials are **sequential with no gaps** inside one
   AREA+TYPE series, allocated once and held for life — a number never changes at
   revision, and a withdrawn document's number is retired, not re-used. A form carries
-  its parent SOP's code plus `-F<NN>`: `RliDHL-ADM-SOP-060-F01`. The full rule and the
+  its parent SOP's code plus `-F<NN>`: `RliDHL-ADM-SOP-064-F01`. The full rule and the
   register are in [`master-list.md`](master-list.md); `scripts/check_codes.py` proves the
   rules hold after every build.
 - Version `1.0` at first issue; every later change increments it and is logged in the

@@ -24,14 +24,14 @@ Sample Referral Manifest).
   (e.g. `RliDHL-IH-SOP-002-VERS-001`). **Serials are sequential and do not skip**: the next
   document takes the next free number in its series, a number belongs to one document for
   life, and a withdrawn number is retired rather than re-used.
-- **Forms carry their parent SOP's code**: `RliDHL-ADM-SOP-060-F01`. A free-standing
+- **Forms carry their parent SOP's code**: `RliDHL-ADM-SOP-064-F01`. A free-standing
   `F-TRN-001` was the previous practice and is withdrawn — it tied the form to nothing.
 - **Change a code in one place.** Edit `REGISTER` in `scripts/build_sop.py`, rebuild, then
   run `scripts/check_codes.py`. File names, cover tables, headers/footers and every
   cross-reference follow automatically; the checker fails the build if any reference is
   left dangling, and the build deletes output still named with a retired code.
 - **Signature page capacity**: 18 rows on one page, so a section of **12 staff signs
-  without turning over**; continuation sheet `RliDHL-ADM-SOP-060-F01-2` for larger teams. Competence is
+  without turning over**; continuation sheet `RliDHL-ADM-SOP-064-F01-2` for larger teams. Competence is
   *assessed* (observation, records review, problem-solving, provided samples) and the
   person is *authorised* — acknowledgement alone is not sufficient (ISO 15189:2022, 6.2.2–6.2.3).
 - **Page footer**: `Document no | Version` + `Page X of Y` on every page, with

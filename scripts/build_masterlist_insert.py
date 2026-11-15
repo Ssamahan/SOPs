@@ -40,26 +40,30 @@ REVIEW = "14/11/2028"
 # Recorded, not silently corrected: amending the Master List is a controlled act
 # and needs its own sign-off.
 DEFECTS = [
-    ("Serial 001 is used twice",
-     "RliDHL-ADM-SOP-001-VERS-004 appears as both “Laboratory Temperature Control” "
-     "and “Document and Record Control”. Document and Record Control is 004 in the "
-     "numbering actually in force — it is the code every SOP cites for clause 8.3 — "
-     "so the row reading 001 for it is the error.",
-     "Correct that row to RliDHL-ADM-SOP-004-VERS-004."),
-    ("Serial 034 is used twice",
-     "RliDHL-ADM-SOP-034-VERS-003 appears as both “Laboratory Waste Management” and "
-     "“Handling of biological spills”.",
-     "Give the spills SOP its own serial at its next revision; until then, cite it by "
-     "title, not by number."),
-    ("Crosscutting serials are not contiguous",
-     "The first six crosscutting SOPs sit at 001, 002, 004, 020, 024 and 034, so the "
-     "series already skips 003 and 005-019.",
-     "Adopt the no-gap rule: treat those serials as retired numbers, or renumber the "
-     "rows once, at each document's next revision. Not both."),
-    ("Document and Record Control is cited under two numbers",
-     "Because of the 001/004 duplication, a reader following the 8.3 cross-reference "
-     "cannot tell which document to open.",
-     "Resolved by the first correction above."),
+    ("008 on two documents",
+     "RliDHL-ADM-SOP-008 is the legacy “Authorization” (v001) and also “Use and "
+     "Maintenance of Biomedical Equipment” VERS-005 (30/04/2026). This one has already "
+     "been propagated: all seven SOPs in the November 2026 equipment block cite "
+     "ADM-SOP-008-VERS-005 in their reference lists, so a reader following that citation "
+     "may open the wrong document.",
+     "The Laboratory Manager and Director General decide which document keeps 008; the "
+     "other is renumbered and every reference list updated in the same act."),
+    ("049 used twice",
+     "RliDHL-ADM-SOP-049-VERS-001 is both “BIOLOGICAL REFERENCE INTERVALS-1” and "
+     "“MEET THE CLINICIANS”.",
+     "One of the two takes the next free serial at its next revision."),
+    ("035 never used",
+     "The series runs 034 then 036. Nothing is registered at 035.",
+     "Declare 035 retired, so the gap is not later mistaken for a lost document."),
+    ("053–059 cannot be proven free",
+     "Two management SOPs above 052 exist on disk but were never registered, notably "
+     "“52. Resolution of complaints” and ADM-SOP-008-VERS-005. The November pack therefore "
+     "starts at 060 rather than 053.",
+     "Recorded as a limit, not a decision. Do not allocate 053–059 without checking the "
+     "files first."),
+    ("Unregistered file on disk",
+     "“52. Resolution of complaints” exists but is not in the Master List.",
+     "Register it, or withdraw it."),
 ]
 
 
@@ -160,7 +164,7 @@ r.font.color.rgb = RGBColor.from_string(INK)
 p = doc.add_paragraph()
 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 p.paragraph_format.space_after = Pt(12)
-r = p.add_run("Code corrections, new SOP 060, and the forms bound to it (November 2026)")
+r = p.add_run("Code corrections, new SOP 064, and the forms bound to it (November 2026)")
 r.font.size = Pt(10.5)
 r.font.bold = True
 r.font.color.rgb = RGBColor.from_string(GREY)
@@ -168,15 +172,14 @@ r.font.color.rgb = RGBColor.from_string(GREY)
 # ---- what this sheet is ----
 h("What this sheet is")
 body(
-    "Reviewing the SOP collection against this Master List found four problems with "
-    "document numbers: two serials are each used by two different documents, two SOPs "
-    "were carrying a number that already belonged to another document, and the forms in "
-    "the SOPs were identified by a code that tied them to no SOP at all. This sheet sets "
-    "out the corrections, the one new document that has to exist for the signature pages "
-    "to have a parent, and the forms, in the Master List's own column order, so the rows "
-    "can be typed or pasted into the crosscutting section in one action. It carries the "
-    "same signature block, so the addition is authorised at the same time as the "
-    "corrections it makes."
+    "Cross-checking the SOP collection against this Master List found that the register "
+    "itself carries five numbering defects, two of which are already in force: number 008 "
+    "identifies two documents and is cited by all seven SOPs in the November 2026 equipment "
+    "block, and number 049 is carried twice. None of these can be settled by whoever wrote "
+    "the documents — they need the Laboratory Manager and the Director General. This sheet "
+    "records them so they do not disappear, and adds the one new document that has to exist "
+    "for the signature pages to have a parent, in the Master List's own column order, with "
+    "the same signature block."
 )
 body(
     "Nothing here is in force until it is signed. Where a correction and a document "
@@ -203,26 +206,31 @@ for key, r in REGISTER.items():
     if key in ("doc_control", "pre_exam", "glucose"):
         continue          # already correct in the Master List
     n += 1
-    status = ("NEW – serial 060 is the next free number after the 053–059 "
-              "equipment block" if r["code"].endswith("060")
-              else "RENUMBERED – was RliDHL-IH-SOP-001-VERS-001, which already "
-                   "belongs to Vein Blood Collection (HEM, v003)")
+    serial = r["code"].rsplit("-", 1)[1]
+    if not r.get("new"):
+        status = "Already in this Master List – row unchanged"
+    elif "-ADM-" in r["code"]:
+        status = ("NEW – first serial after the 060–063 equipment block of "
+                  "November 2026; 053–059 are not shown to be free")
+    else:
+        status = (f"NEW – serial {serial} is not carried in this Master List "
+                  f"for the {r['code'].split('-')[1]} series")
     rows.append([n, code(key), r["title"], EFFECTIVE, REVIEW,
                  "RliDHL Office; all bench rooms", status])
 table(["N°", "Document Code", "Document Title", "Effective date", "Review date",
        "Locations", "Status"], rows, [0.8, 3.9, 4.4, 1.9, 1.9, 2.6, 3.5], body_size=7.5)
 
 body(
-    "The venous SOP appears in the Master List as “Vein Blood Collection and Preparation "
-    "of Hematology sample”, RliDHL-HEM-SOP-008-VERS-003. That is a different document "
-    "with a different scope. Two documents cannot answer to one number, and the "
-    "hematology SOP is the one already in force, so the new pre-examination SOP moves to "
-    "IH-SOP-002 and the HEM entry is left alone.", size=9
+    "The venous SOP takes RliDHL-IH-SOP-002-VERS-001. The Master List carries no IH "
+    "section at all, so IH-SOP-001 is not registered to any document in it. The number is "
+    "reserved here rather than assumed free from a working note.", size=9
 )
 body(
-    f"Serials continue from {SERIES_KNOWN_MAX['RliDHL-ADM-SOP']:03d}, the highest in use "
-    f"in the ADM series. The next free ADM serial after this insert is 061; check the "
-    f"Master List again before allocating it.", size=9
+    f"The ADM series stands at {SERIES_KNOWN_MAX['RliDHL-ADM-SOP']:03d}: serials 001–049 are "
+    f"accounted for (035 was never used) and the November 2026 equipment block takes 050–052 "
+    f"and 060–063. That leaves 064 as the next free ADM serial, which is what this SOP takes. "
+    f"053–059 are not shown to be free — two management SOPs above 052 exist on disk but were "
+    f"never registered — so they must not be allocated without checking the files.", size=9
 )
 
 # ---- C. forms ----
@@ -231,10 +239,10 @@ form_rows = [
     [form("training", "F01"),
      "Training and competence acknowledgement, competence assessment and authorisation "
      "record — the section 21 signature page of every SOP",
-     "060", "On training and on authorisation", EFFECTIVE, "RliDHL Office; all rooms"],
+     "064", "On signing, and on authorisation", EFFECTIVE, "RliDHL Office; all rooms"],
     [form("training", "F01-2"),
      "Continuation sheet, for a section with more than 18 staff",
-     "060", "As required", EFFECTIVE, "RliDHL Office; all rooms"],
+     "064", "As required", EFFECTIVE, "RliDHL Office; all rooms"],
 ]
 table(["Form number", "Form title", "Parent SOP", "Frequency", "Effective date",
        "Locations"], form_rows, [3.6, 6.2, 1.5, 2.5, 1.9, 2.4], body_size=8)
@@ -248,7 +256,7 @@ body(
 )
 
 # ---- D. why 060 ----
-h("D.  Why SOP 060 has to exist")
+h("D.  Why SOP 064 has to exist")
 body(
     "Every SOP in the collection ends with a signature page that records that a member "
     "of staff was trained on it, that their competence was assessed, and that they are "
@@ -256,15 +264,16 @@ body(
     "and 6.2.3) and requires them to be controlled (8.4)."
 )
 body(
-    "The Master List contains no SOP that governs training, competence assessment, "
-    "authorisation, or the signing of SOPs. The signature page and its forms therefore "
-    "had no parent document, which is why they had no control either. "
-    "RliDHL-ADM-SOP-060-VERS-001 is that parent."
+    "The Master List already carries SOP 033 (Laboratory personnel training) and SOP 002 "
+    "(Competency assessment), so the training and assessment duties are not missing. What "
+    "is missing is the SOP that governs signing an SOP: who signs, in what order, what the "
+    "signature page is evidence of, and how the authorisation is recorded. Every SOP in the "
+    "collection ends with such a page, and no document owns it."
 )
 body(
-    "Two existing SOPs cover part of the ground and are not duplicates of it: "
-    "RliDHL-ADM-SOP-020 covers specimen collection, not people, and RliDHL-ADM-SOP-024 "
-    "covers quality control, not competence."
+    "SOP 064 must therefore cross-reference 033 and 002 rather than duplicate them. Writing "
+    "it as a general training SOP would create a second source of truth for competence, "
+    "which is worse than the gap."
 )
 
 # ---- E. status ----
@@ -273,7 +282,7 @@ bullet("All entries are first issues at VERS-001, except glucose, which stays at
 bullet("The effective date of 14/11/2026 is the proposed date. If signature happens "
        "later, the effective date in this insert, in the SOP cover block and in the file "
        "name must be changed to the date of authorisation.")
-bullet("SOP 060 has not been written yet. The serial is reserved here so that the "
+bullet("SOP 064 has not been written yet. The serial is reserved here so that the "
        "signature pages and their forms have a code to point at; the SOP itself must be "
        "prepared, reviewed and approved before those records can be relied on.")
 bullet("The four corrections in section A need the same sign-off as the additions. "

@@ -80,19 +80,107 @@ REVISION_HEADERS = ["Prepared/Reviewed by", "Version", "Date", "Description of C
 # register — never typed into the document text. Change a code here and every
 # reference, the cross-reference lists and the file names follow.
 #
-# Serials below are the ones actually allocated in the Master List. ADM SOP
-# 001-052 are in use and 053-059 are the equipment-maintenance block issued
-# 14/11/2026. 060-064 are therefore the next free block; check the Master List
-# again before allocating 065.
+# Serials below are the ones actually allocated, read from MASTER LIST 2025.docx
+# (Drive 1cl3zHlZ2-SDW-1gUrrwrYVeRA7-YwPuI) and from SOP-PROGRAMME-HANDOFF.md §2.
 #
-# "new": True marks a serial this library is allocating for the first time. Such
-# a serial must be the next free number in its series — no skipping. An entry
-# without the flag is pre-existing and is cited, not allocated.
+# The ADM series is 001-049 in the register, NOT 001-052. The November 2026
+# equipment block then took 050, 051, 052 and 060-063 — 060 onwards because files
+# exist above 52 that were never registered, so 053-059 cannot be proven free.
+# The next free ADM serial is therefore 064.
+#
+# "new": True marks a serial this library is allocating for the first time. Such a
+# serial must not already be in SERIES_ALLOCATED. An entry without the flag is
+# pre-existing and is cited, not allocated.
 SERIES_KNOWN_MAX = {
-    # highest serial already in use, per series, read from the Master List
-    "RliDHL-ADM-SOP": 59,
-    "RliDHL-IH-SOP": 1,
-    "RliDHL-BIO-SOP": 31,
+    # Highest SOP serial registered per series, read line by line from
+    # MASTER LIST 2025.docx on 15/11/2026. These are observed maxima, not
+    # permission to allocate -- always re-read the register first.
+    #
+    #   ADM 001-049, with 016/017 unreadable and 035 never used
+    #   BAC 001-006   BIO 001-009   HEM 001-004   IMM 001-004
+    #   MYC 002-012   PAR 001-010   SER 001-007   STC 001-007
+    #
+    # There is NO IH section in the register: the areas it uses are ADM, BAC,
+    # BIO, HEM, IMM, MYC, PAR, SER and STC. "IH" was introduced by this library
+    # and is not an established department code.
+    "RliDHL-ADM-SOP": 49,
+    "RliDHL-BAC-SOP": 6,
+    "RliDHL-BIO-SOP": 9,
+    "RliDHL-HEM-SOP": 4,
+    "RliDHL-IMM-SOP": 4,
+    "RliDHL-MYC-SOP": 12,
+    "RliDHL-PAR-SOP": 10,
+    "RliDHL-SER-SOP": 7,
+    "RliDHL-STC-SOP": 7,
+}
+
+# Series where the register has no section at all. A number here is neither free
+# nor taken -- the series would be new, which is a decision, not a gap.
+SERIES_UNVERIFIED = {"RliDHL-IH-SOP"}
+
+# Open questions this library cannot settle, and must not paper over with a green
+# check. Each needs the Laboratory Manager and the Director General. The checker
+# prints them after the passes, separately, because consistent-with-itself is not
+# the same as correct-against-the-register.
+DECISIONS = {
+    "venous": {
+        "issue": "The venipuncture SOP is a new series for a subject the register "
+                 "already assigns",
+        "detail": "MASTER LIST 2025.docx registers a HEM-LINE-1 document, 'Vein "
+                  "blood collection and preparation of hematology sample', "
+                  "effective 16/08/2016 (HEM serial 001, version 001). No IH section "
+                  "exists in the register at all: it uses ADM, BAC, BIO, HEM, IMM, "
+                  "MYC, PAR, SER and STC. This SOP therefore creates a department as "
+                  "well as a document, and gives the laboratory two SOPs for drawing "
+                  "blood.",
+        "options": "Most likely this SOP should be HEM-SOP-001-VERS-002 -- a revision "
+                   "of the registered document, not a new one. That cannot be decided "
+                   "from the register alone, because HEM-SOP-001 has not been opened: "
+                   "its title names the same subject but a title is not a scope. Until "
+                   "the Laboratory Manager confirms the overlap, the document keeps a "
+                   "provisional IH code and no signed copy should be issued.",
+    },
+    "glucose": {
+        "issue": "The glucose SOP holds a serial the register gives to another "
+                 "document",
+        "detail": "The register gives BIO serial 001, version 002, to 'Use and "
+                  "preventive maintenance of Humastar 80' (25/05/2016). The glucose "
+                  "SOP on the Cobas c 111 claims BIO serial 001 at version 005. "
+                  "Glucose in the registered series sits at BIO serial 007, 'Glucose "
+                  "sample preparation for Clinical Biochemistry using Humastar 80'.",
+        "options": "Either this SOP is renumbered (next free BIO serial is 010, and "
+                   "007 is a glucose SOP), or the in-force BIO-SOP-001 is withdrawn. "
+                   "Renumbering a signed, in-force SOP is the Director General's act, "
+                   "so it is recorded here rather than changed.",
+    },
+    "training": {
+        "issue": "ADM-FORM-014 'Signature page' already exists in the register",
+        "detail": "The register's crosscutting forms include RliDHL-ADM-FORM-014-VERS "
+                  "001, titled 'Signature page', and RliDHL-ADM-FORM-001-VERS 002, "
+                  "'Staff competency assessment form'. Form 064-F01 covers both. Two "
+                  "controlled forms for one purpose is the defect this work exists to "
+                  "remove, not to add to.",
+        "options": "Either 064-F01 cites and extends ADM-FORM-014 and ADM-FORM-001 "
+                   "rather than replacing them, or those two are withdrawn and 064-F01 "
+                   "becomes the single instrument. Withdrawal needs the signatories.",
+    },
+}
+
+# Every serial already spoken for beyond the registered set, so a duplicate is
+# caught before it ships. This is the list that would have caught ADM-060.
+SERIES_ALLOCATED = {
+    "RliDHL-ADM-SOP": {
+        # the 49 registered rows (035 is the one known gap)
+        **{n: "Master List 2025" for n in range(1, 50) if n != 35},
+        # the November 2026 equipment block: built, uploaded, unsigned
+        50: "ADM SOP 050 Microscope (Nov 2026 block)",
+        51: "ADM SOP 051 Centrifuge (Nov 2026 block)",
+        52: "ADM SOP 052 Water Bath (Nov 2026 block)",
+        60: "ADM SOP 060 Non-Medical Equipment (Nov 2026 block)",
+        61: "ADM SOP 061 ICT and LIS (Nov 2026 block)",
+        62: "ADM SOP 062 Hematology Analysers (Nov 2026 block)",
+        63: "ADM SOP 063 GeneXpert Dx (Nov 2026 block)",
+    },
 }
 REGISTER = {
     # --- management (crosscutting) SOPs ---
@@ -106,13 +194,19 @@ REGISTER = {
         "title": "Pre-Examination Procedure",
         "master_list": "Master List, Crosscutting SOPs",
     },
-    # Written to close the gap found when auditing this set: the Master List had
-    # no SOP for training, competence, authorisation or the signing of SOPs, so
-    # the signature page's parent document did not exist. Serial continues the
-    # ADM series after the 059 equipment block.
+    # Written to close the gap found when auditing this set: the Master List has
+    # no SOP for the SIGNING of SOPs (033 training and 002 competency assessment
+    # exist, so those must be cross-referenced rather than duplicated), and no SOP
+    # owns the section 21 signature page. Serial 064 is the next free ADM number
+    # after the 060-063 equipment block.
+    #
+    # 060 was allocated here on 15/11/2026 by mistake -- 060 is the Non-Medical
+    # Equipment SOP -- and moved to 064 the same day. Its form moved from
+    # 060-F01 to 064-F01, which also released 060-F01 back to the temperature
+    # monitoring form that owns it.
     "training": {
-        "code": "RliDHL-ADM-SOP-060", "vers": "001",
-        "title": "Training, Competence Assessment and Authorisation of Personnel",
+        "code": "RliDHL-ADM-SOP-064", "vers": "001",
+        "title": "Signing of SOPs, and the Training, Competence and Authorisation Record",
         "master_list": "Master List, Crosscutting SOPs",
         "new": True,
     },
@@ -142,7 +236,7 @@ def code(key, vers=None):
 
 
 def form(key, suffix):
-    """Form code bound to its parent SOP, e.g. RliDHL-ADM-SOP-060-F01."""
+    """Form code bound to its parent SOP, e.g. RliDHL-ADM-SOP-064-F01."""
     return f"{REGISTER[key]['code']}-{suffix}"
 
 

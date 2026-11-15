@@ -24,12 +24,16 @@ from __future__ import annotations
 
 import re
 import sys
+import textwrap
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from build_sop import REGISTER, SERIES_KNOWN_MAX, code, form  # noqa: E402
+from build_sop import (  # noqa: E402
+    DECISIONS, REGISTER, SERIES_ALLOCATED, SERIES_UNVERIFIED, SERIES_KNOWN_MAX,
+    code, form,
+)
 
 SOP_DIR = ROOT / "sop"
 
@@ -40,9 +44,32 @@ CODE_RE = re.compile(
     r"(RliDHL-[A-Z]{2,3}-[A-Z]{3})[- ]?(\d{3})(?:-VERS[- ]?(\d{3}))?(?:-(F\d{2})(?:-(\d))?)?"
 )
 
-# A serial deliberately not in use, with the reason. A gap is only acceptable
-# once it is declared here — that is what turns "missing" into "retired".
-RETIRED: dict[tuple[str, str], dict[str, str]] = {}
+# A gap in a series is acceptable only once it is declared here with its reason.
+# Two different things get declared, and conflating them would be dishonest:
+#
+#   retired     the number was allocated, the document is withdrawn, the number
+#               is not re-used. This is a decision.
+#   unprovable  the number MAY be in use on a document that was never registered,
+#               so it cannot be re-allocated. This is an unknown, not a decision.
+#
+# Both block allocation. Neither is a licence to skip a number that is genuinely
+# free -- the next free serial must still be the lowest unallocated one.
+RETIRED: dict[tuple[str, str], dict[str, str]] = {
+    ("ADM", "SOP"): {
+        "035": "retired — never used; the register skips from 034 to 036 "
+               "(SOP-PROGRAMME-HANDOFF §8). Under the no-gap convention this is "
+               "recorded so it is not mistaken for a lost document.",
+        "053": "unprovable — files exist above 052 that were never registered, so "
+               "this range cannot be shown to be free. The Nov 2026 pack starts at "
+               "060 instead. Not a decision; a limit.",
+        "054": "unprovable — see 053",
+        "055": "unprovable — see 053",
+        "056": "unprovable — see 053",
+        "057": "unprovable — see 053",
+        "058": "unprovable — see 053",
+        "059": "unprovable — see 053",
+    },
+}
 
 # Superseded versions that are legitimately cited (e.g. in a "Supersedes" row).
 # Keyed by full code, value = why.
@@ -52,6 +79,7 @@ SUPERSEDED_OK: dict[str, str] = {
 
 failures: list[str] = []
 passes: list[str] = []
+notes: list[str] = []
 
 
 def fail(msg: str) -> None:
@@ -91,35 +119,83 @@ def main() -> int:
         print("pymupdf is required: pip install pymupdf", file=sys.stderr)
         return 1
 
-    # ---------- 1. a new serial must be the next free number ----------
+    # ---------- 1. a new serial must be free in the register ----------
+    # The decisive check. A serial is only legitimate if nothing in the register
+    # or the allocated set already holds it. "Next free" is whatever the highest
+    # allocated number plus one is -- never inferred from a working note.
     by_series: dict[str, list[tuple[int, str, bool]]] = {}
     for key, r in REGISTER.items():
         series, serial = r["code"].rsplit("-", 1)
         by_series.setdefault(series, []).append((int(serial), key, bool(r.get("new"))))
     for series, entries in sorted(by_series.items()):
-        known_max = SERIES_KNOWN_MAX.get(series, 0)
-        new = sorted(e for e in entries if e[2])
-        for serial, key, _ in new:
-            expected = known_max + 1
-            if serial != expected:
-                fail(f"{series}: '{key}' takes serial {serial:03d}, but the next "
-                     f"free serial is {expected:03d} (Master List runs to "
-                     f"{known_max:03d}) — no skipping")
+        allocated = SERIES_ALLOCATED.get(series, {})
+        area, typ = split_series(series)
+        declared_here = RETIRED.get((area, typ), {})
+        for serial, key, is_new in sorted(entries):
+            if is_new:
+                if serial in allocated:
+                    fail(f"{series}: '{key}' takes serial {serial:03d}, but that "
+                         f"number is ALREADY ALLOCATED ({allocated[serial]}) — "
+                         f"allocate a free one")
+                elif f"{serial:03d}" in declared_here:
+                    fail(f"{series}: '{key}' takes serial {serial:03d}, which is "
+                         f"declared unavailable ({declared_here[f'{serial:03d}']}) "
+                         f"— allocate a free one")
+                else:
+                    ok(f"{series}: '{key}' takes serial {serial:03d}, which is free")
             else:
-                ok(f"{series}: '{key}' takes the next free serial {serial:03d}")
-                known_max = serial
+                ceiling = SERIES_KNOWN_MAX.get(series, 0)
+                if serial in allocated:
+                    ok(f"{series}: '{key}' cites registered serial {serial:03d}")
+                elif key in DECISIONS:
+                    # The number is inside the series, but the register gives it to a
+                    # different document. That is not a pass and must not look like one.
+                    notes.append(
+                        f"{series}: '{key}' cites serial {serial:03d}, which the "
+                        f"register gives to another document — see OPEN DECISION "
+                        f"'{key}' below")
+                elif serial <= ceiling:
+                    # the register's own inventory above is partial for this series,
+                    # so a serial within the known ceiling is accepted with a note
+                    ok(f"{series}: '{key}' cites pre-existing serial {serial:03d} "
+                       f"(within the known {ceiling:03d} ceiling)")
+                elif series in SERIES_UNVERIFIED:
+                    # Nothing has audited this series in the register, so the
+                    # ceiling proves nothing. Say so rather than inventing one.
+                    ok(f"{series}: '{key}' cites serial {serial:03d} — the register "
+                       f"has not been audited for this series, so its presence "
+                       f"cannot be confirmed from here")
+                    notes.append(
+                        f"{series}: serial {serial:03d} is UNVERIFIED — read "
+                        f"MASTER LIST 2025.docx for this series before allocating "
+                        f"or citing another")
+                else:
+                    fail(f"{series}: '{key}' is marked pre-existing but serial "
+                         f"{serial:03d} is beyond the known ceiling {ceiling:03d} "
+                         f"— either it is a new allocation (mark it) or the number "
+                         f"is wrong")
+        if allocated:
+            nxt = max(allocated) + 1
+            notes.append(f"{series}: highest allocated {max(allocated):03d}, "
+                         f"next free {nxt:03d}")
         # ---------- 3. no gap in what we allocate ----------
-        alloc = sorted({e[0] for e in entries if e[2]})
+        alloc = sorted({e[0] for e in entries if e[2]} | set(allocated))
         if len(alloc) > 1:
-            area, typ = split_series(series)
-            retired = {int(s) for s in RETIRED.get((area, typ), {})}
+            declared = declared_here
+            retired = {int(k) for k in declared}
             missing = [n for n in range(alloc[0], alloc[-1] + 1)
                        if n not in alloc and n not in retired]
             if missing:
-                fail(f"{series}: gap in allocation: {[f'{n:03d}' for n in missing]} "
-                     f"— declare them retired in RETIRED with a reason")
+                fail(f"{series}: undeclared gap in allocation: "
+                     f"{[f'{n:03d}' for n in missing]} — declare each in RETIRED "
+                     f"as retired or unprovable, with a reason")
             else:
-                ok(f"{series}: allocated serials contiguous")
+                kinds = {}
+                for k, v in declared.items():
+                    kinds.setdefault(v.split(" ")[0], []).append(k)
+                detail = "; ".join(f"{kind}: {','.join(sorted(serials))}"
+                                   for kind, serials in sorted(kinds.items()))
+                ok(f"{series}: allocation contiguous" + (f" except {detail}" if detail else ""))
 
     # ---------- 2. no serial collision ----------
     owner: dict[str, str] = {}
@@ -205,9 +281,14 @@ def main() -> int:
     src = (ROOT / "scripts" / "build_sop.py").read_text()
     # Cut out the REGISTER dict, which is where codes are *supposed* to live,
     # then look for any literal code left in the surrounding code and text.
-    start = src.index("REGISTER = {")
-    end = src.index("\n}\n", start) + 3
-    body = src[:start] + src[end:]
+    def cut(text, marker):
+        s0 = text.index(marker)
+        return text[:s0] + text[text.index("\n}\n", s0) + 3:]
+
+    body = src
+    for marker in ("REGISTER = {", "DECISIONS = {"):
+        if marker in body:
+            body = cut(body, marker)
     # comments and docstrings may quote a code as documentation (the numbering
     # rule, worked examples); only a literal code in executable code is a defect
     body = re.sub(r'"""[\s\S]*?"""', "", body)
@@ -218,19 +299,41 @@ def main() -> int:
     else:
         ok("build_sop.py: no hand-typed document codes outside REGISTER")
 
+    # Decisions about specific registered documents. These are not failures --
+    # the code is internally consistent -- but a green tick would hide them.
+    open_decisions = [(k, d) for k, d in DECISIONS.items() if k in REGISTER]
+
     # ---------- report ----------
     print("Document-numbering check")
     print("=" * 66)
     for n in passes:
         print(f"  ok    {n}")
+    for n in notes:
+        print(f"  info  {n}")
     if failures:
         print()
         for f in failures:
             print(f"  FAIL  {f}")
         print(f"\n{len(failures)} problem(s) found.")
         return 1
+
+    if open_decisions:
+        print()
+        print(f"  {len(open_decisions)} OPEN DECISION(S) -- not errors, but not signed off")
+        for key, d in open_decisions:
+            print(f"\n  [{key}] {d['issue']}")
+            for line in textwrap.wrap(d["detail"], 66):
+                print(f"      {line}")
+            print()
+            for line in textwrap.wrap("Options: " + d["options"], 66):
+                print(f"      {line}")
+        print()
+
     print("\nAll checks passed: serials sequential with no skipping, no collisions, "
           "every reference resolves, forms bound, no hand-typed codes.")
+    if open_decisions:
+        print(f"{len(open_decisions)} decision(s) above are still open — the documents "
+              f"are consistent with each other, not with the register's history.")
     return 0
 
 
