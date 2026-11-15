@@ -105,7 +105,7 @@ SERIES_KNOWN_MAX = {
     # and is not an established department code.
     "RliDHL-ADM-SOP": 49,
     "RliDHL-BAC-SOP": 6,
-    "RliDHL-BIO-SOP": 9,
+    "RliDHL-BIO-SOP": 9,     # 002 now carries the displaced Humastar SOP
     "RliDHL-HEM-SOP": 4,
     "RliDHL-IMM-SOP": 4,
     "RliDHL-MYC-SOP": 12,
@@ -116,54 +116,26 @@ SERIES_KNOWN_MAX = {
 
 # Series where the register has no section at all. A number here is neither free
 # nor taken -- the series would be new, which is a decision, not a gap.
-SERIES_UNVERIFIED = {"RliDHL-IH-SOP"}
+SERIES_UNVERIFIED: set[str] = set()   # no invented series remain; IH is gone
 
 # Open questions this library cannot settle, and must not paper over with a green
 # check. Each needs the Laboratory Manager and the Director General. The checker
 # prints them after the passes, separately, because consistent-with-itself is not
 # the same as correct-against-the-register.
 DECISIONS = {
-    "venous": {
-        "issue": "The venipuncture SOP is a new series for a subject the register "
-                 "already assigns",
-        "detail": "MASTER LIST 2025.docx registers a HEM-LINE-1 document, 'Vein "
-                  "blood collection and preparation of hematology sample', "
-                  "effective 16/08/2016 (HEM serial 001, version 001). No IH section "
-                  "exists in the register at all: it uses ADM, BAC, BIO, HEM, IMM, "
-                  "MYC, PAR, SER and STC. This SOP therefore creates a department as "
-                  "well as a document, and gives the laboratory two SOPs for drawing "
-                  "blood.",
-        "options": "Most likely this SOP should be HEM-SOP-001-VERS-002 -- a revision "
-                   "of the registered document, not a new one. That cannot be decided "
-                   "from the register alone, because HEM-SOP-001 has not been opened: "
-                   "its title names the same subject but a title is not a scope. Until "
-                   "the Laboratory Manager confirms the overlap, the document keeps a "
-                   "provisional IH code and no signed copy should be issued.",
-    },
-    "glucose": {
-        "issue": "The glucose SOP holds a serial the register gives to another "
-                 "document",
-        "detail": "The register gives BIO serial 001, version 002, to 'Use and "
-                  "preventive maintenance of Humastar 80' (25/05/2016). The glucose "
-                  "SOP on the Cobas c 111 claims BIO serial 001 at version 005. "
-                  "Glucose in the registered series sits at BIO serial 007, 'Glucose "
-                  "sample preparation for Clinical Biochemistry using Humastar 80'.",
-        "options": "Either this SOP is renumbered (next free BIO serial is 010, and "
-                   "007 is a glucose SOP), or the in-force BIO-SOP-001 is withdrawn. "
-                   "Renumbering a signed, in-force SOP is the Director General's act, "
-                   "so it is recorded here rather than changed.",
-    },
-    "training": {
-        "issue": "ADM-FORM-014 'Signature page' already exists in the register",
-        "detail": "The register's crosscutting forms include RliDHL-ADM-FORM-014-VERS "
-                  "001, titled 'Signature page', and RliDHL-ADM-FORM-001-VERS 002, "
-                  "'Staff competency assessment form'. Form 064-F01 covers both. Two "
-                  "controlled forms for one purpose is the defect this work exists to "
-                  "remove, not to add to.",
-        "options": "Either 064-F01 cites and extends ADM-FORM-014 and ADM-FORM-001 "
-                   "rather than replacing them, or those two are withdrawn and 064-F01 "
-                   "becomes the single instrument. Withdrawal needs the signatories.",
-    },
+    # Resolved 15/11/2026 on the Laboratory Manager's instruction. Kept here, empty of
+    # open items, because the history is why the numbers are what they are:
+    #
+    #   venous    -- IH is gone. Venous collection is HEM-SOP-001-VERS-002, a revision
+    #                of the registered "Vein blood collection..." rather than a new
+    #                series. No department was invented.
+    #   glucose   -- 001 is retained (the instruction: keep 001, move the other document
+    #                to the number next to it). "Use and preventive maintenance of
+    #                Humastar 80" moves to BIO-SOP-002. Nothing is skipped.
+    #   training  -- 064-F01 CITES the existing ADM-FORM-014 signature page and
+    #                ADM-FORM-001 competency form instead of replacing them.
+    #
+    # A new open question belongs in this dict so the checker prints it.
 }
 
 # Every serial already spoken for beyond the registered set, so a duplicate is
@@ -180,6 +152,11 @@ SERIES_ALLOCATED = {
         61: "ADM SOP 061 ICT and LIS (Nov 2026 block)",
         62: "ADM SOP 062 Hematology Analysers (Nov 2026 block)",
         63: "ADM SOP 063 GeneXpert Dx (Nov 2026 block)",
+    },
+    "RliDHL-BIO-SOP": {
+        1: "BIO SOP 001 Glucose Testing (this library, VERS-005)",
+        2: "BIO SOP 002, formerly 'Use and preventive maintenance of Humastar 80' "
+           "(displaced from 001 when 001 was doubled)",
     },
 }
 REGISTER = {
@@ -212,12 +189,19 @@ REGISTER = {
     },
     # --- individual SOPs in this repository ---
     "venous": {
-        "code": "RliDHL-IH-SOP-002", "vers": "001",
+        # No IH series exists. The register already holds HEM-SOP-001, "Vein blood
+        # collection and preparation of hematology sample", so venous collection is
+        # a REVISION of that document, not a new one. Revisions keep the serial and
+        # the version goes up (Base rule: serial held for life, never reused).
+        "code": "RliDHL-HEM-SOP-001", "vers": "002",
         "title": "Venous Blood Sample Collection by Venipuncture",
-        "master_list": "Master List, Specific SOPs",
-        "new": True,
+        "master_list": "Master List, Haematology",
     },
     "glucose": {
+        # The register's single 001 for this series. It was previously carried both by
+        # "Use and preventive maintenance of Humastar 80" (VERS-002) and by this SOP
+        # (VERS-005). 001 is retained, and the pre-existing document moves to the SOP
+        # next to it -- BIO-SOP-002 -- rather than this one skipping to 010.
         "code": "RliDHL-BIO-SOP-001", "vers": "005",
         "title": "Glucose Testing using Cobas c 111",
         "master_list": "Master List, Clinical Chemistry",
@@ -262,12 +246,22 @@ CONTROLLED_COPIES = [
     f"copies are managed under {ADM_DOC_CONTROL} (ISO 15189:2022, 8.3).",
 ]
 
-SIG_TITLE = ("21. Signature Page — Training and Competence Acknowledgement "
-             f"(Form {FORM_SIG_CODE})")
+# Two controlled forms already exist for this purpose in MASTER LIST 2025.docx:
+#   RliDHL-ADM-FORM-001-VERS 002  "Staff competency assessment form"
+#   RliDHL-ADM-FORM-014-VERS 001  "Signature page"
+# The instruction is to cite them rather than duplicate or withdraw them, so 064-F01
+# binds to them by name and the SOP says so on the page a reader actually signs.
+CITED_COMPETENCY_FORM = "RliDHL-ADM-FORM-001"
+CITED_SIGNATURE_FORM = "RliDHL-ADM-FORM-014"
+
+SIG_TITLE = ("21. Signature Page — Training and Competence Acknowledgement  "
+             f"[{FORM_SIG_CODE} with {CITED_COMPETENCY_FORM}, {CITED_SIGNATURE_FORM}]")
 SIG_STATEMENT = (
     "I confirm that I have been trained on this SOP, that I have read and understood it, "
     "including the safety precautions, and that I agree to perform it as written. I will not "
-    "perform it without supervision until this record is complete."
+    "perform it without supervision until this record is complete. This page is used with "
+    f"{CITED_COMPETENCY_FORM} (staff competency assessment) and {CITED_SIGNATURE_FORM} "
+    "(signature page); it does not replace either, and neither needs to be withdrawn."
 )
 SIG_HEADERS = ["S/No", "Full Name (print)", "IPPIS No.", "Designation", "Signature", "Date"]
 # 18 rows so that a section of at least 12 staff signs on ONE page with room to spare

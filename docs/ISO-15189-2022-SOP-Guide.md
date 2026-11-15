@@ -129,8 +129,8 @@ start a page. Two failures this template was corrected for:
 
 | File | What it is |
 |---|---|
-| `sop/RliDHL-IH-SOP-002-VERS-001 - Venous Blood Sample Collection.pdf` | **The glimpse** — print-exact 10-page rendering of a complete pre-examination SOP (approved cover, revision history + TOC, 20-section body, 18-row signature page, amendment page) |
-| `sop/RliDHL-IH-SOP-002-VERS-001 - Venous Blood Sample Collection.docx` | The same document as an **editable Word file** — copy it, replace the sample content, keep the structure |
+| `sop/RliDHL-HEM-SOP-001-VERS-002 - Venous Blood Sample Collection.pdf` | **The glimpse** — print-exact 10-page rendering of a complete pre-examination SOP (approved cover, revision history + TOC, 20-section body, 18-row signature page, amendment page) |
+| `sop/RliDHL-HEM-SOP-001-VERS-002 - Venous Blood Sample Collection.docx` | The same document as an **editable Word file** — copy it, replace the sample content, keep the structure |
 | `sop/RliDHL-BIO-SOP-001-VERS-005 - Glucose Testing using Cobas c 111.pdf` | Examination SOP sample (11 pages) — shows reference intervals in both units, clinical decision limits, critical results with escalation, measurement uncertainty and comparability |
 | `scripts/build_sop.py` | Generator: one content model, every document code taken from `REGISTER` |
 | `scripts/check_codes.py` | Proves the numbering rules hold — no skipped, shared or unregistered codes |
@@ -139,7 +139,7 @@ start a page. Two failures this template was corrected for:
 
 ### How to reuse the sample for your own SOPs
 
-1. Copy `sop/RliDHL-IH-SOP-002-VERS-001 - ….docx` and take the **next free serial** in
+1. Copy `sop/RliDHL-HEM-SOP-001-VERS-002 - ….docx` and take the **next free serial** in
    its series from the Master List — `RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>`. Never pick
    a number by convenience, and never re-use one: see `docs/master-list.md`.
 2. Replace the sample content section by section — keep the document-control table,
@@ -202,8 +202,10 @@ start a page. Two failures this template was corrected for:
 
 - **Document codes**: every code carries the facility acronym —
   `RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>` (hyphens throughout), e.g.
-  `RliDHL-IH-SOP-002-VERS-001`. Section codes are the three-letter codes of the Document
-  and Record Control SOP (ADM, BAC, BIO, HEM, IH, IMM, MOL, MYC, PAR, REC, SER, STC, SAF).
+  `RliDHL-HEM-SOP-001-VERS-002`. Section codes are the three-letter codes of the Document
+  and Record Control SOP (ADM, BAC, BIO, HEM, IMM, MYC, PAR, SER, STC). `IH` is **not** one
+  of them — an earlier draft invented it for phlebotomy, which the register already assigns
+  to `HEM-SOP-001`, so venous collection is a revision of that document, not a new series.
   A number belongs to one document for life and never changes at revision; only the
   version rises. **Serials do not skip** — the next document takes the next free number,
   and `scripts/check_codes.py` fails the build if a serial is skipped, shared, or cited

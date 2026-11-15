@@ -18,7 +18,7 @@ RliDHL-<AREA>-<TYPE>-<NNN>-F<NN>          e.g. RliDHL-ADM-SOP-062-F01
 
 | Part | Rule |
 |---|---|
-| `AREA` | Dept code. **The register uses exactly these:** `ADM` `BAC` `BIO` `HEM` `IMM` `MYC` `PAR` `SER` `STC`. **There is no `IH` section** — `IH` was introduced by this library, so `IH-SOP-002` creates a series rather than joining one. See §5. |
+| `AREA` | Dept code. **The register uses exactly these:** `ADM` `BAC` `BIO` `HEM` `IMM` `MYC` `PAR` `SER` `STC`. **There is no `IH` section**, and this library no longer uses one — see §4. |
 | `TYPE` | `MAN` · `GUID` · `SOP` |
 | `NNN` | Serial, allocated once, held for life, never changed at revision. |
 | `VERS` | Version, `001` at first issue. |
@@ -114,19 +114,21 @@ Read line by line from `MASTER LIST 2025.docx`. "Entries" counts distinct serial
 The `EXT-` codes throughout the register (`EXT-RliDHL-BIO-001-2016`, etc.) are
 **manufacturer manuals**, not laboratory SOPs. They do not consume SOP serials.
 
-### Two collisions this repository had not noticed
+### Three collisions, and how they were settled
 
-| # | Document | Registered to | Consequence |
+Settled 15/11/2026 on the Laboratory Manager's instruction: no number is skipped, a doubled
+number keeps 001 and the other document takes the number next to it, and existing controlled
+forms are cited rather than withdrawn.
+
+| # | Document | Registered to | Resolution |
 |---|---|---|---|
-| 1 | `RliDHL-BIO-SOP-001-VERS-005` — Glucose Testing using Cobas c 111 | `RliDHL-BIO-SOP 001-VERS 002` — *Use and preventive maintenance of Humastar 80*, 25/05/2016 | The glucose SOP holds a serial the register gives to a different, in-force document. Glucose in the registered series is **BIO-007**. |
-| 2 | `RliDHL-IH-SOP-002-VERS-001` — Venous Blood Sample Collection | nothing — **no IH series exists** | `HEM-SOP-001-VERS-001` is *Vein blood collection and preparation of hematology sample* (16/08/2016). The new SOP very likely belongs there as a revision, not in a new department. |
+| 1 | Glucose Testing using Cobas c 111 | `BIO-SOP-001-VERS-002` — *Use and preventive maintenance of Humastar 80* | **001 is kept** by the glucose SOP at VERS-005. The Humastar SOP moves to **`BIO-SOP-002-VERS-003`**. The Biochemistry series runs 001, 002, 003… with no hole. |
+| 2 | Venous Blood Sample Collection | `HEM-SOP-001-VERS-001` — *Vein blood collection and preparation of hematology sample* | **`IH` is dropped.** The venous SOP becomes **`HEM-SOP-001-VERS-002`**, a revision of the registered document. No department was invented and no second SOP for drawing blood exists. |
+| 3 | Signature page | `ADM-FORM-014` *Signature page*, `ADM-FORM-001` *Staff competency assessment form* | **Both are cited.** Form `064-F01` names them on its face and replaces neither, so nothing has to be withdrawn. |
 
-Both are listed in `DECISIONS` in `scripts/build_sop.py` and printed by
-`scripts/check_codes.py` after its passes. Neither is changed unilaterally: renumbering a
-signed SOP, or creating a department code, is the Laboratory Manager's and Director
-General's decision.
+The three are now recorded in `DECISIONS` in `scripts/build_sop.py` as resolved, with the
+reasoning, so the numbers are not re-litigated later.
 
----
 
 ## 4. Defects recorded, not fixed
 
@@ -155,7 +157,7 @@ documents — which is exactly the failure this repository's checker exists to p
 
 | Code | Title | Pages | Note |
 |---|---|---|---|
-| `RliDHL-IH-SOP-002-VERS-001` | Venous Blood Sample Collection by Venipuncture | 10 | Checked 15/11/2026: no collision. (An earlier note in this file claimed HEM-SOP-008 owned IH-SOP-001. That is unverified and has been removed — see §6.) |
+| `RliDHL-HEM-SOP-001-VERS-002` | Venous Blood Sample Collection by Venipuncture | 10 | Revision of the registered HEM-SOP-001. `IH` is not used — the series does not exist. |
 | `RliDHL-BIO-SOP-001-VERS-005` | Glucose Testing using Cobas c 111 | 11 | Matches the register |
 
 ### Forms
@@ -175,7 +177,10 @@ documents — which is exactly the failure this repository's checker exists to p
 | 15/11/2026 | ADM inventory replaced with the real 49-row list from `MASTER LIST 2025.docx`. The previous version claimed "001–052 in use, 053–059 equipment block", which was wrong on both counts. |
 | 15/11/2026 | Read every series in the register, not just ADM. Found that **no IH series exists** and that `BIO-SOP-001` is registered to *Use and preventive maintenance of Humastar 80*, not to the glucose SOP. Both recorded as open decisions in `DECISIONS`, not silently renumbered. |
 | 15/11/2026 | Found `ADM-FORM-014` *Signature page* and `ADM-FORM-001` *Staff competency assessment form* already in the register. Form `064-F01` overlaps both; recorded as an open decision. |
-| 15/11/2026 | Removed the unverified claim that `IH-SOP-001` was taken by `HEM-SOP-008`. The IH allocation stands on the absence of `IH-SOP-001` in the register, not on that claim. |
+| 15/11/2026 | **`IH` deleted.** Venous collection is `HEM-SOP-001-VERS-002`, a revision of the registered document. The invented department is gone from the register, the build and the documents. |
+| 15/11/2026 | **`BIO-SOP-001` settled by keeping 001** and moving *Use and preventive maintenance of Humastar 80* to `BIO-SOP-002`. No serial is skipped. |
+| 15/11/2026 | **`064-F01` now cites `ADM-FORM-014` and `ADM-FORM-001`** on the face of the signature page. Neither form is withdrawn. |
+| 15/11/2026 | Removed the unverified claim that `IH-SOP-001` was taken by `HEM-SOP-008`. Superseded: the IH series is no longer used at all. |
 
 ---
 

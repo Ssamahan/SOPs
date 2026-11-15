@@ -203,12 +203,19 @@ h("B.  STANDARD OPERATING PROCEDURES – rows to add or amend")
 rows = []
 n = 0
 for key, r in REGISTER.items():
-    if key in ("doc_control", "pre_exam", "glucose"):
+    if key in ("doc_control", "pre_exam"):
         continue          # already correct in the Master List
     n += 1
     serial = r["code"].rsplit("-", 1)[1]
-    if not r.get("new"):
-        status = "Already in this Master List – row unchanged"
+    if key == "venous":
+        status = ("AMENDED – serial 001 already registered for this subject; this is the "
+                  "revision to VERS-002, not a new number")
+    elif key == "glucose":
+        status = ("CODE UNCHANGED – 001 kept, version 005. The duplicate holder of 001, "
+                  "the Humastar 80 SOP, moves to BIO-SOP-002 (row below)")
+    elif key == "training":
+        status = ("NEW – first serial after the 060–063 equipment block of November 2026; "
+                  "053–059 are not shown to be free")
     elif "-ADM-" in r["code"]:
         status = ("NEW – first serial after the 060–063 equipment block of "
                   "November 2026; 053–059 are not shown to be free")
@@ -217,18 +224,22 @@ for key, r in REGISTER.items():
                   f"for the {r['code'].split('-')[1]} series")
     rows.append([n, code(key), r["title"], EFFECTIVE, REVIEW,
                  "RliDHL Office; all bench rooms", status])
+# The document displaced off BIO serial 001 gets a row of its own. Without it the
+# register would lose the Humastar SOP when 001 is settled on the glucose SOP.
+rows.append([n + 1, "RliDHL-BIO-SOP-002-VERS-003",
+             "Use and preventive maintenance of Humastar 80",
+             EFFECTIVE, REVIEW, "RliDHL Office; Biochemistry bench",
+             "RENUMBERED – was BIO-SOP-001-VERS-002, which the glucose SOP also held; "
+             "moves to the number next to it, version raised on reissue"])
 table(["N°", "Document Code", "Document Title", "Effective date", "Review date",
        "Locations", "Status"], rows, [0.8, 3.9, 4.4, 1.9, 1.9, 2.6, 3.5], body_size=7.5)
 
 body(
-    "The venous SOP is shown as RliDHL-IH-SOP-002-VERS-001, but that code is provisional "
-    "and must not be relied on. The Master List has no IH section: its department codes "
-    "are ADM, BAC, BIO, HEM, IMM, MYC, PAR, SER and STC. More to the point, HEM-SOP-001 "
-    "is already “Vein blood collection and preparation of hematology sample” (16/08/2016). "
-    "On the titles alone this new document looks like a revision of that SOP rather than "
-    "a new one. That cannot be settled from the register, because HEM-SOP-001 has not "
-    "been read — a title is not a scope. The Laboratory Manager has to open it and decide "
-    "before the venipuncture SOP is issued or signed.", size=9
+    "The venous SOP is RliDHL-HEM-SOP-001-VERS-002. It is a revision of the registered "
+    "“Vein blood collection and preparation of hematology sample”, not a new document, "
+    "so it keeps serial 001 and the version goes to 002. No IH series is used: the "
+    "register has no such department, and inventing one would have given the laboratory "
+    "two SOPs for drawing blood.", size=9
 )
 body(
     f"The ADM series stands at {SERIES_KNOWN_MAX['RliDHL-ADM-SOP']:03d}: serials 001–049 are "
@@ -244,7 +255,7 @@ form_rows = [
     [form("training", "F01"),
      "Training and competence acknowledgement, competence assessment and authorisation "
      "record — the section 21 signature page of every SOP",
-     "064", "On signing, and on authorisation", EFFECTIVE, "RliDHL Office; all rooms"],
+     "064", "On signing, and on authorisation; cites ADM-FORM-014 and ADM-FORM-001", EFFECTIVE, "RliDHL Office; all rooms"],
     [form("training", "F01-2"),
      "Continuation sheet, for a section with more than 18 staff",
      "064", "As required", EFFECTIVE, "RliDHL Office; all rooms"],
@@ -261,12 +272,11 @@ body(
 )
 
 body(
-    "One further collision is recorded rather than corrected. The glucose SOP cites "
-    "RliDHL-BIO-SOP-001-VERS-005, but BIO serial 001 is registered to “Use and "
-    "preventive maintenance of Humastar 80” (VERS-002, 25/05/2016). Glucose in the "
-    "registered series is BIO-SOP-007. Renumbering a signed, in-force SOP is the "
-    "Director General’s act, so the number is left as it stands and flagged here.",
-    size=9
+    "Serial 001 was carried twice in the Biochemistry series: by this glucose SOP at "
+    "VERS-005, and by “Use and preventive maintenance of Humastar 80” at VERS-002. Serial "
+    "001 is retained by the glucose SOP, and the Humastar SOP takes the number next to it, "
+    "BIO-SOP-002. Nothing is skipped, and the Biochemistry series runs 001, 002, 003… "
+    "with no hole in it.", size=9
 )
 
 # ---- D. why 064 ----
@@ -285,9 +295,16 @@ body(
     "collection ends with such a page, and no document owns it."
 )
 body(
-    "SOP 064 must therefore cross-reference 033 and 002 rather than duplicate them. Writing "
-    "it as a general training SOP would create a second source of truth for competence, "
-    "which is worse than the gap."
+    "SOP 064 must cross-reference 033 and 002 rather than duplicate them. Writing it as a "
+    "general training SOP would create a second source of truth for competence, which is "
+    "worse than the gap."
+)
+body(
+    "Two controlled forms already exist for the record itself: ADM-FORM-014 “Signature "
+    "page” and ADM-FORM-001 “Staff competency assessment form”. Form 064-F01 cites both "
+    "and replaces neither, so no existing form has to be withdrawn and the laboratory is "
+    "not given two instruments for one purpose. Both form numbers are printed on the "
+    "signature page of every SOP."
 )
 
 # ---- E. status ----

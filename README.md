@@ -10,8 +10,8 @@ Sample Referral Manifest).
 | Path | Description |
 |---|---|
 | `docs/ISO-15189-2022-SOP-Guide.md` | How a compliant SOP must look: clause map, mandatory content, signatures, pagination & document control |
-| `sop/RliDHL-IH-SOP-002-VERS-001 - Venous Blood Sample Collection.pdf` | Print/screen-exact sample SOP (10 pages): cover with hospital logo and real signatories, review history + TOC, 20-section body, signature page (**18 rows**, IPPIS No. column, competence-assessment and authorisation blocks), amendment page |
-| `sop/RliDHL-IH-SOP-002-VERS-001 - Venous Blood Sample Collection.docx` | Editable Word version of the same document |
+| `sop/RliDHL-HEM-SOP-001-VERS-002 - Venous Blood Sample Collection.pdf` | Print/screen-exact sample SOP (10 pages): cover with hospital logo and real signatories, review history + TOC, 20-section body, signature page (**18 rows**, IPPIS No. column, competence-assessment and authorisation blocks), amendment page |
+| `sop/RliDHL-HEM-SOP-001-VERS-002 - Venous Blood Sample Collection.docx` | Editable Word version of the same document |
 | `sop/RliDHL-BIO-SOP-001-VERS-005 - Glucose Testing using Cobas c 111.{pdf,docx}` | Glucose examination SOP sample (11 pages) — reference intervals in both units, clinical decision limits, critical results with the escalation route, measurement uncertainty, comparability of results, interpretive notes |
 | `assets/Ruli-District-Hospital-logo.png` | Hospital logo used on covers |
 | `scripts/build_sop.py` | Regenerates both files from one content model; every code comes from `REGISTER` |
@@ -21,7 +21,7 @@ Sample Referral Manifest).
 ## Conventions
 
 - **Document codes carry the facility acronym**: `RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>`
-  (e.g. `RliDHL-IH-SOP-002-VERS-001`). **Serials are sequential and do not skip**: the next
+  (e.g. `RliDHL-HEM-SOP-001-VERS-002`). **Serials are sequential and do not skip**: the next
   document takes the next free number in its series, a number belongs to one document for
   life, and a withdrawn number is retired rather than re-used.
 - **Forms carry their parent SOP's code**: `RliDHL-ADM-SOP-064-F01`. A free-standing
