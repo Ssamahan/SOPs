@@ -31,8 +31,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build_sop import (  # noqa: E402
-    AWAITING_REPAIR, DECISIONS, IN_SERVICE, REGISTER, SERIES_ALLOCATED,
-    SERIES_UNVERIFIED,
+    DECISIONS, IN_SERVICE, REGISTER, SERIES_ALLOCATED, SERIES_UNVERIFIED,
     SERIES_KNOWN_MAX, WITHDRAWN, code, form,
 )
 
@@ -329,47 +328,21 @@ def main() -> int:
     ok(f"no SOP describes decommissioned equipment as in service "
        f"({len(DECOMMISSIONED)} withdrawn analysers checked)")
 
-    # ---------- 5c. an instrument awaiting repair is not "in service" ----------
-    # The glucose SOP named the cobas c 111 as in service when the hospital's own unit
-    # had been at the supplier for repair since April and the laboratory was working on
-    # a loan unit that was itself down. Judged per LINE rather than per sentence: a
-    # sentence regex cannot survive "section 8.1", "PO 2100000988" or "Rwanda Ltd.".
-    QUALIFIER = re.compile(r"out of service|loan|repair|down\b|suspend|not in use|"
-                           r"awaiting|fault|error 5040|ready mode|Peltier", re.I)
+    # ---------- 5c. no borrowed or temporary equipment in a controlled SOP ----------
+    # A loan analyser is a temporary arrangement. An SOP is a controlled document that
+    # outlives the arrangement, so naming a loan unit inside one guarantees the document
+    # will be wrong within weeks: the unit goes back and the SOP still describes it. The
+    # SOP describes the laboratory's own instrument; the outage is handled by the
+    # contingency section and by the equipment register, not by the procedure text.
+    LOAN_WORDS = re.compile(r"\bloan(ed|er)?\b|on loan|borrow", re.I)
     for pdf in pdfs:
         text = "\n".join(p.get_text() for p in pymupdf.open(pdf))
-        if "cobas c 111" not in text.lower():
-            continue
-        # Build a logical block: join wrapped lines, then look for any mention of the
-        # instrument in a block that never mentions its condition.
-        blocks, cur = [], []
-        for line in text.splitlines():
-            if not line.strip() or re.match(r"^\s*(RliDHL-|Page \d)", line):
-                if cur:
-                    blocks.append(" ".join(cur))
-                    cur = []
-            else:
-                cur.append(line.strip())
-        if cur:
-            blocks.append(" ".join(cur))
-        bad = [b for b in blocks
-               if re.search(r"cobas c 111", b, re.I) and not QUALIFIER.search(b)]
-        # A block is only a problem if it reads as an instruction or a claim, not a title
-        # or a bare reference. Titles, the cover and reference lists are excluded.
-        bad = [b for b in bad
-               if not re.search(r"^\s*(REPUBLIC OF RWANDA|STANDARD OPERATING|Field Detail|"
-                                r"Amendment|Purpose)", b, re.I)
-               and not re.search(r"SOP Title", b, re.I)
-               and not re.search(r"method sheet|instructions for use|delivery notes|"
-                                 r"Glucose HK \(GLUC2\) reagent for the", b, re.I)]
-        if bad:
-            fail(f"{pdf.name}: mentions the cobas c 111 with no statement that it is a loan "
-                 f"unit, awaiting repair or down — {bad[0][:110]}…")
-    ok(f"{len(AWAITING_REPAIR)} instrument(s) awaiting repair: every claim about them in the "
-       f"SOPs is qualified")
-
-    ok(f"{len(AWAITING_REPAIR)} instrument(s) awaiting repair: every mention in the SOPs "
-       f"is qualified (out of service / loan / down)")
+        if LOAN_WORDS.search(text):
+            line = next(l for l in text.splitlines() if LOAN_WORDS.search(l))
+            fail(f"{pdf.name}: mentions borrowed or loaned equipment — a controlled SOP must "
+                 f"describe the laboratory's own instrument, not a temporary replacement "
+                 f"({line.strip()[:90]})")
+    ok("no SOP names borrowed or loaned equipment")
 
     # ---------- 6. no hand-typed code in the generator ----------
     src = (ROOT / "scripts" / "build_sop.py").read_text()
@@ -398,7 +371,14 @@ def main() -> int:
     # Every declared open decision is printed, whether or not it concerns a document this
     # repository builds. A decision about equipment status is exactly the kind that gets
     # lost when it is only recorded next to a document.
-    open_decisions = list(DECISIONS.items())
+    # Entries prefixed EQUIPMENT_NOTE_ are recorded for completeness but are not
+    # document-control questions: nothing in the library waits on them. Printing them as
+    # "open decisions" would keep a solved problem looking unsolved, and would imply a
+    # document has been left in draft when it has not.
+    open_decisions = [(k, d) for k, d in DECISIONS.items()
+                      if not k.startswith("EQUIPMENT_NOTE_")]
+    equipment_notes = [(k, d) for k, d in DECISIONS.items()
+                       if k.startswith("EQUIPMENT_NOTE_")]
 
     # ---------- report ----------
     print("Document-numbering check")
@@ -425,6 +405,13 @@ def main() -> int:
             for line in textwrap.wrap("Options: " + d["options"], 66):
                 print(f"      {line}")
         print()
+
+    if equipment_notes:
+        print()
+        for key, d in equipment_notes:
+            print(f"  note  [{key.replace('EQUIPMENT_NOTE_', '')}] {d['issue']}")
+            print("        Recorded in the equipment register and the nonconformity file, "
+                  "not in any SOP.")
 
     print("\nAll checks passed: serials sequential with no skipping, no collisions, "
           "every reference resolves, forms bound, no hand-typed codes.")

@@ -350,19 +350,25 @@ table(
         ["Roche cobas c 111 (hospital's own)", "65053", "RULIDH/LAB/ME/0486",
          "AWAITING REPAIR since April 2026 — Peltier element, Error 5040; shipped to "
          "MediSell Rwanda Ltd"],
-        ["Roche cobas c 111 (loan unit, MediSell)", "not recorded", "no asset tag",
-         "ON LOAN and currently DOWN since 11/11/2026 — will not enter Ready mode"],
         ["Sysmex KX-21N, XS-500i, Pochi, Humacount 5, Humastar 80, Humalyzer 3500",
          "—", "—", "DECOMMISSIONED August 2026 — governing SOPs withdrawn, not renumbered"],
     ],
     [3.9, 2.0, 2.9, 7.6], body_size=7.5,
 )
 body(
-    "Biochemistry testing is at a standstill while both cobas instruments are unavailable. "
-    "BIO-SOP-001 (glucose) states the position in section 8.1 and the contingency in section "
-    "17: a backup method with the method named on the report, referral to the National "
-    "Reference Laboratory, and a written suspension. No result may be reported from an "
-    "analyser that is not in Ready mode.", size=9
+    "Biochemistry testing is at a standstill while the cobas c 111 is out of service. The "
+    "laboratory has been lent a replacement analyser by MediSell Rwanda Ltd; it carries no "
+    "asset tag, appears on no register, and is not equipment of this laboratory, so it is "
+    "not listed above. It is currently out of order too (since 11/11/2026 it will not enter "
+    "Ready mode), which is why the examination is unavailable. That is a management matter "
+    "for the supplier, not a document control matter.", size=9
+)
+body(
+    "BIO-SOP-001 (glucose) describes the laboratory's own analyser only and states the "
+    "contingency in section 17: a backup method with the method named on the report, "
+    "referral to the National Reference Laboratory, and a written suspension. No result may "
+    "be reported from an analyser that is not in Ready mode. A controlled procedure is not "
+    "written around borrowed equipment — it would be wrong the week the loan ended.", size=9
 )
 
 # ---- F. status ----

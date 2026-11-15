@@ -150,24 +150,28 @@ DECISIONS = {
     # Consequence for this repository: BIO-SOP-001 to BIO-SOP-009 are all Humastar 80
     # procedures and are withdrawn; the glucose SOP is valid in content but its
     # examination cannot currently be performed on either cobas c 111.
-    "cobas_loan": {
-        "issue": "The laboratory is measuring on a loaned analyser, and both instruments "
-                 "are currently down",
-        "detail": "The hospital's own cobas c 111 (serial 65053, asset "
-                  "RULIDH/LAB/ME/0486) failed in April 2026 with a Peltier element fault "
-                  "(Error 5040) and was shipped to MediSell Rwanda Ltd for repair; it is "
-                  "expected back. MediSell supplied a loan c 111 in the meantime. On "
-                  "11/11/2026 the loan instrument also failed -- it will not enter Ready "
-                  "mode, reporting a Transfer Head Fluid Sensor Calibration Error and a "
-                  "Level Detection Frequency Error, both persistent after every corrective "
+    # The cobas c 111 outage is recorded here, in the register and in the equipment record,
+    # and NOT inside the glucose SOP. A loan analyser is a temporary arrangement; an SOP is
+    # a controlled document that outlives it. Naming a borrowed instrument in the procedure
+    # guarantees the procedure is wrong the week the unit goes back, so the SOP describes
+    # the laboratory's own analyser and section 17 handles the outage.
+    "EQUIPMENT_NOTE_cobas_c111": {
+        "issue": "The cobas c 111 is out of service — an equipment fault, not a document "
+                 "question. No SOP decision is waiting on it.",
+        "detail": "The hospital's own cobas c 111 (serial 65053, asset RULIDH/LAB/ME/0486) "
+                  "failed in April 2026 with a Peltier element fault (Error 5040) and was "
+                  "shipped to MediSell Rwanda Ltd for repair; it is expected back. The unit "
+                  "supplied in the meantime is on loan and failed on 11/11/2026: it will not "
+                  "enter Ready mode, reporting a Transfer Head Fluid Sensor Calibration Error "
+                  "and a Level Detection Frequency Error, persistent after every corrective "
                   "step in the service manual. Biochemistry testing is at a standstill.",
-        "options": "This is recorded, not solved here: it needs the service visit, the "
-                   "loan agreement and the return of the hospital's instrument. In the "
-                   "meantime the glucose SOP states the contingency (backup method, "
-                   "referral, suspension) so that no result is reported from an analyser "
-                   "that is not in Ready mode. When the instrument returns, section 8.1 of "
-                   "the glucose SOP must be updated to remove the loan unit and record the "
-                   "verification of the repaired instrument.",
+        "options": "This needs the service visit, the loan agreement and the return of the "
+                   "hospital's instrument — none of it is document control, and none of it "
+                   "belongs in an SOP. The glucose SOP states the contingency (suspension, "
+                   "backup method named on the report, referral) without naming any borrowed "
+                   "equipment. When the repaired instrument returns, verify it under 7.3.2 "
+                   "before use; no SOP revision is needed for that, because the SOP never "
+                   "referred to the loan unit.",
     },
 }
 
@@ -221,8 +225,9 @@ IN_SERVICE = [
     ("Alere Pima CD4", "PIMA-D-005378", "RULIDH/LAB/ME/0485", "Hematology room"),
 ]
 
-# Equipment that is not decommissioned but is not working either. A document must not
-# describe these as in service, and must not pretend they do not exist.
+# Equipment that is not decommissioned but is not working either. This is a MANAGEMENT
+# record: it belongs in the equipment register and the nonconformity file, not in an SOP.
+# The checker enforces that no SOP names borrowed equipment at all.
 AWAITING_REPAIR = [
     ("Roche cobas c 111", "65053", "RULIDH/LAB/ME/0486",
      "hospital's own unit — Peltier element failure, Error 5040, out of service since "
@@ -955,13 +960,12 @@ GLUCOSE = {
                   "liver, and use by muscle and other tissues. Glucose is measured to diagnose "
                   "and monitor diabetes mellitus, to detect hypoglycaemia, and in pancreatic, "
                   "metabolic, endocrine and critical illness."),
-            ("p", "Ruli District Hospital Laboratory measures glucose in serum and plasma on the "
-                  "Roche cobas c 111 analyser with the Glucose HK (GLUC2) reagent. Requests and "
-                  "results are kept in the EMR. The instrument currently at the bench is a "
-                  "loan unit supplied by MediSell Rwanda Ltd — the hospital's own analyser is "
-                  "away for repair — and at the date of this revision neither instrument is "
-                  "operating. Section 8.1 states the position in full and section 17 states "
-                  "what to do about it."),
+            ("p", "Ruli District Hospital Laboratory measures glucose in serum and plasma on its "
+                  "Roche cobas c 111 analyser, serial 65053, asset RULIDH/LAB/ME/0486, using the "
+                  "Glucose HK (GLUC2) reagent. Requests and results are kept in the EMR. When "
+                  "that analyser is not available, biochemistry follows the contingency in "
+                  "section 17; this SOP describes the examination on the laboratory's own "
+                  "instrument and on nothing else."),
         ]),
         ("2. Principle of the Test", [
             ("p", "The GLUC2 assay is an enzymatic ultraviolet test based on the hexokinase "
@@ -979,10 +983,9 @@ GLUCOSE = {
                   "reliable."),
         ]),
         ("4. Scope", [
-            ("p", "This SOP applies to all laboratory biotechnologists who operate a cobas "
-                  "c 111 — the hospital's own or the loan unit — and perform glucose testing "
-                  "in the biochemistry section, once an instrument is in Ready mode and has "
-                  "passed control. It covers "
+            ("p", "This SOP applies to all laboratory biotechnologists who operate the "
+                  "laboratory's cobas c 111 and perform glucose testing in the biochemistry "
+                  "section. It covers "
                   "specimen receipt, calibration, quality control, analysis, validation and "
                   "reporting. It does not cover glucose measured with a glucometer at the "
                   "bedside (point-of-care), or glucose in urine or cerebrospinal fluid."),
@@ -1127,27 +1130,9 @@ GLUCOSE = {
         ("8. Equipment, Reagents, and Consumables", [
             ("h2", "8.1 Equipment"),
             ("b", [
-                "Roche cobas c 111 analyser, Biochemistry Room. TWO instruments are "
-                "involved and staff must know which one they are standing at:",
-                "1) The hospital's own cobas c 111 — serial 65053, hospital tag "
-                "RULIDH/LAB/ME/0486. It has been OUT OF SERVICE since April 2026 following "
-                "failure of a Peltier element (Error 5040, cooling system), reported to "
-                "MediSell Rwanda on 18/04/2026. It was shipped to MediSell for repair and is "
-                "expected back. It is NOT in use and must not be operated.",
-                "2) A cobas c 111 supplied on loan by MediSell Rwanda Ltd while the "
-                "hospital's own instrument is under repair. This is the instrument currently "
-                "at the bench. Its serial number and asset status MUST be entered in the "
-                "instrument logbook before results are reported under this SOP; no asset tag "
-                "has been issued for it.",
-                "At the time of this revision the loan instrument is ALSO OUT OF SERVICE: "
-                "since 11/11/2026 it fails to enter Ready mode, with a Transfer Head Fluid "
-                "Sensor Calibration Error and a Level Detection Frequency Error, both "
-                "persistent after every corrective step in the service manual. Biochemistry "
-                "testing is therefore suspended unless and until an instrument is restored to "
-                "Ready mode and passes control (section 17).",
-                "A report that does not state which instrument produced the result is not "
-                "valid; the two are different analysers with different service histories.",
-                "Technical service and installation (electrodes, interface, corrective "
+                "Roche cobas c 111 analyser, Biochemistry Room, serial 65053, hospital tag "
+                "RULIDH/LAB/ME/0486 — Laboratory Medical Equipment Presence List and "
+                "instrument logbook. This SOP is written for that instrument.",                "Technical service and installation (electrodes, interface, corrective "
                 "maintenance): MediSell Rwanda Ltd.",
                 "Uninterruptible power supply (UPS).",
                 "Centrifuge; refrigerator at 2–8 °C for reagents, calibrator and controls "
@@ -1223,12 +1208,11 @@ GLUCOSE = {
         ("10. Procedural Steps", [
             ("h2", "10.1 Instrument start-up and daily checks"),
             ("steps", [
-                ("1.", "Confirm WHICH instrument you are at (8.1) and that it is in service. "
-                       "Do not attempt to start an analyser that is out of service or awaiting "
-                       "repair: record it and apply section 17. Check that the analyser and "
-                       "the UPS are connected, switch on, and wait for the self-check. An "
-                       "instrument that will not reach Ready mode after the steps in 8.1 is "
-                       "out of service — stop and report it."),
+                ("1.", "Confirm that the analyser is the instrument identified in 8.1 and "
+                       "that it is not under a withdrawal from service (section 17). Check that "
+                       "it and the UPS are connected, switch on, and wait for the self-check. "
+                       "An analyser that will not reach Ready mode is out of service: stop and "
+                       "report it."),
                 ("2.", "Check the system water and the waste container; refill or empty as "
                        "needed."),
                 ("3.", "Check the GLUC2 reagent: tests remaining, on-board expiry and lot "
@@ -1447,8 +1431,7 @@ GLUCOSE = {
                   "delta check before release"],
                  ["Control failure not detected",
                   "Two-level IQC before patient testing; Westgard rules; weekly chart review"],
-                 ["No analyser available (both the hospital's instrument and the loan unit "
-                  "down)",
+                 ["Analyser withdrawn from service, or not in Ready mode",
                   "Biochemistry is suspended and the suspension is reported to the Laboratory "
                   "Manager and the Director General. Critical glucose is measured with the "
                   "backup method recorded in the contingency plan (glucometer with a "

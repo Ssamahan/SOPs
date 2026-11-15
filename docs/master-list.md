@@ -153,20 +153,25 @@ inventory and the maintenance record are authoritative.
 | **In service** | Sysmex XQ-320 | 12357 | `RULIDH/LAB/ME/0499` |
 | **In service** | Alere Pima CD4 | `PIMA-D-005378` | `RULIDH/LAB/ME/0485` |
 | **Awaiting repair** | Roche cobas c 111 (hospital's own) | 65053 | `RULIDH/LAB/ME/0486` |
-| **On loan** | Roche cobas c 111 (MediSell) | not recorded | no asset tag |
 
 **The cobas c 111 story, for the record.** The hospital's own analyser failed in **April
 2026** with a Peltier element fault — *Error 5040, "Error cooling system. One of the Peltier
 elements does not react anymore"* — reported to MediSell Rwanda Ltd on 18/04/2026. It was
-shipped to MediSell for repair and is expected back. MediSell supplied a **loan** analyser in
-the meantime, and that loan unit is now **also down**: since **11/11/2026** it will not enter
-Ready mode, reporting a *Transfer Head Fluid Sensor Calibration Error* and a *Level Detection
-Frequency Error*, both persisting after every corrective step in the service manual.
-**Biochemistry testing is at a standstill**, and the glucose SOP says so in three places:
-section 1, section 8.1 (which instrument you are at) and section 17 (what to do).
+shipped to MediSell for repair and is expected back.
 
-The two cobas instruments are different analysers with different service histories. A
-glucose report that does not say which one produced it is not a valid report.
+While it is away the laboratory has been lent a replacement analyser by MediSell. That is a
+**commercial and management circumstance, not an inventory item**: it carries no asset tag, it
+appears on no register, and it is **not** test equipment of this laboratory. It is recorded
+here for one reason only — the laboratory's biochemistry examination is currently unavailable,
+because since **11/11/2026** the loaned unit will not enter Ready mode (a *Transfer Head Fluid
+Sensor Calibration Error* and a *Level Detection Frequency Error*, persisting after every
+corrective step in the service manual). **Biochemistry testing is at a standstill.**
+
+**No SOP names the loaned unit.** A controlled procedure outlives a loan arrangement: written
+around borrowed equipment it would be wrong the week the equipment went back. The glucose SOP
+(BIO-001-VERS-005) describes the laboratory's **own** analyser, serial 65053, and handles the
+outage through the contingency in section 17 — suspend, name the backup method on the report,
+refer. The loan unit is raised with the supplier, not with document control.
 
 | Decommissioned (Aug 2026) | Governing SOP | Action |
 |---|---|---|
@@ -180,8 +185,9 @@ glucose report that does not say which one produced it is not a valid report.
 **Withdrawn documents are never renumbered.** Their serial is held for life; the document is
 marked superseded and nothing is re-issued under that number. `WITHDRAWN` in
 `scripts/build_sop.py` carries this, and `check_codes.py` fails if any SOP names a
-decommissioned analyser outside a withdrawal clause — **and also fails if any SOP mentions
-the cobas c 111 without saying it is a loan unit, awaiting repair or down.**
+decommissioned analyser outside a withdrawal clause — **and fails if any SOP so much as
+mentions borrowed or loaned equipment.** A loan unit belongs in the equipment record and the
+nonconformity file, never in a procedure.
 
 ### Three collisions, and how they were settled
 
@@ -247,7 +253,7 @@ documents — which is exactly the failure this repository's checker exists to p
 | 15/11/2026 | Read every series in the register, not just ADM. Found that **no IH series exists** and that `BIO-SOP-001` is registered to *Use and preventive maintenance of Humastar 80*, not to the glucose SOP. Both recorded as open decisions in `DECISIONS`, not silently renumbered. |
 | 15/11/2026 | Found `ADM-FORM-014` *Signature page* and `ADM-FORM-001` *Staff competency assessment form* already in the register. Form `064-F01` overlaps both; recorded as an open decision. |
 | 15/11/2026 | **Corrected a serious error: decommissioned equipment treated as live.** The previous change moved *Use and preventive maintenance of Humastar 80* to `BIO-SOP-002`, and BIO-002 is the **Humalyzer 3500** SOP. Both analysers have been decommissioned; the register rows were read as live documents because the equipment status had not been checked. Both are now withdrawn in place, `WITHDRAWN` records why, and the checker fails on a decommissioned analyser named outside a withdrawal clause. |
-| 15/11/2026 | **Equipment status corrected from the maintenance record, not the spreadsheet.** Decommissioning was August 2026; `RDH EQUIPMENTS CODE25 JANV 2026.xlsx` is stale. Recorded that the hospital's cobas c 111 (serial 65053) has been with MediSell for repair since April 2026 after a Peltier element failure (Error 5040), that the laboratory has been working on a **loan** unit, and that the loan unit is **itself down** since 11/11/2026 (Ready-mode failure). The glucose SOP now states which instrument it governs and what to do when neither works. |
+| 15/11/2026 | **Equipment status corrected from the maintenance record, not the spreadsheet.** Decommissioning was August 2026; `RDH EQUIPMENTS CODE25 JANV 2026.xlsx` is stale. Recorded that the hospital's cobas c 111 (serial 65053) has been with MediSell for repair since April 2026 after a Peltier element failure (Error 5040), and that a **loan** replacement supplied by MediSell is itself down since 11/11/2026 (Ready-mode failure). The glucose SOP was **reverted to its own-instrument form**: it names serial 65053 only and handles the outage through the section 17 contingency, because a controlled procedure must not be written around borrowed equipment. `check_codes.py` now fails on any SOP that mentions a loan or borrowed instrument. Version 005 was kept — its review date is 14/11/2028, so no re-version was triggered. |
 | 15/11/2026 | **Three examination SOPs written** for the analysers in service — XN-330, XQ-320, Pima CD4 — because no document covered the examination itself (ISO 15189:2022, 7.3.6). Serials HEM-005, HEM-006, IMM-005, no skips. |
 | 15/11/2026 | **Layout fix:** a bullet list could leave two or three lines alone on a page. Short lists are now kept together. This was found by measuring page fill, not by eye. |
 | 15/11/2026 | **`IH` deleted.** Venous collection is `HEM-SOP-001-VERS-002`, a revision of the registered document. The invented department is gone from the register, the build and the documents. |
