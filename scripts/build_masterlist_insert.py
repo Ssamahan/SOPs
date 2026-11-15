@@ -203,16 +203,20 @@ h("B.  STANDARD OPERATING PROCEDURES – rows to add or amend")
 rows = []
 n = 0
 for key, r in REGISTER.items():
-    if key in ("doc_control", "pre_exam"):
-        continue          # already correct in the Master List
+    if key in ("doc_control", "pre_exam", "exam_docs", "equip_maint"):
+        continue          # already in the Master List; cited, not renumbered
     n += 1
     serial = r["code"].rsplit("-", 1)[1]
     if key == "venous":
         status = ("AMENDED – serial 001 already registered for this subject; this is the "
                   "revision to VERS-002, not a new number")
     elif key == "glucose":
-        status = ("CODE UNCHANGED – 001 kept, version 005. The duplicate holder of 001, "
-                  "the Humastar 80 SOP, moves to BIO-SOP-002 (row below)")
+        status = ("CODE UNCHANGED – 001 kept, version 005. The other holder of 001, the "
+                  "Humastar 80 SOP, is WITHDRAWN — the analyser is decommissioned — not "
+                  "renumbered")
+    elif key in ("xn330", "xq320", "pima"):
+        status = (f"NEW – first examination SOP for the {r['title'].split('by the ')[-1].split(' Analyser')[0]} "
+                  f"in service; no earlier SOP covered it")
     elif key == "training":
         status = ("NEW – first serial after the 060–063 equipment block of November 2026; "
                   "053–059 are not shown to be free")
@@ -224,13 +228,29 @@ for key, r in REGISTER.items():
                   f"for the {r['code'].split('-')[1]} series")
     rows.append([n, code(key), r["title"], EFFECTIVE, REVIEW,
                  "RliDHL Office; all bench rooms", status])
-# The document displaced off BIO serial 001 gets a row of its own. Without it the
-# register would lose the Humastar SOP when 001 is settled on the glucose SOP.
-rows.append([n + 1, "RliDHL-BIO-SOP-002-VERS-003",
-             "Use and preventive maintenance of Humastar 80",
-             EFFECTIVE, REVIEW, "RliDHL Office; Biochemistry bench",
-             "RENUMBERED – was BIO-SOP-001-VERS-002, which the glucose SOP also held; "
-             "moves to the number next to it, version raised on reissue"])
+# The legacy Biochemistry and Haematology rows must not be renumbered. Their equipment
+# has been decommissioned, so they are superseded in place: the serial stays with the
+# document and nothing is re-issued under that number.
+for code_ref, title, note in [
+    ("RliDHL-BIO-SOP-001-VERS-002", "Use and preventive maintenance of Humastar 80",
+     "WITHDRAWN – Humastar 80 decommissioned. Serial 001 also held by the glucose SOP, "
+     "which is the live document under that number"),
+    ("RliDHL-BIO-SOP-002-VERS-001",
+     "Sample analysis for Clinical Biochemistry using Humalyzer 3500",
+     "WITHDRAWN – Humalyzer 3500 decommissioned. Superseded in place; nothing replaces it"),
+    ("RliDHL-BIO-SOP-003 to 009", "Urea, ALAT, ASAT, creatinine, glucose prep, "
+     "bilirubin total and direct — all by use of Humastar 80",
+     "WITHDRAWN as a block – every one is a Humastar 80 procedure and the analyser is gone"),
+    ("RliDHL-HEM-SOP-002-VERS-001", "Hematology sample analysis using Sysmex Pochi 100i",
+     "WITHDRAWN – Pochi decommissioned. No Pochi is in service"),
+    ("RliDHL-HEM-SOP-003-VERS-001", "Hematology sample analysis using Humacount 5",
+     "WITHDRAWN – Humacount 5 decommissioned"),
+    ("RliDHL-HEM-SOP-004-VERS-001", "Hematology sample analysis using Sysmex KX.N21",
+     "WITHDRAWN – KX-21N decommissioned"),
+]:
+    n += 1
+    rows.append([n, code_ref, title, "—", "—", "—", note])
+
 table(["N°", "Document Code", "Document Title", "Effective date", "Review date",
        "Locations", "Status"], rows, [0.8, 3.9, 4.4, 1.9, 1.9, 2.6, 3.5], body_size=7.5)
 
@@ -273,10 +293,18 @@ body(
 
 body(
     "Serial 001 was carried twice in the Biochemistry series: by this glucose SOP at "
-    "VERS-005, and by “Use and preventive maintenance of Humastar 80” at VERS-002. Serial "
-    "001 is retained by the glucose SOP, and the Humastar SOP takes the number next to it, "
-    "BIO-SOP-002. Nothing is skipped, and the Biochemistry series runs 001, 002, 003… "
-    "with no hole in it.", size=9
+    "VERS-005, and by “Use and preventive maintenance of Humastar 80” at VERS-002. "
+    "Serial 001 is retained by the glucose SOP. The Humastar SOP is not moved and not "
+    "reissued — the Humastar 80 has been decommissioned, so that document is withdrawn "
+    "and its serial stays with it. Nothing is skipped and nothing is resurrected.",
+    size=9
+)
+body(
+    "The same applies to the rest of the legacy Biochemistry and Haematology rows. "
+    "Humalyzer 3500, Humacount 5, Sysmex KX-21N and Sysmex Pochi have all been "
+    "decommissioned. Their SOPs are marked superseded in place, never renumbered. The "
+    "analysers actually in service are the Sysmex XN-330, XQ-320 and Alere Pima CD4.",
+    size=9
 )
 
 # ---- D. why 064 ----
@@ -307,7 +335,43 @@ body(
     "signature page of every SOP."
 )
 
-# ---- E. status ----
+h("E.  INSTRUMENT STATUS — what the SOPs must say")
+body(
+    "The decommissioning of the legacy analysers took place in August 2026. The file "
+    "“RDH EQUIPMENTS CODE25 JANV 2026.xlsx” predates it and still shows the Humastar 80 as "
+    "Operational; it must not be used to decide equipment status.", size=9
+)
+table(
+    ["Equipment", "Serial", "Asset code", "Status"],
+    [
+        ["Sysmex XN-330", "17156", "RULIDH/LAB/ME/0501", "In service — SOP HEM-005"],
+        ["Sysmex XQ-320", "12357", "RULIDH/LAB/ME/0499", "In service — SOP HEM-006"],
+        ["Alere Pima CD4", "PIMA-D-005378", "RULIDH/LAB/ME/0485", "In service — SOP IMM-005"],
+        ["Roche cobas c 111 (hospital's own)", "65053", "RULIDH/LAB/ME/0486",
+         "AWAITING REPAIR since April 2026 — Peltier element, Error 5040; shipped to "
+         "MediSell Rwanda Ltd"],
+        ["Sysmex KX-21N, XS-500i, Pochi, Humacount 5, Humastar 80, Humalyzer 3500",
+         "—", "—", "DECOMMISSIONED August 2026 — governing SOPs withdrawn, not renumbered"],
+    ],
+    [3.9, 2.0, 2.9, 7.6], body_size=7.5,
+)
+body(
+    "Biochemistry testing is at a standstill while the cobas c 111 is out of service. The "
+    "laboratory has been lent a replacement analyser by MediSell Rwanda Ltd; it carries no "
+    "asset tag, appears on no register, and is not equipment of this laboratory, so it is "
+    "not listed above. It is currently out of order too (since 11/11/2026 it will not enter "
+    "Ready mode), which is why the examination is unavailable. That is a management matter "
+    "for the supplier, not a document control matter.", size=9
+)
+body(
+    "BIO-SOP-001 (glucose) describes the laboratory's own analyser only and states the "
+    "contingency in section 17: a backup method with the method named on the report, "
+    "referral to the National Reference Laboratory, and a written suspension. No result may "
+    "be reported from an analyser that is not in Ready mode. A controlled procedure is not "
+    "written around borrowed equipment — it would be wrong the week the loan ended.", size=9
+)
+
+# ---- F. status ----
 h("E.  Status and what still has to happen")
 bullet("All entries are first issues at VERS-001, except glucose, which stays at 005.")
 bullet("The effective date of 14/11/2026 is the proposed date. If signature happens "

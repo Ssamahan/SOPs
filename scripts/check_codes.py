@@ -31,8 +31,15 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build_sop import (  # noqa: E402
-    DECISIONS, REGISTER, SERIES_ALLOCATED, SERIES_UNVERIFIED, SERIES_KNOWN_MAX,
-    code, form,
+    DECISIONS, IN_SERVICE, REGISTER, SERIES_ALLOCATED, SERIES_UNVERIFIED,
+    SERIES_KNOWN_MAX, WITHDRAWN, code, form,
+)
+
+# Every analyser named as decommissioned. A document in this repository must not
+# describe one of these as if it were in use, and must not be built on one.
+DECOMMISSIONED = (
+    "Humastar 80", "Humalyzer 3500", "Humacount 5", "Sysmex KX-21N", "KX-21N",
+    "Sysmex XS-500i", "XS-500i", "XS-1000i", "Sysmex Pochi", "Pochi 100i",
 )
 
 SOP_DIR = ROOT / "sop"
@@ -174,10 +181,31 @@ def main() -> int:
                          f"{serial:03d} is beyond the known ceiling {ceiling:03d} "
                          f"— either it is a new allocation (mark it) or the number "
                          f"is wrong")
+        # Highest allocated counts BOTH sources: serials allocated by this library
+        # (REGISTER) and serials held by documents outside it (SERIES_ALLOCATED).
+        here = {e[0] for e in entries}
+        allocated = {**allocated, **{n: "this library" for n in here}}
         if allocated:
             nxt = max(allocated) + 1
             notes.append(f"{series}: highest allocated {max(allocated):03d}, "
                          f"next free {nxt:03d}")
+            # Serials held by withdrawn documents. These must never be reported as
+            # free just because the sequence runs past them: a serial is held for life.
+            live = {code(k) for k in REGISTER}
+            held = []
+            for c, _, _ in WITHDRAWN.values():
+                m = re.fullmatch(rf"RliDHL-{area}-SOP-(\d{{3}})", c)
+                if not m:
+                    continue
+                n = int(m.group(1))
+                if f"RliDHL-{area}-SOP-{n:03d}" not in live:
+                    held.append(n)
+            if held:
+                notes.append(
+                    f"{series}: serial {', '.join(f'{n:03d}' for n in sorted(set(held)))} "
+                    f"held by withdrawn/decommissioned documents — NOT free, whatever "
+                    f"the sequence suggests")
+
         # ---------- 3. no gap in what we allocate ----------
         alloc = sorted({e[0] for e in entries if e[2]} | set(allocated))
         if len(alloc) > 1:
@@ -277,6 +305,45 @@ def main() -> int:
                 fail(f"{pdf.name}: cites {full}, but no document in the register "
                      f"has serial {base} — the code is well-formed and wrong")
 
+    # ---------- 5b. nothing in service may be described as withdrawn ----------
+    # A serial in the register does not mean the machine is at the bench. Five of the
+    # analysers this register carries SOPs for have been decommissioned. A document
+    # that names one as current equipment is worse than a wrong number: it instructs
+    # a technologist to use a machine that is not there.
+    for pdf in pdfs:
+        text = "\n".join(p.get_text() for p in pymupdf.open(pdf))
+        for name in DECOMMISSIONED:
+            if re.search(rf"\b{re.escape(name)}\b", text):
+                # allowed only inside an explicit withdrawal/supersession sentence
+                for m in re.finditer(rf"[^.]*\b{re.escape(name)}\b[^.]*\.", text):
+                    sent = m.group(0)
+                    if re.search(r"withdrawn|decommission|supersed|no longer|obsolete|"
+                                 r"retired|not in service", sent, re.I):
+                        continue
+                    fail(f"{pdf.name}: names {name} outside a withdrawal clause — "
+                         f"{name} is decommissioned; a current SOP must not describe it "
+                         f"as equipment (handoff, Decommissioned)")
+                    break
+
+    ok(f"no SOP describes decommissioned equipment as in service "
+       f"({len(DECOMMISSIONED)} withdrawn analysers checked)")
+
+    # ---------- 5c. no borrowed or temporary equipment in a controlled SOP ----------
+    # A loan analyser is a temporary arrangement. An SOP is a controlled document that
+    # outlives the arrangement, so naming a loan unit inside one guarantees the document
+    # will be wrong within weeks: the unit goes back and the SOP still describes it. The
+    # SOP describes the laboratory's own instrument; the outage is handled by the
+    # contingency section and by the equipment register, not by the procedure text.
+    LOAN_WORDS = re.compile(r"\bloan(ed|er)?\b|on loan|borrow", re.I)
+    for pdf in pdfs:
+        text = "\n".join(p.get_text() for p in pymupdf.open(pdf))
+        if LOAN_WORDS.search(text):
+            line = next(l for l in text.splitlines() if LOAN_WORDS.search(l))
+            fail(f"{pdf.name}: mentions borrowed or loaned equipment — a controlled SOP must "
+                 f"describe the laboratory's own instrument, not a temporary replacement "
+                 f"({line.strip()[:90]})")
+    ok("no SOP names borrowed or loaned equipment")
+
     # ---------- 6. no hand-typed code in the generator ----------
     src = (ROOT / "scripts" / "build_sop.py").read_text()
     # Cut out the REGISTER dict, which is where codes are *supposed* to live,
@@ -286,7 +353,7 @@ def main() -> int:
         return text[:s0] + text[text.index("\n}\n", s0) + 3:]
 
     body = src
-    for marker in ("REGISTER = {", "DECISIONS = {"):
+    for marker in ("REGISTER = {", "DECISIONS = {", "WITHDRAWN = {"):
         if marker in body:
             body = cut(body, marker)
     # comments and docstrings may quote a code as documentation (the numbering
@@ -301,7 +368,17 @@ def main() -> int:
 
     # Decisions about specific registered documents. These are not failures --
     # the code is internally consistent -- but a green tick would hide them.
-    open_decisions = [(k, d) for k, d in DECISIONS.items() if k in REGISTER]
+    # Every declared open decision is printed, whether or not it concerns a document this
+    # repository builds. A decision about equipment status is exactly the kind that gets
+    # lost when it is only recorded next to a document.
+    # Entries prefixed EQUIPMENT_NOTE_ are recorded for completeness but are not
+    # document-control questions: nothing in the library waits on them. Printing them as
+    # "open decisions" would keep a solved problem looking unsolved, and would imply a
+    # document has been left in draft when it has not.
+    open_decisions = [(k, d) for k, d in DECISIONS.items()
+                      if not k.startswith("EQUIPMENT_NOTE_")]
+    equipment_notes = [(k, d) for k, d in DECISIONS.items()
+                       if k.startswith("EQUIPMENT_NOTE_")]
 
     # ---------- report ----------
     print("Document-numbering check")
@@ -328,6 +405,13 @@ def main() -> int:
             for line in textwrap.wrap("Options: " + d["options"], 66):
                 print(f"      {line}")
         print()
+
+    if equipment_notes:
+        print()
+        for key, d in equipment_notes:
+            print(f"  note  [{key.replace('EQUIPMENT_NOTE_', '')}] {d['issue']}")
+            print("        Recorded in the equipment register and the nonconformity file, "
+                  "not in any SOP.")
 
     print("\nAll checks passed: serials sequential with no skipping, no collisions, "
           "every reference resolves, forms bound, no hand-typed codes.")
