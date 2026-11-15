@@ -33,8 +33,11 @@ from build_sop import REGISTER, SERIES_KNOWN_MAX, code, form  # noqa: E402
 
 SOP_DIR = ROOT / "sop"
 
+# Area codes are 2 or 3 letters: most are three (ADM BAC BIO HEM IMM MOL MYC PAR
+# REC SER STC SAF) but IH is two. Requiring exactly three silently skipped every
+# IH code, including the IH document's own — so the pattern allows 2-3.
 CODE_RE = re.compile(
-    r"(RliDHL-[A-Z]{3}-[A-Z]{3})[- ]?(\d{3})(?:-VERS[- ]?(\d{3}))?(?:-(F\d{2})(?:-(\d))?)?"
+    r"(RliDHL-[A-Z]{2,3}-[A-Z]{3})[- ]?(\d{3})(?:-VERS[- ]?(\d{3}))?(?:-(F\d{2})(?:-(\d))?)?"
 )
 
 # A serial deliberately not in use, with the reason. A gap is only acceptable
@@ -169,6 +172,35 @@ def main() -> int:
                 if f"{series}-{serial}" not in registered_bases:
                     fail(f"{pdf.name}: cites {series}-{serial} — not registered")
 
+    # ---------- 4b. a citation must name a real document ----------
+    # A code can look perfectly well-formed and still point at nothing: IH-SOP-001
+    # was well-formed, but that serial belongs to a different SOP. So every
+    # citation is also required to be the *current* version of a registered
+    # document, or an explicitly declared superseded one — a citation to a
+    # version that is neither is a stale reference.
+    current_vers = {}
+    for k in REGISTER:
+        full = code(k)
+        current_vers[full.rsplit("-VERS", 1)[0]] = full.rsplit("-VERS", 1)[1]
+
+    for pdf in pdfs:
+        text = "\n".join(p.get_text() for p in pymupdf.open(pdf))
+        for series, serial, vers, fnum, fsub in sorted(
+                extract(text), key=lambda t: tuple(x or "" for x in t)):
+            if fnum or not vers:
+                continue
+            full = fmt(series, serial, vers, fnum, fsub)
+            if full in SUPERSEDED_OK or full in registered_docs:
+                continue
+            base = f"{series}-{serial}"
+            if base in current_vers:
+                fail(f"{pdf.name}: cites {full}, but the current version of "
+                     f"{base} is VERS-{current_vers[base]} — stale version "
+                     f"reference (declare it in SUPERSEDED_OK if intended)")
+            else:
+                fail(f"{pdf.name}: cites {full}, but no document in the register "
+                     f"has serial {base} — the code is well-formed and wrong")
+
     # ---------- 6. no hand-typed code in the generator ----------
     src = (ROOT / "scripts" / "build_sop.py").read_text()
     # Cut out the REGISTER dict, which is where codes are *supposed* to live,
@@ -180,7 +212,7 @@ def main() -> int:
     # rule, worked examples); only a literal code in executable code is a defect
     body = re.sub(r'"""[\s\S]*?"""', "", body)
     body = "\n".join(line.split("#", 1)[0] for line in body.splitlines())
-    hard = sorted(set(re.findall(r"RliDHL-[A-Z]{3}-[A-Z]{3}[- ]\d{3}", body)))
+    hard = sorted(set(re.findall(r"RliDHL-[A-Z]{2,3}-[A-Z]{3}[- ]\d{3}", body)))
     if hard:
         fail(f"build_sop.py has hand-typed codes outside REGISTER: {hard}")
     else:

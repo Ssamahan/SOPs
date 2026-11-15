@@ -812,7 +812,7 @@ GLUCOSE = {
                 "the fasting state and the exact collection time in the EMR.",
                 "Do not collect from an arm into which a glucose infusion is running.",
                 "Collect venous blood according to Venous Blood Collection "
-                "(RliDHL-IH-SOP-001): a plain or clot-activator tube for serum, or a "
+                f"({code('venous')}): a plain or clot-activator tube for serum, or a "
                 "fluoride/oxalate tube when the specimen cannot reach the laboratory and be "
                 "centrifuged within 30 minutes.",
             ]),
@@ -1186,7 +1186,7 @@ GLUCOSE = {
              ["Risk", "Control measure"],
              [
                  ["Wrong-patient result released",
-                  "Identification at collection (RliDHL-IH-SOP-001); barcode check at loading; "
+                  f"Identification at collection ({code('venous')}); barcode check at loading; "
                   "delta check before release"],
                  ["Control failure not detected",
                   "Two-level IQC before patient testing; Westgard rules; weekly chart review"],
