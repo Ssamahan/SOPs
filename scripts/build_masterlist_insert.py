@@ -211,8 +211,9 @@ for key, r in REGISTER.items():
         status = ("AMENDED – serial 001 already registered for this subject; this is the "
                   "revision to VERS-002, not a new number")
     elif key == "glucose":
-        status = ("CODE UNCHANGED – 001 kept, version 005. The duplicate holder of 001, "
-                  "the Humastar 80 SOP, moves to BIO-SOP-002 (row below)")
+        status = ("CODE UNCHANGED – 001 kept, version 005. The other holder of 001, the "
+                  "Humastar 80 SOP, is WITHDRAWN — the analyser is decommissioned — not "
+                  "renumbered")
     elif key == "training":
         status = ("NEW – first serial after the 060–063 equipment block of November 2026; "
                   "053–059 are not shown to be free")
@@ -224,13 +225,29 @@ for key, r in REGISTER.items():
                   f"for the {r['code'].split('-')[1]} series")
     rows.append([n, code(key), r["title"], EFFECTIVE, REVIEW,
                  "RliDHL Office; all bench rooms", status])
-# The document displaced off BIO serial 001 gets a row of its own. Without it the
-# register would lose the Humastar SOP when 001 is settled on the glucose SOP.
-rows.append([n + 1, "RliDHL-BIO-SOP-002-VERS-003",
-             "Use and preventive maintenance of Humastar 80",
-             EFFECTIVE, REVIEW, "RliDHL Office; Biochemistry bench",
-             "RENUMBERED – was BIO-SOP-001-VERS-002, which the glucose SOP also held; "
-             "moves to the number next to it, version raised on reissue"])
+# The legacy Biochemistry and Haematology rows must not be renumbered. Their equipment
+# has been decommissioned, so they are superseded in place: the serial stays with the
+# document and nothing is re-issued under that number.
+for code_ref, title, note in [
+    ("RliDHL-BIO-SOP-001-VERS-002", "Use and preventive maintenance of Humastar 80",
+     "WITHDRAWN – Humastar 80 decommissioned. Serial 001 also held by the glucose SOP, "
+     "which is the live document under that number"),
+    ("RliDHL-BIO-SOP-002-VERS-001",
+     "Sample analysis for Clinical Biochemistry using Humalyzer 3500",
+     "WITHDRAWN – Humalyzer 3500 decommissioned. Superseded in place; nothing replaces it"),
+    ("RliDHL-BIO-SOP-003 to 009", "Urea, ALAT, ASAT, creatinine, glucose prep, "
+     "bilirubin total and direct — all by use of Humastar 80",
+     "WITHDRAWN as a block – every one is a Humastar 80 procedure and the analyser is gone"),
+    ("RliDHL-HEM-SOP-002-VERS-001", "Hematology sample analysis using Sysmex Pochi 100i",
+     "WITHDRAWN – Pochi decommissioned. No Pochi is in service"),
+    ("RliDHL-HEM-SOP-003-VERS-001", "Hematology sample analysis using Humacount 5",
+     "WITHDRAWN – Humacount 5 decommissioned"),
+    ("RliDHL-HEM-SOP-004-VERS-001", "Hematology sample analysis using Sysmex KX.N21",
+     "WITHDRAWN – KX-21N decommissioned"),
+]:
+    n += 1
+    rows.append([n, code_ref, title, "—", "—", "—", note])
+
 table(["N°", "Document Code", "Document Title", "Effective date", "Review date",
        "Locations", "Status"], rows, [0.8, 3.9, 4.4, 1.9, 1.9, 2.6, 3.5], body_size=7.5)
 
@@ -273,10 +290,18 @@ body(
 
 body(
     "Serial 001 was carried twice in the Biochemistry series: by this glucose SOP at "
-    "VERS-005, and by “Use and preventive maintenance of Humastar 80” at VERS-002. Serial "
-    "001 is retained by the glucose SOP, and the Humastar SOP takes the number next to it, "
-    "BIO-SOP-002. Nothing is skipped, and the Biochemistry series runs 001, 002, 003… "
-    "with no hole in it.", size=9
+    "VERS-005, and by “Use and preventive maintenance of Humastar 80” at VERS-002. "
+    "Serial 001 is retained by the glucose SOP. The Humastar SOP is not moved and not "
+    "reissued — the Humastar 80 has been decommissioned, so that document is withdrawn "
+    "and its serial stays with it. Nothing is skipped and nothing is resurrected.",
+    size=9
+)
+body(
+    "The same applies to the rest of the legacy Biochemistry and Haematology rows. "
+    "Humalyzer 3500, Humacount 5, Sysmex KX-21N and Sysmex Pochi have all been "
+    "decommissioned. Their SOPs are marked superseded in place, never renumbered. The "
+    "analysers actually in service are the Sysmex XN-330, XQ-320 and Alere Pima CD4.",
+    size=9
 )
 
 # ---- D. why 064 ----

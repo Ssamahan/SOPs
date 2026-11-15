@@ -97,15 +97,19 @@ SERIES_KNOWN_MAX = {
     # permission to allocate -- always re-read the register first.
     #
     #   ADM 001-049, with 016/017 unreadable and 035 never used
-    #   BAC 001-006   BIO 001-009   HEM 001-004   IMM 001-004
-    #   MYC 002-012   PAR 001-010   SER 001-007   STC 001-007
+    #   BIO 001-009   HEM 001-004   IMM 001-004
+    #
+    # NOTE for anyone tempted to use this list as an inventory: several of those
+    # serials govern equipment that has since been decommissioned. See WITHDRAWN.
+    # A serial existing in the register says nothing about the machine existing in
+    # the laboratory.
     #
     # There is NO IH section in the register: the areas it uses are ADM, BAC,
     # BIO, HEM, IMM, MYC, PAR, SER and STC. "IH" was introduced by this library
     # and is not an established department code.
     "RliDHL-ADM-SOP": 49,
     "RliDHL-BAC-SOP": 6,
-    "RliDHL-BIO-SOP": 9,     # 002 now carries the displaced Humastar SOP
+    "RliDHL-BIO-SOP": 9,
     "RliDHL-HEM-SOP": 4,
     "RliDHL-IMM-SOP": 4,
     "RliDHL-MYC-SOP": 12,
@@ -138,6 +142,56 @@ DECISIONS = {
     # A new open question belongs in this dict so the checker prints it.
 }
 
+# Documents whose equipment has been DECOMMISSIONED. The document is superseded: it is
+# not renumbered, not reissued and not replaced. Its serial stays with it forever --
+# that is the whole point of a serial being held for life.
+#
+# Numbering these was a real error in this repository: the Humastar 80 and Humalyzer
+# 3500 SOPs were treated as live documents and shuffled between serials, when both
+# analysers have been withdrawn from the laboratory. A number existing in the register
+# does not mean the machine exists at the bench.
+#
+# Verified against SOP-PROGRAMME-HANDOFF.md, "Decommissioned" section.
+WITHDRAWN = {
+    # key: (code, what it governed, why it is withdrawn)
+    "adm_biomed": (
+        "RliDHL-ADM-SOP-008", "Use and Maintenance of Biomedical Equipment",
+        "VERS-005 is a coding defect: serial 008 also identifies the legacy "
+        "Authorization document. Not an equipment withdrawal -- listed here so the "
+        "008 collision stays visible."),
+    "bio_001": (
+        "RliDHL-BIO-SOP-001", "Use and preventive maintenance of Humastar 80",
+        "Humastar 80 decommissioned. Retained as superseded; serial 001 is also held "
+        "by the glucose SOP, which is the live document under that number."),
+    "bio_002": (
+        "RliDHL-BIO-SOP-002", "Sample analysis for Clinical Biochemistry using "
+        "Humalyzer 3500",
+        "Humalyzer 3500 decommissioned. Superseded; nothing replaces it."),
+    "bio_003_009": (
+        "RliDHL-BIO-SOP-003 to 009", "Urea, ALAT, ASAT, creatinine, glucose prep, "
+        "bilirubin total and direct, all 'by use of Humastar 80'",
+        "Every one of these is a Humastar 80 procedure. The analyser is gone, so the "
+        "whole block is superseded and none of it should be cited as current."),
+    "hem_002": (
+        "RliDHL-HEM-SOP-002", "Hematology sample analysis using Sysmex Pochi 100i",
+        "Pochi decommissioned. Superseded; the live analysers are the XN-330 and "
+        "XQ-320."),
+    "hem_003": (
+        "RliDHL-HEM-SOP-003", "Hematology sample analysis using Humacount 5",
+        "Humacount 5 decommissioned. Superseded."),
+    "hem_004": (
+        "RliDHL-HEM-SOP-004", "Hematology sample analysis using Sysmex KX-21N",
+        "KX-21N decommissioned. Superseded."),
+}
+
+# Analysers actually in service, from the same verified inventory. Cited when a
+# document needs to name the equipment; never claim more than this.
+IN_SERVICE = [
+    ("Sysmex XN-330", "17156", "RULIDH/LAB/ME/0501", "Hematology bench"),
+    ("Sysmex XQ-320", "12357", "RULIDH/LAB/ME/0499", "Hematology bench"),
+    ("Alere Pima CD4", "PIMA-D-005378", "RULIDH/LAB/ME/0485", "Hematology room"),
+]
+
 # Every serial already spoken for beyond the registered set, so a duplicate is
 # caught before it ships. This is the list that would have caught ADM-060.
 SERIES_ALLOCATED = {
@@ -155,9 +209,12 @@ SERIES_ALLOCATED = {
     },
     "RliDHL-BIO-SOP": {
         1: "BIO SOP 001 Glucose Testing (this library, VERS-005)",
-        2: "BIO SOP 002, formerly 'Use and preventive maintenance of Humastar 80' "
-           "(displaced from 001 when 001 was doubled)",
     },
+    # BIO serial 002 is NOT allocated. Its registered holder is the Humalyzer 3500
+    # SOP, and the Humalyzer has been decommissioned. The document is superseded,
+    # not renumbered and not replaced -- see WITHDRAWN. Moving the Humastar SOP
+    # onto 002 (an earlier attempt) would have re-issued a withdrawn SOP under
+    # another analyser's number.
 }
 REGISTER = {
     # --- management (crosscutting) SOPs ---
@@ -198,10 +255,12 @@ REGISTER = {
         "master_list": "Master List, Haematology",
     },
     "glucose": {
-        # The register's single 001 for this series. It was previously carried both by
-        # "Use and preventive maintenance of Humastar 80" (VERS-002) and by this SOP
-        # (VERS-005). 001 is retained, and the pre-existing document moves to the SOP
-        # next to it -- BIO-SOP-002 -- rather than this one skipping to 010.
+        # 001 was carried by two documents: this SOP at VERS-005, and "Use and
+        # preventive maintenance of Humastar 80" at VERS-002. 001 is retained here.
+        # The Humastar SOP does NOT move to 002: it is withdrawn, because the
+        # analyser has been decommissioned. BIO serial 002 belongs to the Humalyzer
+        # SOP, which is withdrawn for the same reason. So 001 is the only live BIO
+        # serial below 010, and nothing had to be skipped.
         "code": "RliDHL-BIO-SOP-001", "vers": "005",
         "title": "Glucose Testing using Cobas c 111",
         "master_list": "Master List, Clinical Chemistry",

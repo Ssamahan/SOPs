@@ -31,8 +31,15 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build_sop import (  # noqa: E402
-    DECISIONS, REGISTER, SERIES_ALLOCATED, SERIES_UNVERIFIED, SERIES_KNOWN_MAX,
-    code, form,
+    DECISIONS, IN_SERVICE, REGISTER, SERIES_ALLOCATED, SERIES_UNVERIFIED,
+    SERIES_KNOWN_MAX, WITHDRAWN, code, form,
+)
+
+# Every analyser named as decommissioned. A document in this repository must not
+# describe one of these as if it were in use, and must not be built on one.
+DECOMMISSIONED = (
+    "Humastar 80", "Humalyzer 3500", "Humacount 5", "Sysmex KX-21N", "KX-21N",
+    "Sysmex XS-500i", "XS-500i", "XS-1000i", "Sysmex Pochi", "Pochi 100i",
 )
 
 SOP_DIR = ROOT / "sop"
@@ -178,6 +185,23 @@ def main() -> int:
             nxt = max(allocated) + 1
             notes.append(f"{series}: highest allocated {max(allocated):03d}, "
                          f"next free {nxt:03d}")
+            # Serials held by withdrawn documents. These must never be reported as
+            # free just because the sequence runs past them: a serial is held for life.
+            live = {code(k) for k in REGISTER}
+            held = []
+            for c, _, _ in WITHDRAWN.values():
+                m = re.fullmatch(rf"RliDHL-{area}-SOP-(\d{{3}})", c)
+                if not m:
+                    continue
+                n = int(m.group(1))
+                if f"RliDHL-{area}-SOP-{n:03d}" not in live:
+                    held.append(n)
+            if held:
+                notes.append(
+                    f"{series}: serial {', '.join(f'{n:03d}' for n in sorted(set(held)))} "
+                    f"held by withdrawn/decommissioned documents — NOT free, whatever "
+                    f"the sequence suggests")
+
         # ---------- 3. no gap in what we allocate ----------
         alloc = sorted({e[0] for e in entries if e[2]} | set(allocated))
         if len(alloc) > 1:
@@ -277,6 +301,29 @@ def main() -> int:
                 fail(f"{pdf.name}: cites {full}, but no document in the register "
                      f"has serial {base} — the code is well-formed and wrong")
 
+    # ---------- 5b. nothing in service may be described as withdrawn ----------
+    # A serial in the register does not mean the machine is at the bench. Five of the
+    # analysers this register carries SOPs for have been decommissioned. A document
+    # that names one as current equipment is worse than a wrong number: it instructs
+    # a technologist to use a machine that is not there.
+    for pdf in pdfs:
+        text = "\n".join(p.get_text() for p in pymupdf.open(pdf))
+        for name in DECOMMISSIONED:
+            if re.search(rf"\b{re.escape(name)}\b", text):
+                # allowed only inside an explicit withdrawal/supersession sentence
+                for m in re.finditer(rf"[^.]*\b{re.escape(name)}\b[^.]*\.", text):
+                    sent = m.group(0)
+                    if re.search(r"withdrawn|decommission|supersed|no longer|obsolete|"
+                                 r"retired|not in service", sent, re.I):
+                        continue
+                    fail(f"{pdf.name}: names {name} outside a withdrawal clause — "
+                         f"{name} is decommissioned; a current SOP must not describe it "
+                         f"as equipment (handoff, Decommissioned)")
+                    break
+
+    ok(f"no SOP describes decommissioned equipment as in service "
+       f"({len(DECOMMISSIONED)} withdrawn analysers checked)")
+
     # ---------- 6. no hand-typed code in the generator ----------
     src = (ROOT / "scripts" / "build_sop.py").read_text()
     # Cut out the REGISTER dict, which is where codes are *supposed* to live,
@@ -286,7 +333,7 @@ def main() -> int:
         return text[:s0] + text[text.index("\n}\n", s0) + 3:]
 
     body = src
-    for marker in ("REGISTER = {", "DECISIONS = {"):
+    for marker in ("REGISTER = {", "DECISIONS = {", "WITHDRAWN = {"):
         if marker in body:
             body = cut(body, marker)
     # comments and docstrings may quote a code as documentation (the numbering

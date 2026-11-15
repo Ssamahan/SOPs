@@ -103,7 +103,7 @@ Read line by line from `MASTER LIST 2025.docx`. "Entries" counts distinct serial
 |---|---|---|---|---|
 | `ADM-SOP` | Crosscutting | 001–049 | 016, 017 (unreadable), 035 (never used) | Management SOPs: document control, complaints, training, audit |
 | `BAC-SOP` | Bacteriology & parasitology | 001–006 | none | Culture and staining procedures |
-| `BIO-SOP` | Biochemistry | 001–009 | none | Humastar 80 / Humalyzer 3500 analyses |
+| `BIO-SOP` | Biochemistry | 001–009 | none | Humastar 80 / Humalyzer 3500 analyses — **all decommissioned**, every row superseded. Only BIO-001 (glucose, Cobas c 111) is live |
 | `HEM-SOP` | Haematology | 001–004 | none | Blood collection, Sysmex and Humacount analyses |
 | `IMM-SOP` | Immunology | 001–004 | none | FACSCount CD4 procedures |
 | `MYC-SOP` | Mycobacteriology | 002–012 | **001** | GeneXpert / TB procedures |
@@ -114,6 +114,31 @@ Read line by line from `MASTER LIST 2025.docx`. "Entries" counts distinct serial
 The `EXT-` codes throughout the register (`EXT-RliDHL-BIO-001-2016`, etc.) are
 **manufacturer manuals**, not laboratory SOPs. They do not consume SOP serials.
 
+### Equipment: what is actually in the laboratory
+
+A serial existing in the register says nothing about the machine existing at the bench.
+Verified against the programme handoff's inventory:
+
+| In service | Serial | Asset code |
+|---|---|---|
+| Sysmex XN-330 | 17156 | `RULIDH/LAB/ME/0501` |
+| Sysmex XQ-320 | 12357 | `RULIDH/LAB/ME/0499` |
+| Alere Pima CD4 | `PIMA-D-005378` | `RULIDH/LAB/ME/0485` |
+
+| Decommissioned | Governing SOP | Action |
+|---|---|---|
+| Sysmex KX-21N | `HEM-SOP-004` | withdrawn, superseded in place |
+| Sysmex XS-500i | — | no SOP row; appears only as an `EXT-` manual |
+| Sysmex Pochi 100i | `HEM-SOP-002` | withdrawn. **No Pochi is in service** |
+| Humacount 5 | `HEM-SOP-003` | withdrawn |
+| Humastar 80 | `BIO-SOP-001` (VERS-002), `003`–`009` | withdrawn as a block |
+| Humalyzer 3500 | `BIO-SOP-002` | withdrawn |
+
+**Withdrawn documents are never renumbered.** Their serial is held for life; the document
+is marked superseded and nothing is re-issued under that number. `WITHDRAWN` in
+`scripts/build_sop.py` carries this, and `check_codes.py` fails if any SOP names a
+decommissioned analyser outside a withdrawal clause.
+
 ### Three collisions, and how they were settled
 
 Settled 15/11/2026 on the Laboratory Manager's instruction: no number is skipped, a doubled
@@ -122,7 +147,7 @@ forms are cited rather than withdrawn.
 
 | # | Document | Registered to | Resolution |
 |---|---|---|---|
-| 1 | Glucose Testing using Cobas c 111 | `BIO-SOP-001-VERS-002` — *Use and preventive maintenance of Humastar 80* | **001 is kept** by the glucose SOP at VERS-005. The Humastar SOP moves to **`BIO-SOP-002-VERS-003`**. The Biochemistry series runs 001, 002, 003… with no hole. |
+| 1 | Glucose Testing using Cobas c 111 | `BIO-SOP-001-VERS-002` — *Use and preventive maintenance of Humastar 80* | **001 is kept** by the glucose SOP at VERS-005. The Humastar SOP is **withdrawn, not moved**: the analyser is decommissioned, so its serial stays with it. BIO-002 belongs to the Humalyzer SOP, also withdrawn. |
 | 2 | Venous Blood Sample Collection | `HEM-SOP-001-VERS-001` — *Vein blood collection and preparation of hematology sample* | **`IH` is dropped.** The venous SOP becomes **`HEM-SOP-001-VERS-002`**, a revision of the registered document. No department was invented and no second SOP for drawing blood exists. |
 | 3 | Signature page | `ADM-FORM-014` *Signature page*, `ADM-FORM-001` *Staff competency assessment form* | **Both are cited.** Form `064-F01` names them on its face and replaces neither, so nothing has to be withdrawn. |
 
@@ -177,8 +202,9 @@ documents — which is exactly the failure this repository's checker exists to p
 | 15/11/2026 | ADM inventory replaced with the real 49-row list from `MASTER LIST 2025.docx`. The previous version claimed "001–052 in use, 053–059 equipment block", which was wrong on both counts. |
 | 15/11/2026 | Read every series in the register, not just ADM. Found that **no IH series exists** and that `BIO-SOP-001` is registered to *Use and preventive maintenance of Humastar 80*, not to the glucose SOP. Both recorded as open decisions in `DECISIONS`, not silently renumbered. |
 | 15/11/2026 | Found `ADM-FORM-014` *Signature page* and `ADM-FORM-001` *Staff competency assessment form* already in the register. Form `064-F01` overlaps both; recorded as an open decision. |
+| 15/11/2026 | **Corrected a serious error: decommissioned equipment treated as live.** The previous change moved *Use and preventive maintenance of Humastar 80* to `BIO-SOP-002`, and BIO-002 is the **Humalyzer 3500** SOP. Both analysers have been decommissioned; the register rows were read as live documents because the equipment status had not been checked. Both are now withdrawn in place, `WITHDRAWN` records why, and the checker fails on a decommissioned analyser named outside a withdrawal clause. |
 | 15/11/2026 | **`IH` deleted.** Venous collection is `HEM-SOP-001-VERS-002`, a revision of the registered document. The invented department is gone from the register, the build and the documents. |
-| 15/11/2026 | **`BIO-SOP-001` settled by keeping 001** and moving *Use and preventive maintenance of Humastar 80* to `BIO-SOP-002`. No serial is skipped. |
+| 15/11/2026 | **`BIO-SOP-001` settled by keeping 001.** *Use and preventive maintenance of Humastar 80* is withdrawn, not renumbered — see the correction below. |
 | 15/11/2026 | **`064-F01` now cites `ADM-FORM-014` and `ADM-FORM-001`** on the face of the signature page. Neither form is withdrawn. |
 | 15/11/2026 | Removed the unverified claim that `IH-SOP-001` was taken by `HEM-SOP-008`. Superseded: the IH series is no longer used at all. |
 
