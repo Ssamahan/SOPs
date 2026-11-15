@@ -285,7 +285,9 @@ SERIES_ALLOCATED = {
         **{n: "ADM SOP 035 retired -- never used, no document ever held it"
            for n in (35,)},
         # the November 2026 equipment block: built, uploaded, unsigned
-        50: "ADM SOP 050 Microscope (Nov 2026 block)",
+        # 050 is NOT listed: it was released from the unsigned Microscope draft and
+        # re-allocated to the health-centre re-reading SOP, which is in REGISTER as a
+        # new allocation. Listing it here as well would be a double allocation.
         51: "ADM SOP 051 Centrifuge (Nov 2026 block)",
         52: "ADM SOP 052 Water Bath (Nov 2026 block)",
         60: "ADM SOP 060 Non-Medical Equipment (Nov 2026 block)",
@@ -469,6 +471,17 @@ REGISTER = {
         "code": "RliDHL-ADM-MAN-002", "vers": "006",
         "title": "Laboratory Safety Manual",
         "master_list": "Master List, Manuals",
+    },
+    # Serial 050. The November 2026 equipment block opened 050 (Microscope), 051
+    # (Centrifuge) and 052 (Water Bath); those three are built and uploaded but
+    # UNSIGNED, so they are not in force. 050 has therefore been released back to
+    # the queue and re-used here -- see SERIES_ALLOCATED. Nothing was ever issued
+    # under 050, so no document loses its number.
+    "hc_slide_review": {
+        "code": "RliDHL-ADM-SOP-050", "vers": "001",
+        "title": "Re-reading of Health-Centre Slides and Re-Testing of Health-Centre Samples",
+        "master_list": "Master List, Crosscutting SOPs",
+        "new": True,
     },
     # Serial 025. The 2026 register (MASTER LIST - 2024 - 2025.docx, modified
     # 17/02/2026) holds ADM-024 (Quality Control and Quality Assurance) and
@@ -3257,8 +3270,32 @@ EQA = {
                   "enrolment, receipt and handling of panels, testing, submission, review of the "
                   "report, investigation and corrective action, verification of effectiveness, and "
                   "the reports to management."),
+            ("p", "**It governs one direction of quality assessment only: the assessment of this "
+                  "laboratory.** The laboratory takes part in programmes run by the National "
+                  "Reference Laboratory and other providers, and this SOP is about that "
+                  "participation — the panel arrives, the laboratory tests it, the result goes back, "
+                  "the report is reviewed."),
+            ("p", "**It does not govern the assessment the laboratory performs on others.** The "
+                  "laboratory also acts as a **referral laboratory** for the eight health centres in "
+                  "its network: it re-reads their stained slides, compares its reading with theirs, "
+                  "scores the discordance and reports back. That is a different activity, running in "
+                  "the opposite direction, with different criteria, different records and a different "
+                  "regulator's interest. It is governed by the relevant **examination SOP of the "
+                  "section performing it** — for malaria films, `PAR-SOP-008`; for TB smear, "
+                  "`TB-SOP-002` and `TB-SOP-003` — with the records kept as the records of those "
+                  "examinations."),
+            ("p", "**The two are never combined in one figure.** A health-centre discordance rate is "
+                  "not the laboratory's EQA performance, and the laboratory's PT z-scores are not a "
+                  "statement about the health centres. Where both appear in the same management "
+                  "report they appear in separate sections, separately titled, with the subject of "
+                  "each stated: **\"External quality assessment of this laboratory\"** and "
+                  "**\"Re-reading of health-centre slides performed by this laboratory\"**. A single "
+                  "composite score mixing them is not permitted, because it would describe neither."),
             ("p", "It does not govern internal quality control, which is required by the quality "
-                  "control procedure and by the examination SOPs of each section."),
+                  "control procedure and by the examination SOPs of each section. Nor does it govern "
+                  "the laboratory's participation in a provider's **on-site assessment or mentorship "
+                  "visit**, which is handled under the nonconformity and improvement procedure even "
+                  "where the same provider is involved."),
         ]),
         ("4. Definitions", [
             ("tbl", ["Term", "Meaning in this laboratory"],
@@ -3286,6 +3323,15 @@ EQA = {
                   "Satisfactory means inside the acceptability criteria the scheme publishes and "
                   "this SOP adopts. Unsatisfactory means outside them. The laboratory does not "
                   "redefine a provider's criteria to make a result satisfactory."],
+                 ["Re-testing / re-reading (as performed by this laboratory)",
+                  "The laboratory re-reads slides or re-tests samples **of the health centres it "
+                  "serves**, and reports the discordance back. This is quality assessment performed "
+                  "**for others**. It is not this laboratory's own EQA and is governed by the "
+                  "examination SOP concerned."],
+                 ["Slide re-reading (as performed on this laboratory)",
+                  "Where a provider re-reads **this laboratory's** slides, the laboratory is the "
+                  "participant and the activity is EQA under this SOP, even though no panel of "
+                  "manufactured samples is involved."],
                  ["Alternative approach",
                   "Where no EQA programme exists for an examination: comparison with another "
                   "laboratory, re-testing, analysis of commutable reference material, clinical "
@@ -3344,20 +3390,19 @@ EQA = {
                   "MTB proficiency testing, RBC / National Reference Laboratory",
                   "Per NRL survey schedule",
                   "In place. Panels on file for 2023 and 2024."],
-                 ["TB — smear microscopy (ZN and auramine bacilloscopy), health-centre slides",
-                  "Slide re-reading against NRL: the slides the laboratory's own health centres "
-                  "send in are re-read blind, the two readings compared slide by slide, and the "
-                  "discordant rate scored against a 90 per cent passing rate",
-                  "Quarterly",
-                  "In place, on **two of the eight centres — Nyange HC and Rwankuba HC** — and on a "
-                  "small and shrinking sample. See 8A and the findings in 12.6."],
-                 ["Malaria — thick and thin film microscopy, health-centre slides",
-                  "Slide re-reading against NRL: the slides the laboratory's own health centres "
-                  "send in are re-read blind, positives and negatives compared slide by slide, and "
-                  "the discordant rate recorded",
-                  "Quarterly",
-                  "In place, **all eight health centres**. One quarter (Q3 2025/26) does not add "
-                  "up and is held unverified — see 12.5 and 12.6."],
+                 ["TB — smear microscopy (ZN and auramine bacilloscopy)",
+                  "Where the provider re-reads **this laboratory's own** slides: the laboratory is "
+                  "the participant and the activity is EQA under this SOP",
+                  "As the provider schedules it",
+                  "**Not evidenced.** No report was found of a provider re-reading this laboratory's "
+                  "TB slides. The reports on file are the laboratory re-reading the health centres' "
+                  "slides — the opposite direction, governed by `TB-SOP-002`/`TB-SOP-003`, not by "
+                  "this SOP. Recorded as a gap in section 6.4."],
+                 ["Malaria — thick and thin film microscopy",
+                  "Where the provider re-reads **this laboratory's own** slides",
+                  "As the provider schedules it",
+                  "**Not evidenced**, for the same reason. The malaria re-reading reports on file "
+                  "assess the health centres, not this laboratory; they belong to `PAR-SOP-008`."],
                  ["Biochemistry — creatinine, glucose, ALT",
                   "NRL biochemistry and haematology EQA, quarterly",
                   "Quarterly", "In place. January–March 2026 report on file."],
@@ -3376,6 +3421,40 @@ EQA = {
                   "Confirm the programme is still active and file the intervening reports."],
              ],
              [4.2, 4.6, 2.4, 5.3]),
+        ]),
+        ("6.4 Gaps in this laboratory's own EQA coverage", [
+            ("p", "The following examinations are on the Scope of Test list but **no assessment of "
+                  "this laboratory** was found on file for them. Each is either an enrolment to be "
+                  "confirmed or a participation to be arranged, and none may be closed by pointing "
+                  "at the re-reading the laboratory performs for its health centres — that is a "
+                  "different activity and gives no evidence about this laboratory's own performance:"),
+            ("tbl",
+             ["Examination", "What was searched", "Position at 15 November 2026", "Action and owner"],
+             [
+                 ["TB smear microscopy (ZN and auramine)",
+                  "NRL re-reading and PT reports held by the laboratory",
+                  "**No report of this laboratory's own slides being re-read.** The four NRL TB "
+                  "microscopy reports on file assess Nyange HC and Rwankuba HC, not Ruli DH",
+                  "Confirm with NRL whether the laboratory is enrolled for its own slides; record "
+                  "the answer either way. Quality Manager, within one month"],
+                 ["Malaria film microscopy",
+                  "NRL re-reading and PT reports held by the laboratory",
+                  "**No report of this laboratory's own slides being re-read.** The four NRL "
+                  "malaria reports on file assess the eight health centres",
+                  "As above. Quality Manager, within one month"],
+                 ["HBV viral load, HCV viral load, HIV early infant diagnosis, TB LAM",
+                  "PT reports and provider correspondence",
+                  "No PT report held for any of the four",
+                  "Establish whether the laboratory is enrolled and the reports are unfiled, or not "
+                  "enrolled at all. Laboratory Manager, within one month"],
+             ],
+             [3.8, 3.4, 5.2, 4.6]),
+            ("p", "**Why this section exists.** It is easy to read a quarterly NRL report with the "
+                  "laboratory's name in the header and treat it as the laboratory's EQA result. It is "
+                  "not. On both malaria and TB microscopy the subject of those reports is the health "
+                  "centre, the reader is this laboratory, and the beneficiary is the health centre's "
+                  "patient. If this laboratory is never itself assessed on smear microscopy, that is "
+                  "a genuine gap in its own quality assurance and it is recorded here as one."),
         ]),
         ("7. Enrolment and participation", [
             ("b", [
@@ -3430,91 +3509,6 @@ EQA = {
                 "A submission that is late or incomplete is a nonconformity and is recorded as one, "
                 "even if the result itself would have been satisfactory.",
             ]),
-        ]),
-        ("8A. Slide re-reading — TB smear and malaria films", [
-            ("p", "For TB smear microscopy and for malaria film microscopy the laboratory is not "
-                  "sent a panel of prepared samples. The National Reference Laboratory takes the "
-                  "laboratory's own stained slides, together with the results the laboratory "
-                  "reported on them, reads those slides independently, and compares its reading "
-                  "with the laboratory's. The material being assessed is the laboratory's staining "
-                  "and its reading — not its handling of a manufactured sample."),
-            ("p", "The records show this clearly. The NRL quarterly malaria report carries a column "
-                  "headed \"Result/Health Center\" against a column headed \"Result/Hospital lab\", "
-                  "slide by slide, with a discordant rate and a pass or fail derived from it. The TB "
-                  "microscopy report is laid out the same way, but with the reading split into "
-                  "**positive, scanty and negative**, because that is how a TB smear is graded. "
-                  "Neither report contains a result the laboratory produced on a sample the provider "
-                  "sent it. Both are re-reading schemes, and this section exists because they fail "
-                  "in ways a panel result cannot."),
-            ("p", "**Which slides this section is about.** Every scheme in this section is applied "
-                  "to the slides the laboratory's **own health centres** send in, and the re-reading "
-                  "is performed by the hospital laboratory and reported to NRL. On TB the sites "
-                  "involved are **Nyange HC and Rwankuba HC**; on malaria all eight health centres "
-                  "are covered. This is a **slide re-reading scheme operating inside the laboratory's "
-                  "own referral network**, and it is recorded here so that it is planned, resourced "
-                  "and reviewed like any other EQA activity. It is not the same thing as the "
-                  "laboratory being assessed on its own benches, and the two must not be conflated in "
-                  "the annual report: the laboratory is the **reader** in this scheme. Where the "
-                  "laboratory's own slides are additionally re-read by NRL, that is recorded "
-                  "separately under section 10."),
-            ("p", "The rules that follow from the difference:"),
-            ("b", [
-                "**The slides must be a representative sample.** A slide chosen because it was a "
-                "good one tells the reader nothing. Slides are taken as the scheme specifies, "
-                "normally a defined number per site per quarter, and never selected for appearance.",
-                "**The result compared is the result the health centre reported to the clinician.** "
-                "Correcting a result before it is sent destroys the assessment. If the health "
-                "centre's reading was wrong, it was wrong, and the scheme exists to find that out.",
-                "**Staining quality is part of the assessment**, not an excuse. A slide that is too "
-                "thick, too thin, unevenly stained or under-decolourised is a finding in its own "
-                "right, because the next slide from that site may not be readable at all.",
-                "**The reading is graded as the scheme grades it.** TB is scored positive, scanty or "
-                "negative; a scanty result is a category in its own right and is not folded into "
-                "positive or negative. Malaria is scored positive or negative by species. The "
-                "provider's grading is used and the laboratory does not decide for itself that a "
-                "discrepancy is unimportant.",
-                "**Retention must make re-reading possible.** Slides are kept for the period the "
-                "examination SOP and the records policy require, so a slide selected for the "
-                "quarter still exists when the quarter is evaluated.",
-                "**The discordant rate is calculated, not estimated.** It is a count of the slides "
-                "on which the two readings disagree, over the number of slides read, and it is "
-                "written down. A rate of zero is stated as zero.",
-            ]),
-            ("p", "**What the criteria are.** The pass mark on TB microscopy re-reading is a "
-                  "**discordant rate at or below 10 per cent**, which the NRL report states as a "
-                  "passing rate of 90 per cent. Malaria has no discordant rate tolerance printed on "
-                  "the report — a discordant rate of zero is recorded and the site passes. Where the "
-                  "provider states a criterion, the provider's criterion governs; where it does not, "
-                  "the laboratory applies its own and says so."),
-            ("p", "**What the records show, as at the November 2026 review.** Malaria: all eight "
-                  "health centres passed four consecutive quarters from April 2024 to March 2026, "
-                  "with a discordant rate of zero throughout — except that the Q3 2025/26 sheet "
-                  "cannot be relied on, because it reports Coko HC as positive-plus-negative "
-                  "totalling **fifteen slides on the health-centre side and fifteen on the hospital "
-                  "side but with a positive count of eight against seven**, and Muyongwe and "
-                  "Rushashi likewise do not balance. **A quarter whose arithmetic does not close "
-                  "cannot be signed as a pass.** That is a finding of this review, recorded in "
-                  "section 12.5 and raised with NRL, and it is the reason the arithmetic check "
-                  "below is a written step rather than an assumption."),
-            ("p", "**TB: the position is more serious and is recorded plainly.** Re-reading covers "
-                  "**two health centres only — Nyange and Rwankuba** — while the laboratory has "
-                  "eight. Across the four quarters on file, **Rwankuba was re-read on 15 slides per "
-                  "quarter and Nyange on 2, 5, 8 and 11**, which is not a defensible sample of "
-                  "either site's work. The Q4 2024/25 sheet is headed \"Quarter II\" in its own "
-                  "text while its tab and date range make it Quarter IV, and the Q3 2025/26 sheet is "
-                  "headed \"Quarter II\" as well — two sheets, one label. On that Q4 2024/25 sheet "
-                  "both sites are marked **False** with a discordant rate of **0**, which on the "
-                  "report's own criterion should read Pass. A fail recorded against a zero "
-                  "discordant rate is either a transcription error or a criterion that is not the "
-                  "one printed, and it cannot be left unexplained. Finally, the TB report covers "
-                  "**microscopy only**: the GeneXpert TB testing is assessed by the proficiency "
-                  "testing panel in section 8 and is not covered by any re-reading here."),
-            ("p", "Where the provider reports a discrepancy, it is investigated under section 12 "
-                  "exactly as an unsatisfactory panel result is: contain, find the cause across "
-                  "staining, reading, the person and the material, take corrective action, and "
-                  "verify it in the next quarter. A false negative on a TB smear is a missed case "
-                  "of tuberculosis in a patient who was sent home, and it is treated with that "
-                  "weight."),
         ]),
         ("9. Where no EQA programme exists", [
             ("p", "ISO 15189:2022, 7.3.7.3 permits an alternative approach where no EQA programme is "
@@ -3679,74 +3673,6 @@ EQA = {
                   "three weeks of issuing a report — the visit's findings and the laboratory's "
                   "response are filed with the nonconformity."),
         ]),
-        ("12.5 Arithmetic and consistency checks on a re-reading report", [
-            ("p", "A re-reading report is a calculation before it is a judgement. The following are "
-                  "checked on every report before it is accepted, filed or acted on, and the check "
-                  "is recorded on the report itself with the initials of the person who did it:"),
-            ("b", [
-                "**The positives and negatives add up to the slides read**, on the health centre's "
-                "side and on the reading side, for every site and every quarter. A row that does "
-                "not add up is queried before the quarter is signed.",
-                "**The slide count is the same on both sides.** The provider cannot have read a "
-                "different number of slides from the number sent without saying so.",
-                "**The discordant rate matches the numbers in the row.** It is recomputed, not "
-                "read off.",
-                "**The pass or fail matches the criterion printed on the report.** A fail recorded "
-                "against a discordant rate of zero is queried. So is a pass recorded against a "
-                "rate above the stated tolerance.",
-                "**The quarter on the tab matches the quarter in the report text.** A sheet headed "
-                "with one quarter and dated with another is queried, because a report filed under "
-                "the wrong quarter cannot be trended.",
-                "**The report is complete.** Every site that should be covered appears. A site that "
-                "has dropped out of a quarter is a finding, not a blank.",
-            ]),
-            ("p", "**The 2026 review found four such defects in the re-reading reports on file** — "
-                  "the Q3 2025/26 malaria sheet, and on the TB sheet the duplicate quarter heading, "
-                  "the fail against a zero rate, and the small and shrinking Nyange sample. They "
-                  "are set out in sections 8A and 12.6. They are recorded as **defects in the "
-                  "reports received**, not as failures of the laboratory, and the action is to "
-                  "query them with NRL in writing and to keep the query and the answer with the "
-                  "report."),
-        ]),
-        ("12.6 Findings of the November 2026 review of the re-reading records", [
-            ("p", "Four matters are raised with the National Reference Laboratory and cannot be "
-                  "closed by the laboratory alone. Each has an owner and a date, and stays open on "
-                  "the quality file until NRL answers:"),
-            ("tbl",
-             ["Finding", "Where it is", "Why it matters", "Action and owner"],
-             [
-                ["Malaria Q3 2025/26 arithmetic does not close: Coko HC is reported 8 positive and "
-                 "7 negative against 8 and 7, Muyongwe 3 and 12 against 3 and 10, Rushashi 5 and "
-                 "10 against 5 and 12, and the quarter reports a discordant rate of zero and a pass",
-                 "Malaria re-reading, Q3 2025/26 sheet",
-                 "A quarter that does not add up cannot be signed as a pass, and a rate of zero "
-                 "computed from unbalanced rows is not a measured zero",
-                 "Query in writing to NRL with the rows reproduced; hold the quarter as "
-                 "**unverified** until answered. Quality Manager, within one month"],
-                ["TB sheet Q4 2024/25 is headed \"Quarter II\" in its text while its tab and dates "
-                 "make it Quarter IV; the Q3 2025/26 sheet is headed \"Quarter II\" as well",
-                 "TB re-reading, Q4 2024/25 and Q3 2025/26 sheets",
-                 "Two quarters carrying one label cannot be trended, and a report filed under the "
-                 "wrong quarter misstates the year",
-                 "Query the quarter labelling; file under the tab and date range and annotate the "
-                 "correction. Quality Manager"],
-                ["TB Q4 2024/25 marks both sites **False** with a discordant rate of **0**, which on "
-                 "the printed 90 per cent passing rate should be Pass",
-                 "TB re-reading, Q4 2024/25 sheet",
-                 "Either a transcription error or an applied criterion that is not the printed one; "
-                 "both must be known before the quarter is counted as a failure of the site",
-                 "Query with NRL; if the fail stands, obtain the criterion applied and record it. "
-                 "Quality Manager"],
-                ["TB re-reading covers two health centres only (Nyange, Rwankuba), on 2 to 15 slides "
-                 "a quarter, against eight centres in the network",
-                 "TB re-reading, all quarters",
-                 "A two-site, two-slide sample cannot support a statement about TB microscopy quality "
-                 "in the network, and the Nyange sample is shrinking",
-                 "Raise the sample size and coverage with NRL; until then state the limitation "
-                 "wherever the results are reported. Laboratory Manager"],
-             ],
-             [4.6, 3.0, 4.6, 4.8]),
-        ]),
         ("13. Patient results, and what an EQA failure means for them", [
             ("p", "This is the section that makes EQA worth doing. An unsatisfactory EQA result may "
                   "mean that patients examined in the same period received wrong results, and the "
@@ -3896,7 +3822,365 @@ EQA = {
     ],
 }
 
-DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE, EQA]
+
+# ---------------------------------------------------------------------------
+# ADM-SOP-050 -- Re-reading of health-centre slides and re-testing of
+# health-centre samples.
+#
+# This is the OTHER direction of quality assessment. ADM-025 governs the
+# laboratory being assessed. This document governs the laboratory assessing the
+# eight health centres in its network: it re-reads their stained slides,
+# compares its reading with theirs, scores the discordance and reports back.
+#
+# The two must never be merged into one figure. A health-centre discordance rate
+# says nothing about this laboratory's own accuracy.
+# ---------------------------------------------------------------------------
+
+HCR = REGISTER["hc_slide_review"]
+HCR_CODE = code("hc_slide_review")
+HCR_EFF = "14/11/2026"
+HCR_REV = "14/11/2028"
+
+HC_REVIEW = {
+    "meta": {"doc_no": HCR_CODE, "title": HCR["title"], "version": HCR["vers"]},
+    "out_stem": f"{HCR_CODE} - Re-reading of Health-Centre Slides and Re-Testing of "
+                "Health-Centre Samples",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", HCR["vers"], HCR_EFF,
+         "First issue. The laboratory re-reads the stained slides of the eight health centres "
+         "in its network and reports the discordance back to the National Reference "
+         "Laboratory, but no controlled document governed the activity: who selects the "
+         "slides, who reads them, how the discordant rate is calculated, what happens when a "
+         "site fails and what the laboratory may conclude from a sample of two slides were all "
+         "unwritten. Written to ISO 15189:2022, 7.3.7, and kept deliberately separate from "
+         "ADM-SOP-025, which governs the assessment of this laboratory."],
+    ],
+    "control_rows": [
+        ("SOP Number", HCR_CODE),
+        ("SOP Title", HCR["title"]),
+        ("Version", HCR["vers"]),
+        ("Effective Date", HCR_EFF),
+        ("Next Review Date", HCR_REV),
+        ("Supersedes", "\u2014 (first issue; the activity was performed without a controlled "
+                       "document)"),
+        ("Document Owner", "Kelvin SAMAHANI \u2014 Laboratory Manager"),
+        ("Applies to", "The re-reading and re-testing the laboratory performs FOR its health "
+                       "centres. NOT to the assessment of this laboratory, which is "
+                       "ADM-SOP-025"),
+        ("Classification", "Controlled document \u2014 master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "There are two directions of quality assessment in this laboratory's work and "
+                  "they are easily confused. In one, an outside body assesses **this laboratory**: "
+                  "a panel arrives, the laboratory tests it, the result goes back and a report "
+                  f"follows. That is governed by the EQA and proficiency testing SOP "
+                  f"({code('eqa_pt')}), and it is about this laboratory's own accuracy."),
+            ("p", "In the other, **this laboratory assesses its health centres**. The health centres "
+                  "stain slides and read them; the slides come to Ruli; the laboratory re-reads them "
+                  "blind; the two readings are compared slide by slide; the discordance is scored "
+                  "and reported back to the National Reference Laboratory. The subject of that "
+                  "assessment is the health centre. **The laboratory is the reader, not the "
+                  "participant.**"),
+            ("p", "This document governs the second direction. It exists because the activity was "
+                  "being performed to a real standard without a controlled procedure behind it: the "
+                  "reports on file show it working, quarter after quarter, and show four reporting "
+                  "defects and two coverage problems that no procedure caught."),
+            ("p", "**The two must never be merged.** A health-centre discordance rate is not this "
+                  "laboratory's EQA performance. A PT z-score is not a statement about the health "
+                  "centres. In any management report they appear under separate headings with the "
+                  "subject stated, and no composite score mixes them \u2014 a blended figure would "
+                  "describe neither and would mislead an assessor in the direction the laboratory "
+                  "would least like."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To define how the laboratory selects, re-reads, scores and reports back the "
+                  "slides and samples of its health centres, so that the comparison is blind, "
+                  "representative, arithmetically sound and actionable \u2014 and so that a failing "
+                  "site is identified early rather than after a patient is misdiagnosed."),
+        ]),
+        ("3. Scope", [
+            ("p", "**In scope:** malaria thick and thin films from the eight health centres in the "
+                  "network \u2014 Ruli, Coko, Nyange, Minazi, Rushashi, Muyongwe, Rwankuba and "
+                  "Muhondo; TB smear microscopy from the centres that send slides; and any other "
+                  "slide-based or sample-based re-testing the laboratory is asked to perform for a "
+                  "health centre, including chemistry and haematology re-testing where a site's "
+                  "result is queried."),
+            ("p", "**Out of scope:** the assessment of this laboratory, which is the EQA and "
+                  "proficiency testing SOP; internal quality control within the laboratory, which "
+                  "is the quality control SOP; and the laboratory's own examination procedures for "
+                  "malaria and TB, which are `PAR-SOP-008` for Giemsa malaria and `TB-SOP-002` and "
+                  "`TB-SOP-003` for auramine and Ziehl-Neelsen microscopy. This SOP governs the "
+                  "**programme**, not the staining or the reading technique."),
+        ]),
+        ("4. Definitions", [
+            ("tbl", ["Term", "Meaning in this laboratory"],
+             [
+                 ["Re-reading", "Reading a slide a second time to compare two independent readings. "
+                                "The second reader must not know the first result."],
+                 ["Blind re-reading", "Re-reading without sight of the original result or the "
+                                      "patient's identity. Without this the comparison measures "
+                                      "nothing."],
+                 ["Discordant rate", "The number of slides on which the two readings disagree, "
+                                     "divided by the number of slides read, expressed as a "
+                                     "percentage. It is calculated, never estimated."],
+                 ["Concordant", "The two readings agree. For TB this means the same category \u2014 "
+                                "positive, scanty or negative \u2014 not merely both non-negative."],
+                 ["Scanty", "The TB smear grade between negative and 1+ (1\u20139 acid-fast bacilli "
+                            "per 100 fields). **A category in its own right**, scored as such and "
+                            "never folded into positive or negative."],
+                 ["Passing rate", "The tolerance printed on the provider report. On TB microscopy "
+                                  "it is 90 per cent, equivalently a discordant rate at or below "
+                                  "10 per cent. On malaria no tolerance is printed and a discordant "
+                                  "rate of zero is recorded."],
+                 ["False negative (TB)", "A slide the health centre called negative that the "
+                                         "laboratory reads as positive or scanty. **The most "
+                                         "dangerous error in the programme**, because the patient "
+                                         "was sent home."],
+                 ["False positive (TB)", "A slide the health centre called positive that the "
+                                         "laboratory reads as negative. Costs unnecessary "
+                                         "treatment and a notification that should not have been "
+                                         "made."],
+                 ["Quantification error", "A discrepancy in the grade rather than in the presence of "
+                                          "the organism \u2014 printed on the NRL TB report as QE."],
+                 ["Site", "A health centre in the network. The unit at which results are scored and "
+                          "reported back."],
+             ],
+             [4.6, 11.9]),
+        ]),
+        ("5. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and resource the programme", "Laboratory Manager"],
+                 ["Own the programme, hold the schedule, keep the reports", "Quality Manager"],
+                 ["Select slides for re-reading", "Section head, Parasitology / TB"],
+                 ["Perform the blind re-reading",
+                  "A competent reader who did not report the original result"],
+                 ["Second-read a discordant slide before it is reported",
+                  "Quality Manager or a second competent reader"],
+                 ["Compile the quarterly return and check its arithmetic", "Quality Manager"],
+                 ["Sign the return", "Laboratory Manager"],
+                 ["Send the return and the queries to the provider", "Quality Manager"],
+                 ["Notify a health centre of a clinically significant discordance",
+                  "Laboratory Manager, within one working day of the discrepancy being confirmed"],
+                 ["Feed a confirmed discrepancy into the health centre's corrective action",
+                  "Quality Manager with the district laboratory focal person"],
+             ],
+             [8.8, 8.2]),
+        ]),
+        ("6. The slide sample", [
+            ("p", "The comparison is only as good as the sample, and this is where the programme on "
+                  "file is weakest. **A site re-read on two slides cannot be judged.** The procedure:"),
+            ("steps", [
+                ("1.", "Slides are taken from the site's routine work for the quarter as they come, "
+                       "in the order they were reported. They are **never** chosen for appearance, "
+                       "for being clearly positive, or for being the ones the site got right."),
+                ("2.", "A **minimum of fifteen slides per site per quarter** is the target, and no "
+                       "site is scored on fewer than **ten**. Where a site reported fewer than ten "
+                       "slides in the quarter, **every slide it reported** is re-read and the return "
+                       "states that the sample was the whole of the site's work, not a sample of it."),
+                ("3.", "The sample must contain both positive and negative slides **in roughly the "
+                       "proportion the site reported**, so that neither a false negative nor a false "
+                       "positive can hide. A quarter that is entirely negative slides is recorded as "
+                       "a **sampling limitation**, not as a clean quarter."),
+                ("4.", "At least the **scanty** slides reported by the site are included, because "
+                       "scanty is where readings diverge most."),
+                ("5.", "Every slide is identified by the site, the quarter and a re-reading number, "
+                       "with the patient identifier removed from the re-reading sheet. The reader "
+                       "sees neither the identity nor the original result."),
+                ("6.", "The numbers sent, the numbers received and the numbers readable are "
+                       "recorded. A slide that has deteriorated in transit or storage is recorded as "
+                       "**unreadable**, not as concordant."),
+            ]),
+            ("p", "**Coverage.** All eight health centres are in scope on malaria. On TB the "
+                  "programme on file covers only Nyange and Rwankuba; widening it to every site that "
+                  "sends TB smears is an action of this SOP, and until it is widened every return "
+                  "states the coverage limitation in words."),
+        ]),
+        ("7. Performing the re-reading", [
+            ("steps", [
+                ("1.", "The re-reader examines the slide independently, using the same method the "
+                       "health centre used, and records a result **before** the original is looked at."),
+                ("2.", "The result is recorded in the same categories the site used: for TB, "
+                       "negative, scanty or positive with a grade; for malaria, negative or positive "
+                       "with the species, and the parasite density where the site reported one."),
+                ("3.", "Staining quality is recorded on a three-point scale and commented on where "
+                       "the slide is difficult to read. **A finding about staining is a finding**, "
+                       "even where the reading agrees, because the next slide from that site may be "
+                       "unreadable."),
+                ("4.", "The original result is then revealed and the pair recorded as concordant or "
+                       "discordant, with the direction of the discordance."),
+                ("5.", "Every **discordant** slide, and every slide on which staining quality was "
+                       "poor, is read a second time by a different reader before it is reported. Two "
+                       "readers agreeing that a site was wrong is evidence; one reader alone is an "
+                       "opinion."),
+                ("6.", "The second reading and its reader are recorded. Where the two laboratory "
+                       "readers disagree, the slide is referred to the National Reference Laboratory "
+                       "and is not counted against the site."),
+            ]),
+            ("p", "**The person who reported the original must not re-read it.** Where the only "
+                  "competent reader for a site is the person who read it first, the slide is sent "
+                  "to NRL instead. This is the single rule most likely to be broken in a laboratory "
+                  "of eight staff, and it is the rule that decides whether the programme means "
+                  "anything."),
+        ]),
+        ("8. Calculating and scoring", [
+            ("p", "The arithmetic is done in full on a worksheet that travels with the return, and "
+                  "it is recomputed by the Quality Manager. **A return whose rows do not balance is "
+                  "not sent.**"),
+            ("tbl",
+             ["Quantity", "How it is calculated", "Where it is recorded"],
+             [
+                 ["Slides received", "Count of slides that arrived from the site", "Worksheet 1"],
+                 ["Slides readable", "Received minus unreadable, with each unreadable slide listed "
+                                     "and the reason", "Worksheet 2"],
+                 ["Positives and negatives, site side",
+                  "As the site reported them; they must sum to the slides read", "Worksheet 3"],
+                 ["Positives and negatives, laboratory side",
+                  "As the laboratory read them; they must sum to the same total", "Worksheet 4"],
+                 ["Discordant count",
+                  "Slides on which the two readings differ, listed by slide number", "Worksheet 5"],
+                 ["Discordant rate",
+                  "Discordant count \u00f7 slides readable \u00d7 100, to one decimal place",
+                  "Worksheet 6"],
+                 ["Score", "100 minus the discordant rate, on the provider's convention",
+                  "Worksheet 7"],
+                 ["Verdict", "Pass where the discordant rate is at or below the tolerance printed "
+                             "on the report; otherwise Fail", "Worksheet 8"],
+             ],
+             [4.3, 8.0, 4.7]),
+            ("p", "**Tolerances.** TB microscopy: a discordant rate at or below **10 per cent**, "
+                  "which the NRL report states as a passing rate of 90 per cent. Malaria: the NRL "
+                  "report prints **no tolerance**; the discordant rate is recorded and a rate of "
+                  "zero passes. Where a provider prints a criterion, the **provider's** criterion "
+                  "governs and is quoted on the return. Where none is printed, the laboratory "
+                  "applies the TB tolerance and says on the return that it has done so \u2014 it "
+                  "does not invent a silent one."),
+            ("p", "**Consistency checks before the return is signed.** The following are checked "
+                  "every quarter and the check is initialled on the return: the rows add up on both "
+                  "sides; the slide counts match on both sides; the discordant rate reproduces from "
+                  "the numbers in the row; the verdict matches the criterion printed on the report; "
+                  "the quarter on the tab matches the quarter in the text; and every site that "
+                  "should appear does appear. **A site that has dropped out of a quarter is a "
+                  "finding, not a blank.**"),
+        ]),
+        ("9. Reporting back", [
+            ("p", "The quarterly return goes to the National Reference Laboratory and to each health "
+                  "centre, and it contains for every site: the slides read, the two readings, the "
+                  "discordant count with the slides listed, the discordant rate, the verdict against "
+                  "the printed criterion, and a comment. A verdict is never sent without the numbers "
+                  "that produced it."),
+            ("p", "**Clinically significant discrepancies are notified before the return.** Where the "
+                  "laboratory finds a **false negative** on a TB smear, or a missed malaria positive, "
+                  "the health centre is telephoned the same working day and the patient is traced. "
+                  "The return then records what was done. A quarterly cycle is far too slow to "
+                  "correct a patient who is being sent home with a wrong answer."),
+            ("p", "**What the laboratory may and may not conclude.** A pass at a site means the "
+                  "reading agreed on the slides re-read in that quarter, at that sample size, and "
+                  "nothing more. It is not a statement that the site's microscopy is accurate, it "
+                  "is not a competence assessment of an individual, and it is not a licence to "
+                  "reduce supervision. A fail means the sample contained discordance that needs a "
+                  "cause, not that the site is bad."),
+        ]),
+        ("10. When a site fails, or a discrepancy is confirmed", [
+            ("p", "A discordance is investigated to its cause in the same way an unsatisfactory PT "
+                  "result is, and the cause is sought at the site rather than assumed:"),
+            ("b", [
+                "**Pre-analytical** \u2014 was the slide made from a good sample, at the right "
+                "thickness, and fixed properly?",
+                "**Staining** \u2014 was the stain fresh, correctly filtered, correctly timed, "
+                "correctly decolourised? Is the site's stain control slide in place and read?",
+                "**Reading** \u2014 did the reader examine enough fields, at the right "
+                "magnification, for long enough?",
+                "**Materials and equipment** \u2014 is the microscope clean and correctly adjusted, "
+                "is the objective intact, is the light right?",
+                "**Person** \u2014 is the reader competent for this examination, and when was that "
+                "last verified?",
+            ]),
+            ("p", "Corrective action is agreed **with the site**, has an owner and a date, and its "
+                  "**effectiveness is verified on the next quarter's re-reading** \u2014 not on a "
+                  "declaration that it was done. A site that fails the same way twice goes to the "
+                  "Laboratory Manager and into the district performance review."),
+        ]),
+        ("11. Records", [
+            ("tbl",
+             ["Record", "Who keeps it", "How long"],
+             [
+                 ["The re-reading worksheet, with both readings and the arithmetic",
+                  "Quality Manager", "6 years"],
+                 ["The signed quarterly return, as sent and as returned by the provider",
+                  "Quality Manager", "6 years"],
+                 ["The list of slides, their identifiers and their fate", "Section head", "6 years"],
+                 ["Second-reading records for every discordant slide", "Quality Manager", "6 years"],
+                 ["Notifications of clinically significant discrepancies, with the time and the "
+                  "person told", "Quality Manager", "6 years"],
+                 ["Corrective action records for each failing site", "Quality Manager",
+                  "6 years, and until effectiveness is verified"],
+             ],
+             [7.6, 4.4, 5.0]),
+            ("p", "Records are held so that any quarter can be reconstructed: which slides, read by "
+                  "whom, with what result, against what original, and with what arithmetic. A return "
+                  "that cannot be reconstructed from the file is treated as not having been made."),
+        ]),
+        ("12. Defects found in the programme as it stands", [
+            ("p", "The review of 15 November 2026 read every re-reading report on file. Five matters "
+                  "were found. They are recorded here rather than corrected on the provider's "
+                  "behalf, and each is raised with NRL in writing:"),
+            ("tbl",
+             ["Finding", "Why it matters", "Action and owner"],
+             [
+                 ["Malaria Q3 2025/26 does not add up: Coko HC is reported 8 positive and 7 "
+                  "negative against 8 and 7 yet carries a discordant rate of 0 and a pass; "
+                  "Muyongwe reads 3 and 12 against 3 and 10; Rushashi 5 and 10 against 5 and 12",
+                  "A quarter whose rows do not balance cannot be signed as a pass, and a zero "
+                  "computed from unbalanced rows is not a measured zero",
+                  "Query to NRL with the rows reproduced; hold the quarter **unverified** until "
+                  "answered. Quality Manager, within one month"],
+                 ["Two TB sheets are both headed \"Quarter II\" \u2014 Q4 2024/25, whose tab and "
+                  "dates make it Quarter IV, and Q3 2025/26",
+                  "Two quarters carrying one label cannot be trended, and a report filed under the "
+                  "wrong quarter misstates the year",
+                  "Query the labelling; file by tab and date range and annotate. Quality Manager"],
+                 ["TB Q4 2024/25 marks both sites **False** with a discordant rate of **0**, which "
+                  "on the printed 90 per cent passing rate should read Pass",
+                  "Either a transcription error or a criterion other than the printed one; the "
+                  "difference decides whether a site was wrongly failed",
+                  "Query with NRL; if the fail stands, obtain and record the criterion applied. "
+                  "Quality Manager"],
+                 ["TB re-reading covers two of eight centres, and Nyange's sample ran 11, then "
+                  "**2**, then 5, then 8 slides",
+                  "A two-slide quarter supports no conclusion about that site, and six sites are "
+                  "not covered at all",
+                  "Widen coverage and enforce the ten-slide floor from section 6. Laboratory "
+                  "Manager, from the next quarter"],
+                 ["No tolerance is printed on the malaria report",
+                  "A pass with no stated criterion cannot be defended to an assessor or to a site "
+                  "that disputes it",
+                  "Apply the TB tolerance and state it on every malaria return until NRL prints "
+                  "one. Quality Manager"],
+             ],
+             [5.6, 5.4, 6.0]),
+        ]),
+        ("13. Supporting documents and references", [
+            ("b", [
+                "ISO 15189:2022, 7.3.7 \u2014 external quality assessment, and the requirement that "
+                "where results fall outside pre-defined criteria the laboratory acts under 8.7 "
+                "including an assessment of clinical significance.",
+                "ISO 15189:2022, 7.4 \u2014 reporting of results, which governs how a discrepancy "
+                "is communicated to a health centre.",
+                "ISO 15189:2022, 8.7 \u2014 nonconforming work, under which a confirmed discrepancy "
+                "in a reported patient result is handled.",
+                "ASLM SLIPTA Checklist v3:2023, items 8.20 and 8.21 \u2014 the procedure for EQA "
+                "and participation in it, which the assessor scores.",
+                "NRL quarterly evaluation reports for malaria and TB microscopy re-testing of "
+                "health centres \u2014 the provider format this SOP works to.",
+            ]),
+        ]),
+    ],
+}
+
+DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE, EQA, HC_REVIEW]
 
 # ---------------------------------------------------------------------------
 # DOCX builder
