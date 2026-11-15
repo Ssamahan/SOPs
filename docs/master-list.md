@@ -114,6 +114,32 @@ Read line by line from `MASTER LIST 2025.docx`. "Entries" counts distinct serial
 The `EXT-` codes throughout the register (`EXT-RliDHL-BIO-001-2016`, etc.) are
 **manufacturer manuals**, not laboratory SOPs. They do not consume SOP serials.
 
+### Examination SOPs written for the analysers in service
+
+Three analysers were running with no examination SOP. `ADM-SOP-062` covers their
+*maintenance* — start-up, QC, calibration, faults — and says nothing about specimen
+acceptance, measurement, interpretation or reporting. ISO 15189:2022, **7.3.6 a)** requires
+the laboratory to document its examination procedures, and no document did.
+
+| New SOP | Analyser | Serial | Asset code | Section |
+|---|---|---|---|---|
+| `HEM-SOP-005-VERS-001` | Sysmex XN-330 | 17156 | `RULIDH/LAB/ME/0501` | Haematology |
+| `HEM-SOP-006-VERS-001` | Sysmex XQ-320 | 12357 | `RULIDH/LAB/ME/0499` | Haematology |
+| `IMM-SOP-005-VERS-001` | Alere Pima CD4 | `PIMA-D-005378` | `RULIDH/LAB/ME/0485` | Immunology |
+
+Serials 005 and 006 in HEM and 005 in IMM are the lowest genuinely free numbers: HEM
+001 is the venipuncture revision and 002–004 are withdrawn, IMM 001–004 are the legacy
+FACSCount SOPs. Nothing is skipped.
+
+**What these SOPs deliberately do not contain.** No measuring range, CV, reference interval
+or interference limit is stated as a laboratory figure. Those are verified per instrument
+under 7.3.2 and recorded in the method verification file; the reference intervals are
+established and reviewed under 7.3.5 and held in the Normal Ranges list in force. The
+manufacturer's own specifications and flagging rules are cited to the IFU under **7.3.6 d)**,
+which permits instructions for use to be incorporated by reference. Writing a number into
+an SOP that no one verified is the defect that section 13 of each document is built to
+avoid.
+
 ### Equipment: what is actually in the laboratory
 
 A serial existing in the register says nothing about the machine existing at the bench.
@@ -203,6 +229,8 @@ documents — which is exactly the failure this repository's checker exists to p
 | 15/11/2026 | Read every series in the register, not just ADM. Found that **no IH series exists** and that `BIO-SOP-001` is registered to *Use and preventive maintenance of Humastar 80*, not to the glucose SOP. Both recorded as open decisions in `DECISIONS`, not silently renumbered. |
 | 15/11/2026 | Found `ADM-FORM-014` *Signature page* and `ADM-FORM-001` *Staff competency assessment form* already in the register. Form `064-F01` overlaps both; recorded as an open decision. |
 | 15/11/2026 | **Corrected a serious error: decommissioned equipment treated as live.** The previous change moved *Use and preventive maintenance of Humastar 80* to `BIO-SOP-002`, and BIO-002 is the **Humalyzer 3500** SOP. Both analysers have been decommissioned; the register rows were read as live documents because the equipment status had not been checked. Both are now withdrawn in place, `WITHDRAWN` records why, and the checker fails on a decommissioned analyser named outside a withdrawal clause. |
+| 15/11/2026 | **Three examination SOPs written** for the analysers in service — XN-330, XQ-320, Pima CD4 — because no document covered the examination itself (ISO 15189:2022, 7.3.6). Serials HEM-005, HEM-006, IMM-005, no skips. |
+| 15/11/2026 | **Layout fix:** a bullet list could leave two or three lines alone on a page. Short lists are now kept together. This was found by measuring page fill, not by eye. |
 | 15/11/2026 | **`IH` deleted.** Venous collection is `HEM-SOP-001-VERS-002`, a revision of the registered document. The invented department is gone from the register, the build and the documents. |
 | 15/11/2026 | **`BIO-SOP-001` settled by keeping 001.** *Use and preventive maintenance of Humastar 80* is withdrawn, not renumbered — see the correction below. |
 | 15/11/2026 | **`064-F01` now cites `ADM-FORM-014` and `ADM-FORM-001`** on the face of the signature page. Neither form is withdrawn. |

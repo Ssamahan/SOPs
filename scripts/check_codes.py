@@ -181,6 +181,10 @@ def main() -> int:
                          f"{serial:03d} is beyond the known ceiling {ceiling:03d} "
                          f"— either it is a new allocation (mark it) or the number "
                          f"is wrong")
+        # Highest allocated counts BOTH sources: serials allocated by this library
+        # (REGISTER) and serials held by documents outside it (SERIES_ALLOCATED).
+        here = {e[0] for e in entries}
+        allocated = {**allocated, **{n: "this library" for n in here}}
         if allocated:
             nxt = max(allocated) + 1
             notes.append(f"{series}: highest allocated {max(allocated):03d}, "
@@ -348,7 +352,10 @@ def main() -> int:
 
     # Decisions about specific registered documents. These are not failures --
     # the code is internally consistent -- but a green tick would hide them.
-    open_decisions = [(k, d) for k, d in DECISIONS.items() if k in REGISTER]
+    # Every declared open decision is printed, whether or not it concerns a document this
+    # repository builds. A decision about equipment status is exactly the kind that gets
+    # lost when it is only recorded next to a document.
+    open_decisions = list(DECISIONS.items())
 
     # ---------- report ----------
     print("Document-numbering check")

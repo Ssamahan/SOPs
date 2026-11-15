@@ -110,8 +110,8 @@ SERIES_KNOWN_MAX = {
     "RliDHL-ADM-SOP": 49,
     "RliDHL-BAC-SOP": 6,
     "RliDHL-BIO-SOP": 9,
-    "RliDHL-HEM-SOP": 4,
-    "RliDHL-IMM-SOP": 4,
+    "RliDHL-HEM-SOP": 6,   # 005 XN-330, 006 XQ-320
+    "RliDHL-IMM-SOP": 5,   # 005 Pima CD4
     "RliDHL-MYC-SOP": 12,
     "RliDHL-PAR-SOP": 10,
     "RliDHL-SER-SOP": 7,
@@ -127,6 +127,34 @@ SERIES_UNVERIFIED: set[str] = set()   # no invented series remain; IH is gone
 # prints them after the passes, separately, because consistent-with-itself is not
 # the same as correct-against-the-register.
 DECISIONS = {
+    "humastar": {
+        "issue": "The hospital's own equipment register still lists the Humastar 80 as "
+                 "Operational; the programme handoff says it is withdrawn from Biochemistry",
+        "detail": "SOP-PROGRAMME-HANDOFF.md (verified inventory) records the Humastar 80 as "
+                  "decommissioned and confined to a withdrawal clause. The register in the "
+                  "equipment folder, 'RDH EQUIPMENTS CODE25 JANV 2026.xlsx', still carries it "
+                  "as 'Operational', asset RULIDH/LAB/ME/0110, in the Inventory, Operational "
+                  "and LAB sheets — although the same workbook's 'All not in esrvice' sheet "
+                  "lists both the KX-21N and the XS-500i as Obselete and does not list the "
+                  "Humastar. BIO-SOP-003 to 009 are all Humastar 80 procedures.",
+        "options": "Decide which source is authoritative and correct the other. This library "
+                   "follows the handoff and treats the Humastar as withdrawn, because asserting "
+                   "a machine is in service is the more dangerous error: it sends a "
+                   "technologist to a bench. If the analyser IS still operating, say so and the "
+                   "BIO block is restored.",
+    },
+    "xs500i": {
+        "issue": "The equipment register marks the Sysmex XS-500i Obsolete on the "
+                 "'All not in esrvice' sheet but Operational on three others",
+        "detail": "'RDH EQUIPMENTS CODE25 JANV 2026.xlsx' lists XS-500i (RULIDH/LAB/ME/0108) "
+                  "as Obselete on the Inventory and 'All not in esrvice' sheets, and as both "
+                  "Obsolete (LAB sheet, row 13 area) and Operational (LAB sheet, row 4). The "
+                  "handoff records it as decommissioned. No SOP governs it either way: it "
+                  "appears in the Master List only as an EXT- manufacturer manual.",
+        "options": "Settle the status from the maintenance and inventory records. Either way "
+                   "this library needs an XS-500i withdrawal note or an SOP; at present the "
+                   "instrument is invisible to the SOP set.",
+    },
     # Resolved 15/11/2026 on the Laboratory Manager's instruction. Kept here, empty of
     # open items, because the history is why the numbers are what they are:
     #
@@ -210,6 +238,18 @@ SERIES_ALLOCATED = {
     "RliDHL-BIO-SOP": {
         1: "BIO SOP 001 Glucose Testing (this library, VERS-005)",
     },
+    "RliDHL-HEM-SOP": {
+        1: "HEM SOP 001 Venous Blood Sample Collection (this library, VERS-002)",
+        2: "HEM SOP 002 Sysmex Pochi 100i — WITHDRAWN, analyser decommissioned",
+        3: "HEM SOP 003 Humacount 5 — WITHDRAWN, analyser decommissioned",
+        4: "HEM SOP 004 Sysmex KX-21N — WITHDRAWN, analyser decommissioned",
+    },
+    "RliDHL-IMM-SOP": {
+        1: "IMM SOP 001 FACSount usage and maintenance (legacy, register)",
+        2: "IMM SOP 002 CD4 sample rejection (legacy, register)",
+        3: "IMM SOP 003 CD4 sample preparation on FACSCount (legacy, register)",
+        4: "IMM SOP 004 Enumeration of CD4+ T lymphocytes, FACSCount (legacy, register)",
+    },
     # BIO serial 002 is NOT allocated. Its registered holder is the Humalyzer 3500
     # SOP, and the Humalyzer has been decommissioned. The document is superseded,
     # not renumbered and not replaced -- see WITHDRAWN. Moving the Humastar SOP
@@ -253,6 +293,38 @@ REGISTER = {
         "code": "RliDHL-HEM-SOP-001", "vers": "002",
         "title": "Venous Blood Sample Collection by Venipuncture",
         "master_list": "Master List, Haematology",
+    },
+    "xn330": {
+        # HEM serials: 001 = venipuncture revision, 002/003/004 = withdrawn analysers.
+        # 005 is the first genuinely free one.
+        "code": "RliDHL-HEM-SOP-005", "vers": "001",
+        "title": "Examination of Blood by the Sysmex XN-330 Haematology Analyser",
+        "master_list": "Master List, Haematology",
+        "new": True,
+    },
+    "xq320": {
+        "code": "RliDHL-HEM-SOP-006", "vers": "001",
+        "title": "Examination of Blood by the Sysmex XQ-320 Haematology Analyser",
+        "master_list": "Master List, Haematology",
+        "new": True,
+    },
+    "pima": {
+        # CD4 counting is immunology. IMM 001-004 are the legacy FACSCount SOPs;
+        # 005 is the first free serial.
+        "code": "RliDHL-IMM-SOP-005", "vers": "001",
+        "title": "CD4 Enumeration by the Alere Pima CD4 Analyser",
+        "master_list": "Master List, Immunology",
+        "new": True,
+    },
+    "exam_docs": {
+        "code": "RliDHL-ADM-SOP-041", "vers": "001",
+        "title": "Documentation of examination procedures",
+        "master_list": "Master List, Crosscutting SOPs",
+    },
+    "equip_maint": {
+        "code": "RliDHL-ADM-SOP-062", "vers": "001",
+        "title": "Use, Care and Preventive Maintenance of Hematology Analysers",
+        "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
     },
     "glucose": {
         # 001 was carried by two documents: this SOP at VERS-005, and "Use and
@@ -1404,7 +1476,702 @@ GLUCOSE = {
     ],
 }
 
-DOCUMENTS = [VENOUS, GLUCOSE]
+# ---------------------------------------------------------------------------
+# Documents 3-5 — examination SOPs for the analysers actually in service
+#
+# ISO 15189:2022, 7.3.6 a) requires the laboratory to document its examination
+# procedures "to the extent necessary to ensure the consistent application of its
+# activities and the validity of its results". 7.3.6 d) allows the manufacturer's
+# instructions for use to be incorporated BY REFERENCE where they carry sufficient
+# information. That is what is done here: the analyser's own parameter list,
+# measuring ranges, flagging rules and interference limits are cited to the IFU for
+# the model in use rather than retyped from memory into an uncontrolled SOP. What is
+# written out is what the IFU cannot know: this laboratory's specimen acceptance,
+# workflow, QC rules, critical limits and escalation.
+#
+# Nothing in these documents states a performance figure (CV, measuring range,
+# reference interval) that has not been verified for the instrument on the bench.
+# 7.3.2 requires those to be verified and recorded in the method verification file,
+# and 7.3.5 requires the reference intervals to be established and reviewed. The SOP
+# points at those records; it does not invent them.
+# ---------------------------------------------------------------------------
+
+ADM_EXAM_DOCS = code("exam_docs")        # ADM SOP 041, Documentation of examination procedures
+ADM_EQUIP_MAINT = code("equip_maint")    # ADM SOP 062, Hematology analyser maintenance
+
+
+def analyser_sop(key, *, model, manufacturer, serial, asset, bench, discipline,
+                 clinical, principle, specimen, specimen_notes, startup,
+                 run_steps, results, interp_intro, interp_rows, critical,
+                 reports, risks, limitations, ifu, extra_support, extra_refs,
+                 replacement_note):
+    """Build one examination SOP, sharing everything that does not depend on the model.
+
+    The instrument-specific sections are passed in; the sections that are the same for
+    any analyser — responsibilities, environment, records, waste, contingency — are
+    written once here so five documents cannot drift apart.
+    """
+    c = code(key)
+    body = []
+
+    body.append(("1. Introduction", [
+        ("p", f"{clinical}"),
+        ("p", f"At Ruli District Hospital Laboratory this examination is performed on the "
+              f"{manufacturer} {model}, {bench}, asset code {asset}, serial number {serial}. "
+              f"Requests and results are kept in the EMR. {replacement_note}"),
+    ]))
+
+    body.append(("2. Principle of the Test", [("p", principle)]))
+
+    body.append(("3. Purpose", [
+        ("p", f"This SOP standardises the examination of {discipline.lower()} specimens on the "
+              f"{model} so that results are correct, comparable over time, and traceable to the "
+              f"person who produced and released them."),
+    ]))
+
+    body.append(("4. Scope", [
+        ("p", f"This SOP applies to every member of laboratory staff authorised under section 7 "
+              f"who operates the {model} at the main laboratory of Ruli District Hospital. It "
+              f"covers patient specimens and, where stated, quality control and EQA material. It "
+              f"does not cover the maintenance of the analyser, which is controlled by a separate "
+              f"procedure (section 19), nor the collection of the specimen, which is covered by "
+              f"the pre-examination procedure."),
+    ]))
+
+    body.append(("5. Definitions and Abbreviations", [
+        ("b", [
+            "CBC — complete blood count: the panel of cell counts and derived indices reported "
+            "by a haematology analyser.",
+            "IQC — internal quality control; EQA — external quality assessment.",
+            "MU — measurement uncertainty (ISO 15189:2022, 7.3.4). IFU — the manufacturer's "
+            "instructions for use for the analyser and the reagent lot in use.",
+            "Delta check — comparison of a result with the patient's previous result.",
+            f"Authorised person — a member of staff recorded as competent and authorised "
+            f"under {ADM_TRAINING}.",
+        ]),
+    ]))
+
+    body.append(("6. Specimen Requirements", specimen))
+
+    body.append(("7. Responsibilities and Authorisation", [
+        ("b", [
+            "The Laboratory Manager (Kelvin SAMAHANI) owns this SOP, ensures the analyser is "
+            "verified and maintained, and authorises staff to report results unsupervised.",
+            "The Laboratory Quality Manager (Jean Paul NSENGIYUMVA) reviews control performance, "
+            "EQA results and any nonconformity arising from this examination.",
+            "The BMeT (Pacifique ISHIMWE) performs and records the maintenance and repair of the "
+            "analyser under the equipment maintenance procedure.",
+            "Only staff recorded as competent and authorised on the signature page of this SOP "
+            "may operate the analyser unsupervised. Staff in training operate it under direct "
+            "supervision and do not release results (ISO 15189:2022, 7.2).",
+            "The person named against a result in the EMR is accountable for its verification and "
+            "release (ISO 15189:2022, 7.3.1 d).",
+        ]),
+    ]))
+
+    body.append(("8. Equipment, Reagents, and Consumables", [
+        ("tbl",
+         ["Item", "Detail"],
+         [
+             ["Analyser", f"{manufacturer} {model}"],
+             ["Asset code", asset],
+             ["Serial number", serial],
+             ["Location", bench],
+             ["Reagents and controls", "As specified by the manufacturer for the model; the lot "
+              "in use, its expiry and its on-board stability are those stated in the IFU and "
+              "recorded in the reagent log."],
+             ["Consumables", "Sample tubes, cuvettes, cleaning and rinse solutions specified for "
+              "the model, and printer/interface consumables. Use only consumables specified for "
+              "the instrument."],
+             ["Power protection", "The analyser is connected through the laboratory UPS. A power "
+              "event is recorded and controls are repeated before testing resumes."],
+         ],
+         [5.2, 11.8]),
+        ("p", "Before use, confirm the analyser carries a valid maintenance status and that no "
+              f"withdrawal is in force ({ADM_EQUIP_MAINT})."),
+    ]))
+
+    body.append(("9. Environment and Biosafety Measures", [
+        ("b", [
+            "Work at the bench with gloves, a laboratory coat and eye protection. Treat all "
+            "specimens as potentially infectious.",
+            "Keep the analyser on a level bench away from direct sunlight, heat sources and strong "
+            "air currents, with the clearance the IFU specifies for ventilation.",
+            "Have the spill kit available. A spill is cleaned with the laboratory disinfectant "
+            "and recorded; a spill into the analyser is handled as a fault in section 17.",
+            "Sharps and contaminated consumables go into the sharps container and the "
+            "infectious waste stream, never into general waste. Decontaminate the bench at the "
+            "end of the shift.",
+        ]),
+    ]))
+
+    body.append(("10. Procedural Steps", [
+        ("h2", f"10.1 Start-up before the first patient specimen"),
+        ("steps", startup),
+        ("h2", "10.2 Running a specimen"),
+        ("steps", run_steps),
+        ("h2", "10.3 Reading and accepting the result"),
+        ("b", results),
+    ]))
+
+    body.append(("11. Quality Control and External Quality Assessment", [
+        ("h2", "11.1 Internal quality control"),
+        ("b", [
+            "Run the control material specified for this analyser at the start of every day of "
+            "testing, after calibration, after a reagent lot change, and after maintenance or "
+            "repair.",
+            "Accept the run only when each control lies within its assigned limits. Apply the "
+            "laboratory's rejection rules: a single result outside ±3 SD, two consecutive "
+            "results beyond ±2 SD on the same side of the mean, or a range exceeding 4 SD between "
+            "levels is a rejection.",
+            "Plot every control result so that shifts and trends are visible, and review the "
+            "charts at defined intervals (ISO 15189:2022, 7.3.7.2 e).",
+            "Record control results, lot numbers and every action taken in the quality control "
+            "register.",
+        ]),
+        ("h2", "11.2 External quality assessment"),
+        ("p", "The laboratory takes part in the haematology EQA scheme organised or designated by "
+              "RBC/NRL and tests the samples exactly as patient specimens, by the staff who "
+              "normally perform the examination. Unsatisfactory performance is investigated as in "
+              "11.3 and reported to the Laboratory Quality Manager."),
+        ("h2", "11.3 When a control fails"),
+        ("p", "Stop patient testing. Identify the cause — control material, reagent, calibration, "
+              "analyser or specimen — and correct it before repeating both control levels. Then "
+              "assess whether any result released since the last acceptable control is affected; "
+              "repeat the affected specimens and issue corrected reports where needed "
+              "(ISO 15189:2022, 7.5, 7.4.1). Record the event, the action and the assessment of "
+              "clinical impact."),
+        ("h2", "11.4 Comparability"),
+        ("p", f"The laboratory operates more than one haematology analyser. Comparability of "
+              f"results between them is established with patient specimens across the clinically "
+              f"significant interval — not with control material alone — when an analyser is "
+              f"added or returned to service, and is reviewed at least once a year. Results and "
+              f"the acceptability decision are recorded. Where a clinically significant difference "
+              f"is found, its effect on the reference intervals in section 14 is evaluated and "
+              f"users are informed (ISO 15189:2022, 7.3.7.4)."),
+    ]))
+
+    body.append(("12. Result Interpretation and Validation", [
+        ("p", interp_intro),
+        ("tbl", ["Observation", "Interpretive note (common causes)"], interp_rows, [5.0, 12.0]),
+        ("p", "Interpretation supports the clinician; it does not replace the clinical picture. "
+              "Where the result and the clinical information disagree, telephone the requester "
+              "before release and record the conversation."),
+    ]))
+
+    body.append(("13. Performance Characteristics and Limitations", [
+        ("p", "The performance specifications of the method — measuring interval, precision, "
+              "trueness and specificity including interfering substances — are those confirmed "
+              "for this instrument during verification and recorded in the method verification "
+              "file (ISO 15189:2022, 7.3.2). The manufacturer's stated specifications, and the "
+              "parameter list with the analyser's flagging and interpretive rules, are held in "
+              "the IFU for the model in use and are incorporated by reference (7.3.6 d)."),
+        ("b", limitations),
+        ("p", "Measurement uncertainty is estimated and recorded for this examination under "
+              "ISO 15189:2022, 7.3.4, and is made available to users on request. Where the "
+              "laboratory cannot estimate MU for a parameter, the rationale is recorded in the "
+              "same file."),
+    ]))
+
+    body.append(("14. Reference Intervals, Clinical Decision Limits, and Critical Results", [
+        ("p", "The biological reference intervals in use are those of the Laboratory Normal "
+              "Ranges list approved for Ruli District Hospital Laboratory, established and "
+              "reviewed under ISO 15189:2022, 7.3.5. They are not restated here, so that a "
+              "revision of the ranges cannot leave this SOP contradicting them; the list in "
+              "force hangs at the bench and is available to users."),
+        ("p", "Critical results are those on the Laboratory Critical Results list. Any result "
+              "within a critical limit is telephoned to the requester as soon as it is verified, "
+              "using the mandatory Write Down and Read Back process, and the communication is "
+              "recorded with date, time, the person notified and the result conveyed "
+              "(ISO 15189:2022, 7.4.1.3)."),
+        ("b", critical),
+    ]))
+
+    body.append(("15. Reporting and Release of Results", [
+        ("p", reports),
+        ("b", [
+            "Report patient identifiers, the examination, the result with its unit, the reference "
+            "interval in force for this laboratory, and any comment or flag the analyser raised.",
+            "Corrected reports: issue an amended report that identifies the change, the reason and "
+            "the date; notify the requester; retain the original entry (ISO 15189:2022, 7.4.1.7).",
+            "Patient information is confidential (ISO 15189:2022, 4.2).",
+        ]),
+    ]))
+
+    body.append(("16. Specimen Retention and Disposal", [
+        ("b", [
+            "After reporting, keep the specimen for the period set in the laboratory records "
+            "policy, under the storage conditions the IFU specifies, in case a repeat or an "
+            "investigation is needed.",
+            "Specimens under investigation for a nonconformity or complaint are retained until the "
+            "case is closed.",
+            "Dispose of specimens and contaminated consumables under the Laboratory Waste "
+            "Management procedure.",
+        ]),
+    ]))
+
+    body.append(("17. Risk Management, Nonconforming Work, and Contingency", [
+        ("tbl", ["Risk", "Control measure"], risks, [6.0, 11.0]),
+        ("p", "Nonconforming work (ISO 15189:2022, 7.5): when a result, control or step does not "
+              "conform, stop, report to the Laboratory Manager, assess the clinical impact on "
+              "results already released, repeat or recollect, and issue corrected reports. "
+              "Record the event and the corrective action and evaluate its effectiveness (8.7)."),
+        ("p", "If the analyser is withdrawn from service, the laboratory reverts to the backup "
+              "analyser or to the manual method recorded in the contingency plan, states the "
+              "method used on the report, and restores the analyser only after maintenance and "
+              "control are acceptable again."),
+    ]))
+
+    body.append(("18. Records", [
+        ("tbl", ["Record", "Where kept", "Retention"],
+         [
+             ["Patient results and reports", "EMR / LIS and analyser", "Per the laboratory records policy"],
+             ["Control results and Levey-Jennings charts", "Quality control register", "As above"],
+             ["Calibration and maintenance records", "Instrument logbook", "As above"],
+             ["Reagent, control and calibrator lot records", "Reagent records", "As above"],
+             ["EQA reports and actions", "Quality file", "As above"],
+             ["Training, competence and authorisation (section 21)", "Personnel training file",
+              "Duration of employment plus the period required by national rules"],
+         ],
+         [6.5, 5.5, 5.0]),
+        ("p", "Records are created at the time the activity is performed, remain legible and "
+              "traceable to the person or user account, and are retrievable (ISO 15189:2022, 8.4; "
+              f"{ADM_DOC_CONTROL})."),
+    ]))
+
+    # Sections 19 and 20 are deliberately one section. They were two, and the split left
+    # a page holding three orphaned bullets and nothing else -- the half-empty page this
+    # layout exists to avoid. They serve the same purpose: what a reader consults while
+    # using this SOP, whether it is a controlled internal document or an external standard.
+    body.append(("19. Supporting Documents and References", [
+        ("h2", "19.1 Controlled documents of this laboratory"),
+        ("b", [
+            f"Documentation of examination procedures ({ADM_EXAM_DOCS}).",
+            f"Document and Record Control ({ADM_DOC_CONTROL}).",
+            f"Pre-Examination Procedure ({ADM_PRE_EXAM}).",
+            f"Venous Blood Sample Collection ({code('venous')}).",
+            f"Maintenance of haematology analysers ({ADM_EQUIP_MAINT}).",
+            "Laboratory Normal Ranges list; Critical Results list; Tests TAT list; Safety "
+            "Manual; Waste Management procedure; Result Reporting and Release procedure.",
+        ] + extra_support),
+        ("h2", "19.2 External references"),
+        ("b", [
+            "ISO 15189:2022 — Medical laboratories (in particular 7.3.1, 7.3.2, 7.3.4 to "
+            "7.3.7).",
+            f"{ifu}.",
+            "CLSI GP41 — Collection of Diagnostic Venous Blood Specimens; WHO — Laboratory "
+            "Quality Management System (LQMS) Handbook.",
+        ] + extra_refs),
+    ]))
+
+    return {
+        "out_stem": f"{c} - {model} examination",
+        "meta": {"doc_no": c, "title": REGISTER[key]["title"],
+                 "version": REGISTER[key]["vers"]},
+        "control_rows": [
+            ("SOP Number", c),
+            ("SOP Title", REGISTER[key]["title"]),
+            ("Version", REGISTER[key]["vers"]),
+            ("Effective Date", "14/11/2026"),
+            ("Next Review Date", "14/11/2028"),
+            ("Supersedes", "— (first issue; no SOP previously covered this examination)"),
+            ("Document Owner", "Kelvin SAMAHANI — Laboratory Manager"),
+            ("Classification", "Controlled document — master copy: document control system "
+                               f"({ADM_DOC_CONTROL})"),
+        ],
+        "revision_rows": [
+            ["J.P. NSENGIYUMVA", REGISTER[key]["vers"], "14/11/2026",
+             "First issue. Written because the analyser is in service and no examination SOP "
+             "covered it."],
+            ["", "", "", ""],
+        ],
+        "body": body,
+    }
+
+
+XN330 = analyser_sop(
+    "xn330", model="Sysmex XN-330", manufacturer="Sysmex", serial="17156",
+    asset="RULIDH/LAB/ME/0501", bench="Haematology bench", discipline="Haematology",
+    clinical="The complete blood count is the most frequently requested haematology "
+             "examination. It counts and characterises the cells of peripheral blood — red "
+             "cells, white cells and platelets — and derives the indices used to classify "
+             "anaemia, to detect and follow infection and inflammation, to recognise "
+             "leukaemia and other haematological disorders, and to monitor the effect of "
+             "treatment including transfusion and chemotherapy.",
+    principle="A measured volume of anticoagulated whole blood is drawn into the analyser, "
+              "divided into aliquots and diluted. Cells are counted and sized by electrical "
+              "impedance and/or optical (flow cytometric) measurement as the model provides; "
+              "haemoglobin is measured photometrically after lysis of the red cells. The "
+              "analyser derives the indices (MCV, MCH, MCHC, RDW) from the measured counts "
+              "and the haemoglobin, and produces the white cell differential from the "
+              "channels fitted to the instrument. The exact measurement channels, reagents "
+              "and calculation rules are those of the IFU for this model and are incorporated "
+              "by reference (ISO 15189:2022, 7.3.6 d).",
+    specimen=[
+        ("p", "Venous blood collected by the procedure in the Pre-Examination Procedure and in "
+              "the venipuncture SOP, into the tube specified for a CBC on this analyser, filled "
+              "to the marked volume."),
+        ("h2", "6.1 Request and patient identification"),
+        ("b", [
+            "Accept requests entered in the EMR by an authorised requester. Clinical details "
+            "relevant to interpretation (fever, bleeding, fatigue, transfusion, chemotherapy, "
+            "recent travel) must be visible: a blood count cannot be interpreted without them.",
+            "Identify the patient with at least two identifiers matched to the EMR request and "
+            "label the tube in the patient's presence.",
+        ]),
+        ("h2", "6.2 Collection and transport"),
+        ("b", [
+            "Fill the tube to the mark. An under-filled tube changes the dilution and gives "
+            "falsely low counts.",
+            "Mix by gentle inversion immediately after collection; do not shake. Transport "
+            "promptly, do not refrigerate before analysis, and state the collection time on "
+            "the request. A clotted specimen is rejected.",
+            "Reject and request a new specimen when: the tube is unlabelled or the label "
+            "disagrees with the request; the tube is clotted, haemolysed or under-filled; the "
+            "specimen is beyond the stability limit in the IFU for the parameters requested.",
+            "Record every rejection and inform the requester (ISO 15189:2022, 7.3.4).",
+        ]),
+    ],
+    specimen_notes=None,
+    startup=[
+        ("1.", "Check that the analyser and the UPS are connected, and that the waste container "
+               "has room and the reagents are loaded."),
+        ("2.", "Switch on and allow the warm-up and background checks the IFU requires."),
+        ("3.", "Confirm the reagent status: volume, on-board expiry and lot number. Record a new "
+               "lot in the reagent log."),
+        ("4.", "Run the controls specified for this analyser and confirm they are acceptable "
+               "before any patient specimen is analysed (section 11)."),
+        ("5.", "Record the start-up, the control results and any remark in the instrument log."),
+    ],
+    run_steps=[
+        ("1.", "Check the specimen against the request: identity, tube, filling, clots, "
+               "haemolysis."),
+        ("2.", "Load the tube in the position the analyser requires and start the run. Do not "
+               "re-load a tube that has already been aspirated unless the analyser asks for it."),
+        ("3.", "Watch the aspiration and the flags. A short sample, a clot or an obstruction is a "
+               "fault, not a result: clear it and repeat the specimen (section 17)."),
+        ("4.", "Repeat any specimen that the analyser flags as needing review, or that gives a "
+               "result outside the clinically plausible range."),
+        ("5.", "For a flagged differential or an unexpected cell population, prepare and examine "
+               "a stained film before releasing the result (10.3)."),
+    ],
+    results=[
+        "Accept a result only when the controls for that run are acceptable.",
+        "Check the result against the patient's previous result where one exists (delta check) "
+        "and against the clinical information on the request.",
+        "Examine the flags: a flag is a prompt to look, not a diagnosis and not a reason to "
+        "suppress a result.",
+        "Release the result in the EMR under your own account; the person named against a result "
+        "is accountable for it.",
+        "Any result within a critical limit is telephoned immediately (section 14).",
+    ],
+    interp_intro="The analyser reports the counts, indices, differential and flags. Before "
+                 "release, check the result against the previous result, the clinical "
+                 "information, the control status of the run and the specimen quality. The "
+                 "common patterns are:",
+    interp_rows=[
+        ["Low haemoglobin — classify by MCV", "Low MCV: iron deficiency, thalassaemia, anaemia "
+         "of chronic disease. High MCV: B12 or folate deficiency, alcohol, liver disease, "
+         "hypothyroidism, myelodysplasia. Normal MCV: acute blood loss, haemolysis, chronic "
+         "kidney disease. Confirm with ferritin, reticulocyte count and the film."],
+        ["High white cell count", "Bacterial infection; inflammation; stress; corticosteroid "
+         "therapy; leukaemia. A differential with blasts or unexplained immature forms needs a "
+         "film and urgent review."],
+        ["Low white cell count or low platelets", "Viral infection; drug- or "
+         "chemotherapy-induced suppression; hypersplenism; marrow failure; immune "
+         "thrombocytopenia; sepsis; dengue; platelet clumping in the tube (repeat in citrate "
+         "or examine the film)."],
+        ["High platelets", "Reactive thrombocytosis after infection, inflammation or bleeding; "
+         "iron deficiency; myeloproliferative disease."],
+        ["Result not matching the patient", "Repeat the specimen and check identification before "
+         "release; treat mislabelling as nonconforming work (7.5)."],
+    ],
+    critical=[
+        "Haemoglobin at or below the transfusion threshold on the Critical Results list.",
+        "Platelet count at or below the critical limit: risk of spontaneous bleeding.",
+        "White cell count above or below the critical limits, or blasts on the film.",
+        "Any result the authorised person judges immediately life-threatening.",
+    ],
+    reports="Turnaround time is that of the Laboratory Tests TAT list for a full blood count. "
+            "Results are communicated immediately after verification, even where other "
+            "examinations on the same request are still in progress.",
+    risks=[
+        ["Wrong-patient result released",
+         f"Identification at collection ({code('venous')}); label checked against the EMR at "
+         f"loading; delta check before release"],
+        ["Clotted or under-filled tube counted as valid",
+         "Filling and clot check at loading; rejection criteria in 6.2; every rejection recorded"],
+        ["Control failure, or an analyser fault, mistaken for a result",
+         "Controls before patient testing with defined rejection rules and chart review; "
+         "aspiration watched and short-sample or obstruction flags treated as faults, with the "
+         "specimen repeated after clearance"],
+        ["Power interruption", "UPS; event recorded; controls repeated before testing resumes"],
+        ["Critical result not communicated",
+         "Telephone with read-back; recorded; escalated to the Laboratory Manager if the "
+         "requester cannot be reached"],
+        ["EMR/LIS downtime",
+         "Results recorded on the downtime form, telephoned with read-back, and back-entered "
+         "within 24 hours of restoration"],
+    ],
+    limitations=[
+        "An analyser result is not a diagnosis. Abnormal results, and results that disagree with "
+        "the clinical picture, require examination of a stained film.",
+        "Cold agglutinins, lipaemia, icterus, very high white cell counts, platelet clumping and "
+        "red cell fragments all interfere with one or more parameters; the interfering "
+        "concentrations are those stated in the IFU.",
+        "Specimens outside the stability limit in the IFU give unreliable indices, so the "
+        "elapsed time from collection must be known. Nucleated red cells and giant platelets "
+        "are counted with the wrong population unless the analyser's correction is applied; "
+        "confirm on the film.",
+    ],
+    ifu="Sysmex XN-330 instructions for use and the package inserts of the reagents and controls "
+        "in use (EXT-RliDHL-HEM series, Master List)",
+    extra_support=[],
+    extra_refs=[],
+    replacement_note="It replaces no earlier SOP: the analysers previously covered were withdrawn "
+                     "from service.",
+)
+
+XQ320 = analyser_sop(
+    "xq320", model="Sysmex XQ-320", manufacturer="Sysmex", serial="12357",
+    asset="RULIDH/LAB/ME/0499", bench="Haematology bench", discipline="Haematology",
+    clinical="The complete blood count characterises the cells of peripheral blood and is "
+             "used to classify anaemia, to detect and follow infection and inflammation, to "
+             "recognise haematological disease and to monitor treatment. The laboratory "
+             "operates two haematology analysers so that the service continues when one is "
+             "unavailable, and so that the workload can be shared.",
+    principle="A measured volume of anticoagulated whole blood is aspirated, diluted and "
+              "measured. Cells are counted and sized by the measurement channels the model "
+              "provides, and haemoglobin is measured photometrically after lysis of the red "
+              "cells; the indices are derived from the measured values. The measurement "
+              "channels, reagents and calculation rules are those of the IFU for this model "
+              "and are incorporated by reference (ISO 15189:2022, 7.3.6 d).",
+    specimen=[
+        ("p", "Venous blood collected by the procedure in the Pre-Examination Procedure and in "
+              "the venipuncture SOP, into the tube specified for a CBC on this analyser, filled "
+              "to the marked volume."),
+        ("h2", "6.1 Request and patient identification"),
+        ("b", [
+            "Accept requests entered in the EMR by an authorised requester, with the clinical "
+            "details needed to interpret the result.",
+            "Identify the patient with at least two identifiers matched to the EMR request and "
+            "label the tube in the patient's presence.",
+        ]),
+        ("h2", "6.2 Collection and transport"),
+        ("b", [
+            "Fill the tube to the mark and mix by gentle inversion immediately; a clotted or "
+            "under-filled tube is rejected.",
+            "Transport promptly; do not refrigerate before analysis; record the collection time.",
+            "Reject and request a new specimen when the label disagrees with the request, or the "
+            "tube is clotted, haemolysed, under-filled or beyond the stability limit in the IFU.",
+            "Record every rejection and inform the requester (ISO 15189:2022, 7.3.4).",
+        ]),
+    ],
+    specimen_notes=None,
+    startup=[
+        ("1.", "Check the analyser and UPS connections, the waste container and the reagents."),
+        ("2.", "Switch on and complete the warm-up and background checks the IFU requires."),
+        ("3.", "Confirm reagent volume, on-board expiry and lot number; record a new lot."),
+        ("4.", "Run the controls specified for this analyser and confirm they are acceptable."),
+        ("5.", "Record the start-up and control results in the instrument log."),
+    ],
+    run_steps=[
+        ("1.", "Check the specimen against the request: identity, tube, filling, clots, "
+               "haemolysis."),
+        ("2.", "Load and run the tube as the analyser requires."),
+        ("3.", "Treat a short sample, clot or obstruction as a fault: clear it and repeat."),
+        ("4.", "Repeat any specimen flagged for review or giving an implausible result."),
+        ("5.", "Examine a stained film before releasing a flagged differential or an unexpected "
+               "population (10.3)."),
+    ],
+    results=[
+        "Accept a result only when the controls for that run are acceptable.",
+        "Check against the previous result (delta check) and the clinical information.",
+        "A flag is a prompt to look, not a diagnosis and not a reason to suppress a result.",
+        "Release in the EMR under your own account.",
+        "Any result within a critical limit is telephoned immediately (section 14).",
+    ],
+    interp_intro="The analyser reports the counts, indices, differential and flags. The same "
+                 "interpretive principles apply as on the other haematology analyser, and the "
+                 "two are kept comparable under 11.4. The common patterns are:",
+    interp_rows=[
+        ["Low haemoglobin with low MCV", "Iron deficiency; thalassaemia; anaemia of chronic "
+         "disease. Confirm with ferritin and the film."],
+        ["Low haemoglobin with high MCV", "B12 or folate deficiency; alcohol; liver disease; "
+         "hypothyroidism; myelodysplasia."],
+        ["High white cell count", "Bacterial infection; inflammation; stress; corticosteroid "
+         "therapy; leukaemia. Blasts or unexplained immature forms need a film and urgent review."],
+        ["Low white cell count", "Viral infection; drug-induced suppression; hypersplenism; "
+         "marrow failure."],
+        ["Low platelets", "Immune thrombocytopenia; sepsis; dengue and other infections; drugs; "
+         "clumping in the tube."],
+        ["High platelets", "Reactive thrombocytosis; iron deficiency; myeloproliferative disease."],
+        ["Result differing from the XN-330", "Repeat on both analysers and apply 11.4 before "
+         "release; report the method used if one analyser is out of service."],
+    ],
+    critical=[
+        "Haemoglobin at or below the transfusion threshold on the Critical Results list.",
+        "Platelet count at or below the critical limit.",
+        "White cell count above or below the critical limits, or blasts on the film.",
+        "Any result the authorised person judges immediately life-threatening.",
+    ],
+    reports="Turnaround time is that of the Laboratory Tests TAT list. Where the result is "
+            "produced on this analyser while the other is out of service, the report states the "
+            "method used.",
+    risks=[
+        ["Wrong-patient result released",
+         f"Identification at collection ({code('venous')}); label checked at loading; delta check"],
+        ["Results not comparable between the two analysers",
+         "Comparability study under 11.4 whenever an analyser is added or returned to service, "
+         "and at least yearly"],
+        ["Clotted or under-filled tube", "Filling and clot check; rejection criteria in 6.2"],
+        ["Control failure not detected", "Controls before testing; rejection rules; chart review"],
+        ["Analyser fault mistaken for a result", "Aspiration watched; faults cleared and the "
+         "specimen repeated"],
+        ["Critical result not communicated", "Telephone with read-back; recorded; escalated"],
+        ["EMR/LIS downtime", "Downtime form; telephone with read-back; back-entry within 24 hours"],
+    ],
+    limitations=[
+        "An analyser result is not a diagnosis; abnormal or discordant results require a film.",
+        "Lipaemia, icterus, cold agglutinins, platelet clumping and very high white cell counts "
+        "interfere with one or more parameters; interfering concentrations are those in the IFU.",
+        "Specimens beyond the stability limit in the IFU give unreliable indices.",
+        "This analyser is not used for a parameter, or a specimen type, that the IFU does not "
+        "claim for it; such requests are performed on the other analyser or by the manual method.",
+    ],
+    ifu="Sysmex XQ-320 instructions for use and the package inserts of the reagents and controls "
+        "in use (EXT-RliDHL-HEM series, Master List)",
+    extra_support=[],
+    extra_refs=[],
+    replacement_note="It replaces no earlier SOP. It exists so that the laboratory is not "
+                     "dependent on a single analyser.",
+)
+
+PIMA = analyser_sop(
+    "pima", model="Alere Pima CD4", manufacturer="Alere", serial="PIMA-D-005378",
+    asset="RULIDH/LAB/ME/0485", bench="Haematology room", discipline="Immunology",
+    clinical="The CD4 count measures the number of CD4-positive T lymphocytes per microlitre "
+             "of blood and is the laboratory marker used to stage HIV infection, to decide "
+             "when to start cotrimoxazole prophylaxis and antiretroviral therapy, and to "
+             "monitor immune recovery on treatment. The absolute count and the percentage of "
+             "lymphocytes that are CD4-positive are both reported; the percentage is less "
+             "affected by specimen ageing and by total lymphocyte changes.",
+    principle="A sample of whole blood is mixed with a reagent that lyses the red cells and "
+              "labels CD4-bearing lymphocytes with a fluorophore-labelled antibody. The "
+              "labelled cells are counted in a disposable cartridge by the instrument's optical "
+              "system, and the result is expressed as an absolute CD4 count and as a percentage "
+              "of lymphocytes. The cartridges, reagents and the counting rules are those of the "
+              "IFU for this instrument, incorporated by reference (ISO 15189:2022, 7.3.6 d).",
+    specimen=[
+        ("p", "Venous blood collected by the procedure in the Pre-Examination Procedure and in "
+              "the venipuncture SOP, into the tube specified for CD4 counting on this "
+              "instrument, filled to the marked volume."),
+        ("h2", "6.1 Request and patient identification"),
+        ("b", [
+            "Accept requests entered in the EMR by an authorised requester, with the clinical "
+            "details needed to interpret the result.",
+            "Identify the patient with at least two identifiers matched to the EMR request and "
+            "label the tube in the patient's presence. Misidentification here attaches a CD4 "
+            "count to the wrong person's HIV record, so the check is made twice.",
+        ]),
+        ("h2", "6.2 Collection, transport and stability"),
+        ("b", [
+            "Fill the tube to the mark and mix by gentle inversion. A clotted or under-filled "
+            "tube is rejected.",
+            "Analyse within the time limit stated in the IFU for the cartridge and the specimen; "
+            "the count falls as the specimen ages. Record the collection time and the analysis "
+            "time.",
+            "Transport at ambient temperature; do not refrigerate or heat the specimen.",
+            "Reject and request a new specimen when the label disagrees with the request, or the "
+            "tube is clotted, haemolysed, under-filled or beyond the stability limit.",
+            "Record every rejection and inform the requester (ISO 15189:2022, 7.3.4).",
+        ]),
+    ],
+    specimen_notes=None,
+    startup=[
+        ("1.", "Check the instrument, the battery or mains supply and the printer."),
+        ("2.", "Switch on; complete the self-test the IFU requires."),
+        ("3.", "Check the reagent and cartridge lot numbers and expiry dates; record a new lot."),
+        ("4.", "Run the control material specified for this instrument and confirm it is "
+               "acceptable before patient specimens."),
+        ("5.", "Record the start-up and the control result in the instrument log."),
+    ],
+    run_steps=[
+        ("1.", "Check the specimen against the request: identity, tube, filling, clots, "
+               "haemolysis, elapsed time since collection."),
+        ("2.", "Label the cartridge with the specimen identifiers before adding the sample."),
+        ("3.", "Prepare and load the specimen as the IFU directs for the cartridge in use."),
+        ("4.", "Run the cartridge within the time the IFU allows after preparation."),
+        ("5.", "Read and record the absolute count and the percentage; retain the printout with "
+               "the specimen identifiers on it."),
+    ],
+    results=[
+        "Accept a result only when the control for that run is acceptable.",
+        "Check the absolute count against the percentage for internal consistency.",
+        "Check the result against the patient's previous count (delta check) and the clinical "
+        "information.",
+        "Release in the EMR under your own account; the printout is attached to the record.",
+        "Results that fall within a critical limit are telephoned immediately (section 14).",
+    ],
+    interp_intro="CD4 counts are interpreted against the clinical stage and the treatment "
+                 "history. The thresholds in use at this laboratory are those of the national "
+                 "HIV programme and the Critical Results list; this table gives the common "
+                 "patterns only.",
+    interp_rows=[
+        ["CD4 count falling over successive visits",
+         "HIV disease progression; assess adherence, viral load and prophylaxis; repeat to "
+         "confirm before acting on a single value."],
+        ["CD4 count rising on treatment",
+         "Immune recovery on antiretroviral therapy; interpret with the viral load."],
+        ["CD4 count much lower than expected",
+         "Check specimen age and handling, repeat the count, and check identification. A count "
+         "that does not fit the clinical picture is repeated before release."],
+        ["Percentage and absolute count discordant",
+         "Repeat the cartridge; consider a change in total lymphocyte count; do not release until "
+         "the two agree with the previous record."],
+        ["Control outside limits", "Do not report. Repeat the control; if still unacceptable, "
+         "stop and treat as a fault (section 17)."],
+    ],
+    critical=[
+        "A CD4 count below the threshold that triggers prophylaxis on the Critical Results list.",
+        "A fall in CD4 count between consecutive visits beyond the limit set by the HIV "
+        "programme.",
+        "Any result the authorised person judges immediately clinically significant.",
+    ],
+    reports="The report states the absolute CD4 count (cells/µL) and the percentage, the "
+            "collection time and the analysis time. Where a result is produced while the "
+            "laboratory's other CD4 method is unavailable, the report states the method used.",
+    risks=[
+        ["Wrong-patient result attached to an HIV record",
+         "Two identifier checks, at collection and again at the instrument; label on the "
+         "cartridge before the sample is added; retained printout"],
+        ["Specimen aged beyond the stability limit", "Collection time and analysis time both "
+         "recorded; elapsed time checked at loading"],
+        ["Control failure not detected", "Control before patient specimens; stop if unacceptable"],
+        ["Cartridge or reagent lot shift", "Lot number recorded; control before use of a new lot"],
+        ["Power or battery failure", "Mains or charged battery; control repeated after any "
+         "interruption"],
+        ["Critical result not communicated", "Telephone with read-back; recorded; escalated"],
+        ["EMR/LIS downtime", "Result recorded on the downtime form, telephoned with read-back, "
+         "back-entered within 24 hours"],
+    ],
+    limitations=[
+        "The count is affected by the age of the specimen; the limit is that stated in the IFU.",
+        "The instrument measures CD4 on a sample of whole blood; it does not measure CD8, and "
+        "does not substitute for a viral load.",
+        "A result that does not fit the clinical picture, or disagrees with the previous record, "
+        "is repeated before release.",
+        "The instrument is not used outside the specimen types and conditions the IFU claims.",
+    ],
+    ifu="Alere Pima CD4 instructions for use and the package inserts of the cartridges and "
+        "controls in use (EXT-RliDHL-IMM series, Master List)",
+    extra_support=[],
+    extra_refs=["National HIV programme guidance on CD4 thresholds in use in Rwanda."],
+    replacement_note="The laboratory's earlier CD4 SOPs govern a different instrument and are "
+                     "not applicable to this analyser.",
+)
+
+DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA]
 
 # ---------------------------------------------------------------------------
 # DOCX builder
@@ -1787,7 +2554,7 @@ def build_pdf(cfg):
     from reportlab.lib.styles import ParagraphStyle
     from reportlab.lib.units import cm
     from reportlab.pdfgen import canvas as pdfcanvas
-    from reportlab.platypus import (BaseDocTemplate, Frame, Image, PageBreak,
+    from reportlab.platypus import (BaseDocTemplate, Frame, Image, KeepTogether, PageBreak,
                                     PageTemplate, Paragraph, Spacer, Table, TableStyle)
     from reportlab.platypus.tableofcontents import TableOfContents
 
@@ -2006,8 +2773,15 @@ def build_pdf(cfg):
             if kind == "p":
                 story.append(P(block[1]))
             elif kind == "b":
-                for item in block[1]:
-                    story.append(P("•  " + item, "b"))
+                items = block[1]
+                rows_ = [P("•  " + item, "b") for item in items]
+                # No orphans: a short list is kept together so a few lines cannot be
+                # stranded on a page of their own. Long lists are split in blocks.
+                if len(items) <= 8:
+                    story.append(KeepTogether(rows_))
+                else:
+                    for i in range(0, len(rows_), 4):
+                        story.append(KeepTogether(rows_[i:i + 4]))
             elif kind == "h2":
                 story.append(H2(block[1]))
             elif kind == "steps":

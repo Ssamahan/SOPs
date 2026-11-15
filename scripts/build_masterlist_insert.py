@@ -203,8 +203,8 @@ h("B.  STANDARD OPERATING PROCEDURES – rows to add or amend")
 rows = []
 n = 0
 for key, r in REGISTER.items():
-    if key in ("doc_control", "pre_exam"):
-        continue          # already correct in the Master List
+    if key in ("doc_control", "pre_exam", "exam_docs", "equip_maint"):
+        continue          # already in the Master List; cited, not renumbered
     n += 1
     serial = r["code"].rsplit("-", 1)[1]
     if key == "venous":
@@ -214,6 +214,9 @@ for key, r in REGISTER.items():
         status = ("CODE UNCHANGED – 001 kept, version 005. The other holder of 001, the "
                   "Humastar 80 SOP, is WITHDRAWN — the analyser is decommissioned — not "
                   "renumbered")
+    elif key in ("xn330", "xq320", "pima"):
+        status = (f"NEW – first examination SOP for the {r['title'].split('by the ')[-1].split(' Analyser')[0]} "
+                  f"in service; no earlier SOP covered it")
     elif key == "training":
         status = ("NEW – first serial after the 060–063 equipment block of November 2026; "
                   "053–059 are not shown to be free")
