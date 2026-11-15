@@ -69,7 +69,7 @@ Two further elements decide the outcome of a 2022 assessment and are often misse
    perform the procedure: printed name, staff ID (IPPIS No.), designation, **signature**,
    date. The sample provides **18 rows** on one page, so a section of **at least 12 staff
    signs without turning over**, with spare rows for the same page. Continuation sheet
-   F-TRN-001-2 covers larger teams.
+   `RliDHL-ADM-SOP-064-F01-2` covers larger teams.
    Acknowledgement alone is not enough: the standard requires competence to be **assessed**
    — direct observation of routine work, review of work records, assessment of
    problem-solving, or examination of provided samples — and personnel then **authorised**
@@ -110,7 +110,13 @@ start a page. Two failures this template was corrected for:
 
 ## 5. Document-control features visible in the sample
 
-- Unique document number scheme: `SOP-XX-nnn` (process code + serial), forms `F-XX-nnn`.
+- **Document numbering.** `RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>`, e.g.
+  `RliDHL-ADM-SOP-004-VERS-004`. Serials are **sequential with no gaps** inside one
+  AREA+TYPE series, allocated once and held for life — a number never changes at
+  revision, and a withdrawn document's number is retired, not re-used. A form carries
+  its parent SOP's code plus `-F<NN>`: `RliDHL-ADM-SOP-064-F01`. The full rule and the
+  register are in [`master-list.md`](master-list.md); `scripts/check_codes.py` proves the
+  rules hold after every build.
 - Version `1.0` at first issue; every later change increments it and is logged in the
   revision history with date, description, who prepared and who approved.
 - **Next review date** on the cover (at least every 2 years, or earlier on change,
@@ -123,23 +129,29 @@ start a page. Two failures this template was corrected for:
 
 | File | What it is |
 |---|---|
-| `sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.pdf` | **The glimpse** — print-exact 10-page rendering of a complete pre-examination SOP (approved cover, revision history + TOC, 20-section body, 18-row signature page, amendment page) |
-| `sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.docx` | The same document as an **editable Word file** — copy it, replace the sample content, keep the structure |
+| `sop/RliDHL-HEM-SOP-001-VERS-002 - Venous Blood Sample Collection.pdf` | **The glimpse** — print-exact 10-page rendering of a complete pre-examination SOP (approved cover, revision history + TOC, 20-section body, 18-row signature page, amendment page) |
+| `sop/RliDHL-HEM-SOP-001-VERS-002 - Venous Blood Sample Collection.docx` | The same document as an **editable Word file** — copy it, replace the sample content, keep the structure |
 | `sop/RliDHL-BIO-SOP-001-VERS-005 - Glucose Testing using Cobas c 111.pdf` | Examination SOP sample (11 pages) — shows reference intervals in both units, clinical decision limits, critical results with escalation, measurement uncertainty and comparability |
-| `scripts/build_sop.py` | Generator that produces both files from one content model (edit content there and re-run) |
+| `scripts/build_sop.py` | Generator: one content model, every document code taken from `REGISTER` |
+| `scripts/check_codes.py` | Proves the numbering rules hold — no skipped, shared or unregistered codes |
+| `docs/master-list.md` | Numbering rule, register extract and the defects found in the Master List |
 | `docs/ISO-15189-2022-SOP-Guide.md` | This guide |
 
 ### How to reuse the sample for your own SOPs
 
-1. Copy `sop/RliDHL-IH-SOP-001-VERS-001 - ….docx`, rename to your numbering scheme (`SOP-<AREA>-<nnn>`).
+1. Copy `sop/RliDHL-HEM-SOP-001-VERS-002 - ….docx` and take the **next free serial** in
+   its series from the Master List — `RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>`. Never pick
+   a number by convenience, and never re-use one: see `docs/master-list.md`.
 2. Replace the sample content section by section — keep the document-control table,
-   approval block, revision history, and Annex A intact.
+   approval block, revision history, section 21 (signature page) and section 22
+   (amendment page) intact.
 3. Update revision history (`1.0`, issue date, your name), fill the three approval rows,
    set effective/review dates.
 4. In Word, open the document and **update fields** (Ctrl+A then F9) to rebuild the table
    of contents and `Page X of Y` footers.
 5. Print the approval page for wet-ink signatures; the signed master goes to the Quality
-   Office. Train all staff who will perform the procedure and have them sign Annex A
+   Office. Train all staff who will perform the procedure and have them sign the
+   section 21 signature page
    **before** they work unsupervised.
 6. Alternative: edit `scripts/build_sop.py` (content model at the top) and re-run
    `.venv/bin/python scripts/build_sop.py` to regenerate both outputs.
@@ -188,11 +200,16 @@ start a page. Two failures this template was corrected for:
 
 ## Notes for the Ruli District Hospital rollout
 
-- **Document codes**: every code carries the facility acronym — `RliDHL-XXX-SOP-NNN-VERS-NNN`
-  (hyphens throughout), e.g. `RliDHL-IH-SOP-001-VERS-001`. Section codes are the three-letter
-  codes of the Document and Record Control SOP (ADM, BAC, BIO, HEM, IMM, MOL, MYC, PAR, REC,
-  SER, STC, SAF). A number belongs to one document for life and never changes at revision;
-  only the version rises.
+- **Document codes**: every code carries the facility acronym —
+  `RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>` (hyphens throughout), e.g.
+  `RliDHL-HEM-SOP-001-VERS-002`. Section codes are the three-letter codes of the Document
+  and Record Control SOP (ADM, BAC, BIO, HEM, IMM, MYC, PAR, SER, STC). `IH` is **not** one
+  of them — an earlier draft invented it for phlebotomy, which the register already assigns
+  to `HEM-SOP-001`, so venous collection is a revision of that document, not a new series.
+  A number belongs to one document for life and never changes at revision; only the
+  version rises. **Serials do not skip** — the next document takes the next free number,
+  and `scripts/check_codes.py` fails the build if a serial is skipped, shared, or cited
+  without being registered. The rule and the register are in `docs/master-list.md`.
 - **Employee ID on the signature page** = the **IPPIS number** (Integrated Personnel and
   Payroll Information System), since staff cards are not numbered. It is the unique staff
   identifier used in personnel and training records (ISO 15189:2022, 6.2).

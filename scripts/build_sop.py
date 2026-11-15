@@ -3,12 +3,16 @@
 Build Ruli District Hospital Laboratory SOP documents (DOCX + PDF) from one
 content model, in the 2026 standard layout mapped to ISO 15189:2022.
 
-Documents produced:
-  sop/RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection.{docx,pdf}
-  sop/RliDHL-BIO-SOP-001-VERS-005 - Glucose Testing using Cobas c 111.{docx,pdf}
+Documents produced (names come from REGISTER, not from this docstring):
+  Venous Blood Sample Collection  — IH series, first free serial
+  Glucose Testing using Cobas c 111 — BIO-SOP-001, version 005
 
 Rules applied:
-  * Every document code carries the facility acronym: RliDHL-XXX-SOP-NNN-VERS-NNN.
+  * Every document code is taken from REGISTER below, never typed in the text:
+    RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>. Serials run with NO GAPS within a
+    series; a new document takes the next free serial; a form carries its
+    parent SOP's code with an -F<NN> suffix.
+  * scripts/check_codes.py proves the rules hold after every build.
   * Dates are filled in (DD/MM/YYYY).
   * Approval block: designation below the name; rows tall enough for the
     Director General's hospital stamp.
@@ -52,6 +56,186 @@ APPROVAL_ROWS = [
 
 REVISION_HEADERS = ["Prepared/Reviewed by", "Version", "Date", "Description of Change"]
 
+# ---------------------------------------------------------------------------
+# DOCUMENT REGISTER — the single source of truth for every document code
+# ---------------------------------------------------------------------------
+# Numbering rule for Ruli District Hospital Laboratory (ISO 15189:2022, 8.3):
+#
+#   RliDHL-<AREA>-<TYPE>-<NNN>-VERS-<NNN>
+#
+#   AREA  3-letter section: ADM BAC BIO HEM IH IMM MOL MYC PAR REC SER STC SAF
+#   TYPE  MAN (manual) GUID (guideline) SOP
+#   NNN   sequential serial, 3 digits, runs 001, 002, 003 ... with NO GAPS within
+#         one AREA+TYPE series. A number is allocated once and belongs to that
+#         document for life: it never changes at revision, and a number released
+#         by a withdrawn document is not re-used.
+#   VERS  version, 3 digits, 001 at first issue.
+#
+# Forms take their parent SOP's code and an -FNN suffix, so a form can never
+# drift away from the SOP that controls it:
+#
+#   RliDHL-ADM-SOP-042-F01
+#
+# Every code used anywhere in the generated documents is derived from this
+# register — never typed into the document text. Change a code here and every
+# reference, the cross-reference lists and the file names follow.
+#
+# Serials below are the ones actually allocated, read from MASTER LIST 2025.docx
+# (Drive 1cl3zHlZ2-SDW-1gUrrwrYVeRA7-YwPuI) and from SOP-PROGRAMME-HANDOFF.md §2.
+#
+# The ADM series is 001-049 in the register, NOT 001-052. The November 2026
+# equipment block then took 050, 051, 052 and 060-063 — 060 onwards because files
+# exist above 52 that were never registered, so 053-059 cannot be proven free.
+# The next free ADM serial is therefore 064.
+#
+# "new": True marks a serial this library is allocating for the first time. Such a
+# serial must not already be in SERIES_ALLOCATED. An entry without the flag is
+# pre-existing and is cited, not allocated.
+SERIES_KNOWN_MAX = {
+    # Highest SOP serial registered per series, read line by line from
+    # MASTER LIST 2025.docx on 15/11/2026. These are observed maxima, not
+    # permission to allocate -- always re-read the register first.
+    #
+    #   ADM 001-049, with 016/017 unreadable and 035 never used
+    #   BAC 001-006   BIO 001-009   HEM 001-004   IMM 001-004
+    #   MYC 002-012   PAR 001-010   SER 001-007   STC 001-007
+    #
+    # There is NO IH section in the register: the areas it uses are ADM, BAC,
+    # BIO, HEM, IMM, MYC, PAR, SER and STC. "IH" was introduced by this library
+    # and is not an established department code.
+    "RliDHL-ADM-SOP": 49,
+    "RliDHL-BAC-SOP": 6,
+    "RliDHL-BIO-SOP": 9,     # 002 now carries the displaced Humastar SOP
+    "RliDHL-HEM-SOP": 4,
+    "RliDHL-IMM-SOP": 4,
+    "RliDHL-MYC-SOP": 12,
+    "RliDHL-PAR-SOP": 10,
+    "RliDHL-SER-SOP": 7,
+    "RliDHL-STC-SOP": 7,
+}
+
+# Series where the register has no section at all. A number here is neither free
+# nor taken -- the series would be new, which is a decision, not a gap.
+SERIES_UNVERIFIED: set[str] = set()   # no invented series remain; IH is gone
+
+# Open questions this library cannot settle, and must not paper over with a green
+# check. Each needs the Laboratory Manager and the Director General. The checker
+# prints them after the passes, separately, because consistent-with-itself is not
+# the same as correct-against-the-register.
+DECISIONS = {
+    # Resolved 15/11/2026 on the Laboratory Manager's instruction. Kept here, empty of
+    # open items, because the history is why the numbers are what they are:
+    #
+    #   venous    -- IH is gone. Venous collection is HEM-SOP-001-VERS-002, a revision
+    #                of the registered "Vein blood collection..." rather than a new
+    #                series. No department was invented.
+    #   glucose   -- 001 is retained (the instruction: keep 001, move the other document
+    #                to the number next to it). "Use and preventive maintenance of
+    #                Humastar 80" moves to BIO-SOP-002. Nothing is skipped.
+    #   training  -- 064-F01 CITES the existing ADM-FORM-014 signature page and
+    #                ADM-FORM-001 competency form instead of replacing them.
+    #
+    # A new open question belongs in this dict so the checker prints it.
+}
+
+# Every serial already spoken for beyond the registered set, so a duplicate is
+# caught before it ships. This is the list that would have caught ADM-060.
+SERIES_ALLOCATED = {
+    "RliDHL-ADM-SOP": {
+        # the 49 registered rows (035 is the one known gap)
+        **{n: "Master List 2025" for n in range(1, 50) if n != 35},
+        # the November 2026 equipment block: built, uploaded, unsigned
+        50: "ADM SOP 050 Microscope (Nov 2026 block)",
+        51: "ADM SOP 051 Centrifuge (Nov 2026 block)",
+        52: "ADM SOP 052 Water Bath (Nov 2026 block)",
+        60: "ADM SOP 060 Non-Medical Equipment (Nov 2026 block)",
+        61: "ADM SOP 061 ICT and LIS (Nov 2026 block)",
+        62: "ADM SOP 062 Hematology Analysers (Nov 2026 block)",
+        63: "ADM SOP 063 GeneXpert Dx (Nov 2026 block)",
+    },
+    "RliDHL-BIO-SOP": {
+        1: "BIO SOP 001 Glucose Testing (this library, VERS-005)",
+        2: "BIO SOP 002, formerly 'Use and preventive maintenance of Humastar 80' "
+           "(displaced from 001 when 001 was doubled)",
+    },
+}
+REGISTER = {
+    # --- management (crosscutting) SOPs ---
+    "doc_control": {
+        "code": "RliDHL-ADM-SOP-004", "vers": "004",
+        "title": "Document and Record Control",
+        "master_list": "Master List, Crosscutting SOPs",
+    },
+    "pre_exam": {
+        "code": "RliDHL-ADM-SOP-020", "vers": "004",
+        "title": "Pre-Examination Procedure",
+        "master_list": "Master List, Crosscutting SOPs",
+    },
+    # Written to close the gap found when auditing this set: the Master List has
+    # no SOP for the SIGNING of SOPs (033 training and 002 competency assessment
+    # exist, so those must be cross-referenced rather than duplicated), and no SOP
+    # owns the section 21 signature page. Serial 064 is the next free ADM number
+    # after the 060-063 equipment block.
+    #
+    # 060 was allocated here on 15/11/2026 by mistake -- 060 is the Non-Medical
+    # Equipment SOP -- and moved to 064 the same day. Its form moved from
+    # 060-F01 to 064-F01, which also released 060-F01 back to the temperature
+    # monitoring form that owns it.
+    "training": {
+        "code": "RliDHL-ADM-SOP-064", "vers": "001",
+        "title": "Signing of SOPs, and the Training, Competence and Authorisation Record",
+        "master_list": "Master List, Crosscutting SOPs",
+        "new": True,
+    },
+    # --- individual SOPs in this repository ---
+    "venous": {
+        # No IH series exists. The register already holds HEM-SOP-001, "Vein blood
+        # collection and preparation of hematology sample", so venous collection is
+        # a REVISION of that document, not a new one. Revisions keep the serial and
+        # the version goes up (Base rule: serial held for life, never reused).
+        "code": "RliDHL-HEM-SOP-001", "vers": "002",
+        "title": "Venous Blood Sample Collection by Venipuncture",
+        "master_list": "Master List, Haematology",
+    },
+    "glucose": {
+        # The register's single 001 for this series. It was previously carried both by
+        # "Use and preventive maintenance of Humastar 80" (VERS-002) and by this SOP
+        # (VERS-005). 001 is retained, and the pre-existing document moves to the SOP
+        # next to it -- BIO-SOP-002 -- rather than this one skipping to 010.
+        "code": "RliDHL-BIO-SOP-001", "vers": "005",
+        "title": "Glucose Testing using Cobas c 111",
+        "master_list": "Master List, Clinical Chemistry",
+    },
+}
+
+# Forms are addressed as REGISTER[<parent key>] + this suffix.
+FORM_SIG = "F01"          # Training and competence acknowledgement + authorisation
+FORM_SIG_2 = "F01-2"      # continuation sheet for larger sections
+
+
+def code(key, vers=None):
+    """Document code, e.g. RliDHL-ADM-SOP-004."""
+    r = REGISTER[key]
+    return f"{r['code']}-VERS-{vers or r['vers']}"
+
+
+def form(key, suffix):
+    """Form code bound to its parent SOP, e.g. RliDHL-ADM-SOP-064-F01."""
+    return f"{REGISTER[key]['code']}-{suffix}"
+
+
+def full_title(key):
+    return f"{code(key)} — {REGISTER[key]['title']}"
+
+
+# References are built from the register so a renumbered document cannot leave a
+# stale reference behind in the text.
+ADM_DOC_CONTROL = code("doc_control")
+ADM_PRE_EXAM = code("pre_exam")
+ADM_TRAINING = code("training")
+FORM_SIG_CODE = form("training", FORM_SIG)
+FORM_SIG2_CODE = form("training", FORM_SIG_2)
+
 # printed on EVERY page footer (ISO 15189:2022, 8.3)
 COPY_NOTICE = "Uncontrolled when printed unless stamped CONTROLLED COPY"
 
@@ -59,14 +243,25 @@ CONTROLLED_COPIES = [
     "Controlled copies — Original: document control system (Laboratory Manager’s office). "
     "Read-only copies: laboratory network and EMR document module.",
     "A printed copy is uncontrolled. Distribution, supersession and withdrawal of obsolete "
-    "copies are managed under RliDHL-ADM-SOP-004 (ISO 15189:2022, 8.3).",
+    f"copies are managed under {ADM_DOC_CONTROL} (ISO 15189:2022, 8.3).",
 ]
 
-SIG_TITLE = "21. Signature Page — Training and Competence Acknowledgement (Form F-TRN-001)"
+# Two controlled forms already exist for this purpose in MASTER LIST 2025.docx:
+#   RliDHL-ADM-FORM-001-VERS 002  "Staff competency assessment form"
+#   RliDHL-ADM-FORM-014-VERS 001  "Signature page"
+# The instruction is to cite them rather than duplicate or withdraw them, so 064-F01
+# binds to them by name and the SOP says so on the page a reader actually signs.
+CITED_COMPETENCY_FORM = "RliDHL-ADM-FORM-001"
+CITED_SIGNATURE_FORM = "RliDHL-ADM-FORM-014"
+
+SIG_TITLE = ("21. Signature Page — Training and Competence Acknowledgement  "
+             f"[{FORM_SIG_CODE} with {CITED_COMPETENCY_FORM}, {CITED_SIGNATURE_FORM}]")
 SIG_STATEMENT = (
     "I confirm that I have been trained on this SOP, that I have read and understood it, "
     "including the safety precautions, and that I agree to perform it as written. I will not "
-    "perform it without supervision until this record is complete."
+    "perform it without supervision until this record is complete. This page is used with "
+    f"{CITED_COMPETENCY_FORM} (staff competency assessment) and {CITED_SIGNATURE_FORM} "
+    "(signature page); it does not replace either, and neither needs to be withdrawn."
 )
 SIG_HEADERS = ["S/No", "Full Name (print)", "IPPIS No.", "Designation", "Signature", "Date"]
 # 18 rows so that a section of at least 12 staff signs on ONE page with room to spare
@@ -91,7 +286,7 @@ SIG_AUTHORISED = ("Authorised to perform this procedure without supervision — 
                   "authorising officer: ____________________   Signature: ______________   "
                   "Date: ____________")
 SIG_NOTE = ("Enter the IPPIS number (staff cards are not numbered). If more rows are needed, "
-            "attach continuation sheet F-TRN-001-2.")
+            f"attach continuation sheet {FORM_SIG2_CODE}.")
 
 AMEND_TITLE = "22. Amendment Page"
 AMEND_STATEMENT = (
@@ -104,7 +299,7 @@ AMEND_WIDTHS = [2.4, 2.0, 6.4, 3.4, 2.8]
 # Reuses the dead space at the foot of the page for a record that is required anyway.
 AMEND_FOOTNOTE = (
     "Superseded versions: withdrawn on the effective date of this version, marked OBSOLETE and "
-    "retained for the period in the Document and Record Control SOP (RliDHL-ADM-SOP-004) so "
+    f"retained for the period in the Document and Record Control SOP ({ADM_DOC_CONTROL}) so "
     "that results issued under them remain traceable (ISO 15189:2022, 8.3)."
 )
 
@@ -113,14 +308,17 @@ AMEND_FOOTNOTE = (
 # ---------------------------------------------------------------------------
 
 VENOUS = {
-    "out_stem": "RliDHL-IH-SOP-001-VERS-001 - Venous Blood Sample Collection",
+    # IH-SOP-001 is already "Vein Blood Collection and Preparation of Hematology
+    # sample" in the Master List. Taking that serial would have made two different
+    # documents answer to one code, so this SOP takes the next free IH serial.
+    "out_stem": f"{code('venous')} - Venous Blood Sample Collection",
     "meta": {
-        "doc_no": "RliDHL-IH-SOP-001-VERS-001",
+        "doc_no": code("venous"),
         "title": "Venous Blood Sample Collection by Venipuncture",
-        "version": "001",
+        "version": REGISTER["venous"]["vers"],
     },
     "control_rows": [
-        ("SOP Number", "RliDHL-IH-SOP-001-VERS-001"),
+        ("SOP Number", code("venous")),
         ("SOP Title", "Venous Blood Sample Collection by Venipuncture"),
         ("Version", "001"),
         ("Effective Date", "14/11/2026"),
@@ -128,7 +326,7 @@ VENOUS = {
         ("Supersedes", "— (first issue to the 2026 standard layout)"),
         ("Document Owner", "Kelvin SAMAHANI — Laboratory Manager"),
         ("Classification", "Controlled document — master copy: document control system "
-                           "(RliDHL-ADM-SOP-004)"),
+                           f"({ADM_DOC_CONTROL})"),
     ],
     "revision_rows": [
         ["J.P. NSENGIYUMVA", "001", "14/11/2026",
@@ -542,19 +740,19 @@ VENOUS = {
              [6.5, 5.5, 5.0]),
             ("p", "Records are created at the time the activity is performed, are legible, "
                   "traceable to the person or user account, and are retrievable (ISO 15189:2022, "
-                  "8.4; RliDHL-ADM-SOP-004)."),
+                  f"8.4; {ADM_DOC_CONTROL})."),
             ("p", "Control of data and information management (ISO 15189:2022, 7.6): the EMR "
                   "and the LIS that carry requests, labels and collection records are validated "
                   "and verified before use, are protected against unauthorised access, "
-                  "tampering and loss, and are backed up under RliDHL-ADM-SOP-004. Every access "
+                  f"tampering and loss, and are backed up under {ADM_DOC_CONTROL}. Every access "
                   "and correction carries the user account and a time stamp, and no record is "
                   "deleted. Access to patient data is limited to the duty in hand "
                   "(confidentiality, ISO 15189:2022, 4.2)."),
         ]),
         ("19. Supporting Documents", [
             ("b", [
-                "Document and Record Control (RliDHL-ADM-SOP-004).",
-                "Pre-Examination Procedure (RliDHL-ADM-SOP-005).",
+                f"Document and Record Control ({ADM_DOC_CONTROL}).",
+                f"Pre-Examination Procedure ({ADM_PRE_EXAM}).",
                 "Laboratory Safety Manual (post-exposure procedure).",
                 "Laboratory Waste Management procedure.",
                 "Result Reporting and Release procedure.",
@@ -579,22 +777,22 @@ VENOUS = {
 # ---------------------------------------------------------------------------
 
 GLUCOSE = {
-    "out_stem": "RliDHL-BIO-SOP-001-VERS-005 - Glucose Testing using Cobas c 111",
+    "out_stem": f"{code('glucose')} - Glucose Testing using Cobas c 111",
     "meta": {
-        "doc_no": "RliDHL-BIO-SOP-001-VERS-005",
+        "doc_no": code("glucose"),
         "title": "Glucose Testing using Cobas c 111",
-        "version": "005",
+        "version": REGISTER["glucose"]["vers"],
     },
     "control_rows": [
-        ("SOP Number", "RliDHL-BIO-SOP-001-VERS-005"),
+        ("SOP Number", code("glucose")),
         ("SOP Title", "Glucose Testing using Cobas c 111"),
         ("Version", "005"),
         ("Effective Date", "14/11/2026"),
         ("Next Review Date", "14/11/2028"),
-        ("Supersedes", "RliDHL-BIO-SOP-001-VERS-004 (effective 16/03/2025, review 16/03/2027)"),
+        ("Supersedes", f"{code('glucose', '004')} (effective 16/03/2025, review 16/03/2027)"),
         ("Document Owner", "Kelvin SAMAHANI — Laboratory Manager"),
         ("Classification", "Controlled document — master copy: document control system "
-                           "(RliDHL-ADM-SOP-004)"),
+                           f"({ADM_DOC_CONTROL})"),
     ],
     "revision_rows": [
         ["N/A", "001", "15/05/2019", "First / original version"],
@@ -694,7 +892,7 @@ GLUCOSE = {
                 "is fasting, random or timed — the result cannot be interpreted without this.",
                 "Identify the patient with at least two identifiers matched to the EMR request; "
                 "label the specimen in the patient’s presence (Pre-Examination Procedure, "
-                "RliDHL-ADM-SOP-005).",
+                f"{ADM_PRE_EXAM}).",
             ]),
             ("h2", "6.2 Patient preparation and collection"),
             ("b", [
@@ -702,7 +900,7 @@ GLUCOSE = {
                 "the fasting state and the exact collection time in the EMR.",
                 "Do not collect from an arm into which a glucose infusion is running.",
                 "Collect venous blood according to Venous Blood Collection "
-                "(RliDHL-IH-SOP-001): a plain or clot-activator tube for serum, or a "
+                f"({code('venous')}): a plain or clot-activator tube for serum, or a "
                 "fluoride/oxalate tube when the specimen cannot reach the laboratory and be "
                 "centrifuged within 30 minutes.",
             ]),
@@ -1076,7 +1274,7 @@ GLUCOSE = {
              ["Risk", "Control measure"],
              [
                  ["Wrong-patient result released",
-                  "Identification at collection (RliDHL-IH-SOP-001); barcode check at loading; "
+                  f"Identification at collection ({code('venous')}); barcode check at loading; "
                   "delta check before release"],
                  ["Control failure not detected",
                   "Two-level IQC before patient testing; Westgard rules; weekly chart review"],
@@ -1114,13 +1312,13 @@ GLUCOSE = {
              [6.5, 5.5, 5.0]),
             ("p", "Records are created at the time the activity is performed, are legible, "
                   "traceable to the person or user account, and are retrievable (ISO 15189:2022, "
-                  "8.4; RliDHL-ADM-SOP-004)."),
+                  f"8.4; {ADM_DOC_CONTROL})."),
         ]),
         ("19. Supporting Documents", [
             ("b", [
-                "Document and Record Control (RliDHL-ADM-SOP-004).",
-                "Pre-Examination Procedure (RliDHL-ADM-SOP-005).",
-                "Venous Blood Collection (RliDHL-IH-SOP-001).",
+                f"Document and Record Control ({ADM_DOC_CONTROL}).",
+                f"Pre-Examination Procedure ({ADM_PRE_EXAM}).",
+                f"Venous Blood Sample Collection ({code('venous')}).",
                 "Equipment Management and Maintenance procedure.",
                 "Internal Quality Control and EQA procedure.",
                 "Laboratory Normal Ranges list (approved 08/07/2025).",
@@ -1800,7 +1998,34 @@ def build_pdf(cfg):
     print(f"PDF written:  {out.relative_to(ROOT)}  ({doc.page} pages)")
 
 
+def sweep_stale_outputs():
+    """Remove built files that no longer correspond to a registered document.
+
+    A renumbered SOP leaves its old PDF and DOCX behind under the old code, and
+    a file named with a retired code is exactly the "document still referencing
+    the old number" that document control has to prevent. Any file in sop/ whose
+    name does not start with a code in REGISTER is deleted.
+    """
+    live = {code(k) for k in REGISTER}
+    removed = []
+    for path in sorted(SOP_DIR.iterdir()):
+        if not path.is_file() or path.suffix.lower() not in {".pdf", ".docx"}:
+            continue
+        stem_code = path.name.split(" - ")[0]
+        if stem_code not in live:
+            path.unlink()
+            removed.append(path.name)
+    for name in removed:
+        print(f"Removed stale output: {name}")
+
+
 if __name__ == "__main__":
+    sweep_stale_outputs()
     for cfg in DOCUMENTS:
         build_docx(cfg)
         build_pdf(cfg)
+    print()
+    print("Register in force:")
+    for key, r in REGISTER.items():
+        flag = "  (new serial)" if r.get("new") else ""
+        print(f"  {code(key):28s} {r['title']}{flag}")
