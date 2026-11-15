@@ -3344,6 +3344,23 @@ EQA = {
                   "MTB proficiency testing, RBC / National Reference Laboratory",
                   "Per NRL survey schedule",
                   "In place. Panels on file for 2023 and 2024."],
+                 ["TB — smear microscopy (ZN and auramine bacilloscopy)",
+                  "Slide re-reading by RBC / National Reference Laboratory: the laboratory sends "
+                  "its stained slides and the results it reported, and NRL reads the same slides "
+                  "independently and returns its own reading",
+                  "Per NRL schedule",
+                  "In place. This is a **slide re-reading** scheme, not a panel of test samples: the "
+                  "material assessed is the laboratory's own staining and reading, which the "
+                  "provider grades against its reference reading. Recorded here so it is planned "
+                  "and reviewed like any other EQA — see 10 and 12."],
+                 ["Malaria — thick and thin film microscopy",
+                  "Slide re-reading by RBC / National Reference Laboratory: the laboratory sends "
+                  "its stained slides and the results it reported, and NRL reads them independently "
+                  "and compares",
+                  "Per NRL schedule",
+                  "In place. Same scheme type as TB smear. Slides are retained and dispatched as "
+                  "the examination SOP requires so that the re-read sample is representative of "
+                  "routine work."],
                  ["Biochemistry — creatinine, glucose, ALT",
                   "NRL biochemistry and haematology EQA, quarterly",
                   "Quarterly", "In place. January–March 2026 report on file."],
@@ -3416,6 +3433,47 @@ EQA = {
                 "A submission that is late or incomplete is a nonconformity and is recorded as one, "
                 "even if the result itself would have been satisfactory.",
             ]),
+        ]),
+        ("8A. Slide re-reading — TB smear and malaria films", [
+            ("p", "Two of the laboratory's examinations are not assessed by a panel of prepared "
+                  "samples. For TB smear microscopy and for malaria film microscopy the National "
+                  "Reference Laboratory takes the laboratory's own stained slides, together with the "
+                  "results the laboratory reported on them, reads the same slides independently, and "
+                  "compares its reading with the laboratory's. The material being assessed is the "
+                  "laboratory's staining and its reading, not its handling of a manufactured panel."),
+            ("p", "This changes what the laboratory has to get right, and it is the reason this "
+                  "section exists rather than being folded into section 8:"),
+            ("b", [
+                "**The slides must be representative.** A slide saved for the provider because it was "
+                "a good one tells the provider nothing. Slides are selected as the scheme instructs — "
+                "normally a defined sample of routine slides, taken as they come — and never chosen "
+                "for their appearance.",
+                "**The result reported to the provider must be the result the laboratory reported to "
+                "the clinician.** Correcting a result before it is sent destroys the assessment. If "
+                "a result was wrong, it was wrong, and the scheme exists to find that out.",
+                "**Staining quality is part of the assessment.** A slide that is too thick, too thin, "
+                "unevenly stained or under-decolourised is a finding about the laboratory's technique "
+                "even when the reading is right, because the next slide may not be readable at all.",
+                "**Discrepancy grading is graded, not pass or fail.** A single missed scanty film "
+                "differs from a systematic disagreement across many slides; the provider's own "
+                "grading is used and the laboratory does not decide for itself that a discrepancy "
+                "is unimportant.",
+                "**Retention must make it possible.** Slides are kept for the period the examination "
+                "SOP and the records policy require, so that a slide selected for re-reading still "
+                "exists when the provider asks for it.",
+            ]),
+            ("p", "Where the provider reports a discrepancy, it is investigated under section 12 "
+                  "exactly as an unsatisfactory panel result is: contain, find the cause across "
+                  "staining, reading, the person and the material, take corrective action, and verify "
+                  "it on the next re-reading round. A discrepancy on a smear is a finding about a "
+                  "person's reading or a laboratory's staining — precisely the kind of finding that "
+                  "internal quality control cannot produce, because the laboratory is comparing its "
+                  "own opinion with itself."),
+            ("p", "The review in section 10 applies unchanged: participation confirmed, performance "
+                  "assessed against the provider's criteria, trends read across rounds, and whether "
+                  "any patient's result could have been affected. On a slide scheme that last "
+                  "question is sharper than usual, because a missed positive smear can be a missed "
+                  "case of tuberculosis or of malaria in a patient who was sent home."),
         ]),
         ("9. Where no EQA programme exists", [
             ("p", "ISO 15189:2022, 7.3.7.3 permits an alternative approach where no EQA programme is "

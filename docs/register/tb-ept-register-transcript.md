@@ -6,9 +6,14 @@ Despite the file name this is the newest register the laboratory holds: it conta
 
 **No serial, version or date below has been altered.** This is a transcription, with defects marked where the register itself carries them.
 
+**The register prints the TB section as `MYC` (MYCOBACTERIOLOGY SECTION).** In the SOP library that
+section is `TB` — see `docs/master-list.md`. The serials are identical under either prefix
+(`MYC-001` = `TB-001`), so the title table below stays exactly as the register prints it, with the
+`TB` serial shown beside it so the mapping cannot be misread.
+
 ## Titles and dates as registered
 
-| Series | Serial | Version | Effective | Title (verbatim) |
+| Series as printed (library prefix) | Serial | Version | Effective | Title (verbatim) |
 |---|---|---|---|---|
 | ADM-GUID | 001 | 004 | 22/04/2025 | Laboratory Scope of Test |
 | ADM-GUID | 002 | 004 | 22/04/2025 | Laboratory Critical Results |
@@ -53,9 +58,9 @@ Despite the file name this is the newest register the laboratory holds: it conta
 | MOL-SOP | 002 | 001 | 17/02/2025 | HIV – Early Infant Diagnosis (EID) Testing using GeneXpert |
 | MOL-SOP | 003 | 001 | 17/02/2025 | Hepatitis B Virus Viral Load Testing using GeneXpert |
 | MOL-SOP | 004 | 001 | 17/02/2025 | Hepatitis C Virus - Viral Load Testing using GeneXpert |
-| MYC-SOP | 001 | 004 | 23/04/2025 | Sputum Sample Processing using GeneXpert Machine |
-| MYC-SOP | 002 | 004 | 20/02/2025 | TB Basiloscopy Testing using Auramine |
-| MYC-SOP | 003 | 001 | 18/02/2026 | Sputum Pooling for TB Diagnosis using GeneXpert MTB/RIF ULTRA |
+| MYC-SOP (`TB-001`) | 001 | 004 | 23/04/2025 | Sputum Sample Processing using GeneXpert Machine |
+| MYC-SOP (`TB-002`) | 002 | 004 | 20/02/2025 | TB Basiloscopy Testing using Auramine |
+| MYC-SOP (`TB-003`) | 003 | 001 | 18/02/2026 | Sputum Pooling for TB Diagnosis using GeneXpert MTB/RIF ULTRA |
 | PAR-SOP | 001 | 003 | 06/04/2025 | Urine Testing for parasites |
 | PAR-SOP | 002 | 003 | 15/02/2024 | Collection and Transportation of Stool Specimen |
 | PAR-SOP | 008 | 003 | 17/02/2024 | Malaria diagnosis using Giemsa Staining Technique |
