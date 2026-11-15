@@ -308,9 +308,11 @@ AMEND_FOOTNOTE = (
 # ---------------------------------------------------------------------------
 
 VENOUS = {
-    # IH-SOP-001 is already "Vein Blood Collection and Preparation of Hematology
-    # sample" in the Master List. Taking that serial would have made two different
-    # documents answer to one code, so this SOP takes the next free IH serial.
+    # HEM-SOP-001 is already "Vein blood collection and preparation of hematology
+    # sample" in the Master List, so this is the revision that supersedes it. The
+    # serial is held for life and only the version rises. There is no IH series: an
+    # earlier draft invented one, which would have put two SOPs for drawing blood
+    # into a department the register does not have.
     "out_stem": f"{code('venous')} - Venous Blood Sample Collection",
     "meta": {
         "doc_no": code("venous"),

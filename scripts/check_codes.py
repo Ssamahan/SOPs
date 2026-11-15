@@ -3,11 +3,11 @@
 
 Run after build_sop.py.  Checks:
 
-  1. NEW SERIAL IS THE NEXT FREE ONE   a serial this library allocates for the
-                                       first time must be SERIES_KNOWN_MAX + 1.
-                                       No skipping.
+  1. NEW SERIAL IS FREE IN THE REGISTER   checked against SERIES_ALLOCATED, which
+                                       holds every registered and block-allocated
+                                       serial. No skipping, no reuse.
   2. NO SERIAL COLLISION               a serial is never used for two different
-                                       documents (the IH-SOP-001 defect).
+                                       documents (the defect that doubled 001).
   3. NO GAP IN WHAT WE ALLOCATE        allocating 060 then 062 is a failure; a
                                        gap may only be declared in RETIRED.
   4. EVERY REFERENCE RESOLVES          every code cited in an SOP is that SOP
@@ -249,8 +249,8 @@ def main() -> int:
                     fail(f"{pdf.name}: cites {series}-{serial} — not registered")
 
     # ---------- 4b. a citation must name a real document ----------
-    # A code can look perfectly well-formed and still point at nothing: IH-SOP-001
-    # was well-formed, but that serial belongs to a different SOP. So every
+    # A code can look perfectly well-formed and still point at nothing, or point at
+    # the wrong document: BIO-SOP-001 was well-formed, but two SOPs held it. So every
     # citation is also required to be the *current* version of a registered
     # document, or an explicitly declared superseded one — a citation to a
     # version that is neither is a stale reference.
