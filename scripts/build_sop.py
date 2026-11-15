@@ -280,17 +280,55 @@ SERIES_ALLOCATED = {
     },
     # MYC 001-012 -> TB 001-012, same serials. The register's Mycobacteriology
     # section is the TB section; the prefix is being renamed to say so.
+    # The TB section holds ALL tuberculosis testing, whatever the method: the
+    # bacilloscopy (ZN and auramine), the culture and DST work, and the GeneXpert
+    # TB assays. TB LAM belongs here too, for the same reason -- it is a TB test
+    # performed in the TB section. A test's METHOD does not decide its series;
+    # the section that performs it does. That is why GeneXpert work is split
+    # between TB (the TB assays) and MOL (the viral loads) even though it is the
+    # same instrument, and why HIV *qualitative* serology stays in SER and does
+    # not follow the instrument into MOL.
     "RliDHL-TB-SOP": {
-        n: f"TB SOP {n:03d} (was MYC SOP {n:03d} — register, renamed 15/11/2026)"
-        for n in range(1, 13)
+        1: "TB SOP 001 Sputum collection, preservation and transport using CPC "
+           "(was MYC SOP 001 — register, renamed 15/11/2026)",
+        2: "TB SOP 002 TB specimen rejection criteria for microscopy, culture and DST "
+           "(was MYC SOP 002)",
+        3: "TB SOP 003 TB microscopy by hot Ziehl-Neelsen staining for quality control "
+           "(was MYC SOP 003)",
+        4: "TB SOP 004 Fluorescence TB microscopy by auramine staining (was MYC SOP 004)",
+        5: "TB SOP 005 TB sample transportation (was MYC SOP 005)",
+        6: "TB SOP 006 Internal quality control for reagents and techniques in the TB "
+           "laboratory (was MYC SOP 006)",
+        7: "TB SOP 007 Turnaround time for TB tests at RliDH and the NRL (was MYC SOP 007)",
+        8: "TB SOP 008 Quality control for TB microscopy slide re-testing (was MYC SOP 008)",
+        9: "TB SOP 009 — register row has NO TITLE recorded (was MYC SOP 009). The "
+           "serial is allocated; the subject is unrecorded. This is a register defect, "
+           "recorded not fixed.",
+        10: "TB SOP 010 Sample processing using GeneXpert (was MYC SOP 010)",
+        11: "TB SOP 011 Data archiving and preventive maintenance of the GeneXpert Dx "
+            "system (was MYC SOP 011)",
+        12: "TB SOP 012 Sample processing using GeneXpert (was MYC SOP 012 — duplicate "
+            "subject with 010; a register defect, recorded not fixed)",
     },
-    # MOL takes the molecular examinations out of the TB series. The three
-    # documents below already carry these serials; the move does not renumber.
-    # Serial 001 is held: RliDHL-MOL-SOP-001-VERS-003 ("HIV-1 Qualitative Testing
-    # Using Xpert HIV-1 Assays") was absorbed into MOL-002-VERS-002 and withdrawn.
-    # A withdrawn document keeps its serial for life, so 001 is NOT free.
+    # MOL takes the MOLECULAR examinations: HIV early infant diagnosis and the
+    # hepatitis B and C viral loads. The three documents below already carry
+    # these serials; the move out of MYC does not renumber them.
+    #
+    # Serial 001 is HELD, not free. RliDHL-MOL-SOP-001-VERS-003, "HIV-1
+    # Qualitative Testing Using Xpert HIV-1 Assays", held it; MOL-002-VERS-002
+    # records that it "replaces" that document. A withdrawn document keeps its
+    # serial for life, so 001 cannot be allocated.
+    #
+    # HIV SEROLOGY IS NOT IN MOL AND IS NOT TOUCHED BY THIS MOVE. Rapid
+    # Determine, Unigold, capillary collection for HIV testing and HIV QC
+    # transport are SEROLOGY, and the register files them under SER (SER-001,
+    # -002, -004, -005). Those SOPs are unaffected by anything here. The
+    # distinction is method, not analyte: an antibody rapid test is serology; an
+    # assay that amplifies nucleic acid is molecular. The one HIV document that
+    # WAS molecular was the Xpert Qual assay, and it is withdrawn.
     "RliDHL-MOL-SOP": {
-        1: "MOL SOP 001 HIV-1 Qualitative (WITHDRAWN — absorbed into MOL SOP 002)",
+        1: "MOL SOP 001 HIV-1 Qualitative Testing using Xpert HIV-1 Assays — "
+           "WITHDRAWN, absorbed into MOL-002-VERS-002. Serial held for life.",
         2: "MOL SOP 002 HIV Early Infant Diagnosis using GeneXpert (this library)",
         3: "MOL SOP 003 Hepatitis B Virus Viral Load using GeneXpert",
         4: "MOL SOP 004 Hepatitis C Virus Viral Load using GeneXpert",
