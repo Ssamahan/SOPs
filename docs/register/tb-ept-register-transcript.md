@@ -105,6 +105,58 @@ absent row may be an unregistered document. Nothing here is re-allocated on the 
 
 Recorded, not fixed. Each is a defect **in the register**, not in a document.
 
+## Re-reading schemes — evidence of record
+
+Two of the laboratory's examinations are assessed by **slide re-reading**, not by a
+proficiency-testing panel. Both are NRL evaluation reports for retesting of health centres, and
+both were read for this review.
+
+**Malaria — `Ruli DH Malaria QC retesting HCs 2026.xlsx`.** NRL evaluation report, four quarterly
+sheets, April 2024 to March 2026. Eight health centres: Ruli, Coko, Nyange, Minazi, Rushashi,
+Muyongwe, Rwankuba, Muhondo. Columns: slides read, health-centre positives and negatives, hospital
+positives and negatives, discordant rate, score, pass/fail.
+
+**TB microscopy — `Ruli DH TB QC retesting HCs 2026.xlsx`.** NRL evaluation report, four quarterly
+sheets. **Two health centres only: Nyange HC and Rwankuba HC.** The columns add a **scanty** category
+beside positive and negative, and the printed tolerance is a **passing rate of 90 per cent**.
+
+| Quarter | Malaria | TB — Rwankuba | TB — Nyange |
+|---|---|---|---|
+| Q4 2024/25 | 8 sites, all pass, rate 0 | 15 slides, 3 pos / 0 scanty / 12 neg, rate 0, **marked False** | 11 slides, 0 / 0 / 11, rate 0, **marked False** |
+| Q1 2025/26 | 8 sites, all pass, rate 0 | 15 slides, 1 / 0 / 14, rate 0, Pass | **2 slides**, 0 / 0 / 2, rate 0, Pass |
+| Q2 2025/26 | 8 sites, all pass, rate 0 | 15 slides, 0 / 0 / 15, rate 0, Pass | **5 slides**, 2 / 0 / 3, rate 0, Pass |
+| Q3 2025/26 | 8 sites, **arithmetic does not close** | 15 slides, 0 / 0 / 15, rate 0, Pass | **8 slides**, 1 / 0 / 7, rate 0, Pass |
+
+### Defects in the re-reading records — recorded, not fixed
+
+14. **Malaria Q3 2025/26 does not add up.** Coko HC is reported 8 positive and 7 negative on the
+    health-centre side against 8 and 7 on the hospital side, yet the quarter carries a discordant
+    rate of 0 and a pass. Muyongwe reads 3 and 12 against 3 and 10; Rushashi 5 and 10 against 5 and
+    12. A quarter whose rows do not balance cannot be signed as a pass, and a zero computed from
+    them is not a measured zero.
+15. **Two TB sheets are headed "Quarter II".** Q4 2024/25 is titled *"Quarter II: From October To
+    December 2024-2025"* on a tab and date range that make it Quarter IV; Q3 2025/26 is also headed
+    *"Quarter II"* with January–March 2026 dates. One label, two quarters.
+16. **A fail recorded against a zero discordant rate.** Q4 2024/25 marks both sites **False** with a
+    discordant rate of **0**, which on the printed 90 per cent passing rate should read Pass. Either
+    a transcription error or a criterion other than the one printed.
+17. **The TB sample is two of eight sites, and shrinking.** Nyange was re-read on 11, then **2**,
+    then 5, then 8 slides across the four quarters. A two-slide quarter supports no statement about
+    that site's microscopy, and the network has eight centres.
+18. **The TB reports cover microscopy only.** The GeneXpert testing — `TB-001`, `TB-003`, `TB-010`,
+    `TB-012`, and the Xpert MTB/RIF and Ultra panels — is assessed by proficiency testing, not by
+    re-reading, and no re-reading report covers it.
+
+All five are raised with NRL in writing and tracked in `ADM-SOP-025` sections 12.5 and 12.6.
+
+### Which SOP governs which examination
+
+| Examination | Library SOP | In the register? |
+|---|---|---|
+| Malaria diagnosis, Giemsa | `PAR-SOP-008` *Malaria diagnosis using Giemsa Staining Technique*, eff 17/02/2024 | Yes — **and the serial is double-allocated** (defect 7) |
+| TB microscopy, ZN and auramine | `TB-SOP-002` *TB Basiloscopy Testing using Auramine*, eff 20/02/2025; `TB-SOP-003` *TB microscopy by hot Ziehl-Neelsen for quality control* | Yes |
+| GeneXpert MTB/RIF and Ultra | `TB-SOP-001`, `TB-SOP-003`, `TB-SOP-010`, `TB-SOP-012` | Partly — `TB-003` only; `TB-004`–`012` are absent from the 2026 register |
+
 1. **`ADM-001-VERS 004` is used for two different documents** — *Laboratory Temperature Control*
    (06/04/2025) and *Document and Record Control* (21/03/2024). Serial 002 is doubled the same way:
    *Documentation of Examination Procedure* (SOP-002) and *Laboratory Critical Results*
