@@ -335,7 +335,37 @@ body(
     "signature page of every SOP."
 )
 
-# ---- E. status ----
+h("E.  INSTRUMENT STATUS — what the SOPs must say")
+body(
+    "The decommissioning of the legacy analysers took place in August 2026. The file "
+    "“RDH EQUIPMENTS CODE25 JANV 2026.xlsx” predates it and still shows the Humastar 80 as "
+    "Operational; it must not be used to decide equipment status.", size=9
+)
+table(
+    ["Equipment", "Serial", "Asset code", "Status"],
+    [
+        ["Sysmex XN-330", "17156", "RULIDH/LAB/ME/0501", "In service — SOP HEM-005"],
+        ["Sysmex XQ-320", "12357", "RULIDH/LAB/ME/0499", "In service — SOP HEM-006"],
+        ["Alere Pima CD4", "PIMA-D-005378", "RULIDH/LAB/ME/0485", "In service — SOP IMM-005"],
+        ["Roche cobas c 111 (hospital's own)", "65053", "RULIDH/LAB/ME/0486",
+         "AWAITING REPAIR since April 2026 — Peltier element, Error 5040; shipped to "
+         "MediSell Rwanda Ltd"],
+        ["Roche cobas c 111 (loan unit, MediSell)", "not recorded", "no asset tag",
+         "ON LOAN and currently DOWN since 11/11/2026 — will not enter Ready mode"],
+        ["Sysmex KX-21N, XS-500i, Pochi, Humacount 5, Humastar 80, Humalyzer 3500",
+         "—", "—", "DECOMMISSIONED August 2026 — governing SOPs withdrawn, not renumbered"],
+    ],
+    [3.9, 2.0, 2.9, 7.6], body_size=7.5,
+)
+body(
+    "Biochemistry testing is at a standstill while both cobas instruments are unavailable. "
+    "BIO-SOP-001 (glucose) states the position in section 8.1 and the contingency in section "
+    "17: a backup method with the method named on the report, referral to the National "
+    "Reference Laboratory, and a written suspension. No result may be reported from an "
+    "analyser that is not in Ready mode.", size=9
+)
+
+# ---- F. status ----
 h("E.  Status and what still has to happen")
 bullet("All entries are first issues at VERS-001, except glucose, which stays at 005.")
 bullet("The effective date of 14/11/2026 is the proposed date. If signature happens "

@@ -31,7 +31,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build_sop import (  # noqa: E402
-    DECISIONS, IN_SERVICE, REGISTER, SERIES_ALLOCATED, SERIES_UNVERIFIED,
+    AWAITING_REPAIR, DECISIONS, IN_SERVICE, REGISTER, SERIES_ALLOCATED,
+    SERIES_UNVERIFIED,
     SERIES_KNOWN_MAX, WITHDRAWN, code, form,
 )
 
@@ -327,6 +328,48 @@ def main() -> int:
 
     ok(f"no SOP describes decommissioned equipment as in service "
        f"({len(DECOMMISSIONED)} withdrawn analysers checked)")
+
+    # ---------- 5c. an instrument awaiting repair is not "in service" ----------
+    # The glucose SOP named the cobas c 111 as in service when the hospital's own unit
+    # had been at the supplier for repair since April and the laboratory was working on
+    # a loan unit that was itself down. Judged per LINE rather than per sentence: a
+    # sentence regex cannot survive "section 8.1", "PO 2100000988" or "Rwanda Ltd.".
+    QUALIFIER = re.compile(r"out of service|loan|repair|down\b|suspend|not in use|"
+                           r"awaiting|fault|error 5040|ready mode|Peltier", re.I)
+    for pdf in pdfs:
+        text = "\n".join(p.get_text() for p in pymupdf.open(pdf))
+        if "cobas c 111" not in text.lower():
+            continue
+        # Build a logical block: join wrapped lines, then look for any mention of the
+        # instrument in a block that never mentions its condition.
+        blocks, cur = [], []
+        for line in text.splitlines():
+            if not line.strip() or re.match(r"^\s*(RliDHL-|Page \d)", line):
+                if cur:
+                    blocks.append(" ".join(cur))
+                    cur = []
+            else:
+                cur.append(line.strip())
+        if cur:
+            blocks.append(" ".join(cur))
+        bad = [b for b in blocks
+               if re.search(r"cobas c 111", b, re.I) and not QUALIFIER.search(b)]
+        # A block is only a problem if it reads as an instruction or a claim, not a title
+        # or a bare reference. Titles, the cover and reference lists are excluded.
+        bad = [b for b in bad
+               if not re.search(r"^\s*(REPUBLIC OF RWANDA|STANDARD OPERATING|Field Detail|"
+                                r"Amendment|Purpose)", b, re.I)
+               and not re.search(r"SOP Title", b, re.I)
+               and not re.search(r"method sheet|instructions for use|delivery notes|"
+                                 r"Glucose HK \(GLUC2\) reagent for the", b, re.I)]
+        if bad:
+            fail(f"{pdf.name}: mentions the cobas c 111 with no statement that it is a loan "
+                 f"unit, awaiting repair or down — {bad[0][:110]}…")
+    ok(f"{len(AWAITING_REPAIR)} instrument(s) awaiting repair: every claim about them in the "
+       f"SOPs is qualified")
+
+    ok(f"{len(AWAITING_REPAIR)} instrument(s) awaiting repair: every mention in the SOPs "
+       f"is qualified (out of service / loan / down)")
 
     # ---------- 6. no hand-typed code in the generator ----------
     src = (ROOT / "scripts" / "build_sop.py").read_text()

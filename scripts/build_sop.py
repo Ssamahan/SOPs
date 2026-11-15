@@ -127,47 +127,48 @@ SERIES_UNVERIFIED: set[str] = set()   # no invented series remain; IH is gone
 # prints them after the passes, separately, because consistent-with-itself is not
 # the same as correct-against-the-register.
 DECISIONS = {
-    "humastar": {
-        "issue": "The hospital's own equipment register still lists the Humastar 80 as "
-                 "Operational; the programme handoff says it is withdrawn from Biochemistry",
-        "detail": "SOP-PROGRAMME-HANDOFF.md (verified inventory) records the Humastar 80 as "
-                  "decommissioned and confined to a withdrawal clause. The register in the "
-                  "equipment folder, 'RDH EQUIPMENTS CODE25 JANV 2026.xlsx', still carries it "
-                  "as 'Operational', asset RULIDH/LAB/ME/0110, in the Inventory, Operational "
-                  "and LAB sheets — although the same workbook's 'All not in esrvice' sheet "
-                  "lists both the KX-21N and the XS-500i as Obselete and does not list the "
-                  "Humastar. BIO-SOP-003 to 009 are all Humastar 80 procedures.",
-        "options": "Decide which source is authoritative and correct the other. This library "
-                   "follows the handoff and treats the Humastar as withdrawn, because asserting "
-                   "a machine is in service is the more dangerous error: it sends a "
-                   "technologist to a bench. If the analyser IS still operating, say so and the "
-                   "BIO block is restored.",
-    },
-    "xs500i": {
-        "issue": "The equipment register marks the Sysmex XS-500i Obsolete on the "
-                 "'All not in esrvice' sheet but Operational on three others",
-        "detail": "'RDH EQUIPMENTS CODE25 JANV 2026.xlsx' lists XS-500i (RULIDH/LAB/ME/0108) "
-                  "as Obselete on the Inventory and 'All not in esrvice' sheets, and as both "
-                  "Obsolete (LAB sheet, row 13 area) and Operational (LAB sheet, row 4). The "
-                  "handoff records it as decommissioned. No SOP governs it either way: it "
-                  "appears in the Master List only as an EXT- manufacturer manual.",
-        "options": "Settle the status from the maintenance and inventory records. Either way "
-                   "this library needs an XS-500i withdrawal note or an SOP; at present the "
-                   "instrument is invisible to the SOP set.",
-    },
-    # Resolved 15/11/2026 on the Laboratory Manager's instruction. Kept here, empty of
-    # open items, because the history is why the numbers are what they are:
+    # These were open questions. They are now settled by fact, and the facts are kept
+    # here because they are the reason several documents are withdrawn or marked
+    # suspended, and because an auditor will ask for them.
     #
-    #   venous    -- IH is gone. Venous collection is HEM-SOP-001-VERS-002, a revision
-    #                of the registered "Vein blood collection..." rather than a new
-    #                series. No department was invented.
-    #   glucose   -- 001 is retained (the instruction: keep 001, move the other document
-    #                to the number next to it). "Use and preventive maintenance of
-    #                Humastar 80" moves to BIO-SOP-002. Nothing is skipped.
-    #   training  -- 064-F01 CITES the existing ADM-FORM-014 signature page and
-    #                ADM-FORM-001 competency form instead of replacing them.
+    # NOT open any more: whether the legacy analysers are in service. They were
+    # decommissioned in August 2026 and the Decommissioned section of the programme
+    # handoff is authoritative. The equipment spreadsheet "RDH EQUIPMENTS CODE25 JANV
+    # 2026.xlsx" is stale -- it still shows the Humastar 80 as Operational -- and must
+    # not be used to decide equipment status.
     #
-    # A new open question belongs in this dict so the checker prints it.
+    # Equipment status per the maintenance record and the Laboratory Manager:
+    #   IN SERVICE   Sysmex XN-330 (17156), Sysmex XQ-320 (12357), Alere Pima CD4
+    #   AWAITING REPAIR   cobas c 111 serial 65053, RULIDH/LAB/ME/0486 -- the hospital's
+    #                own instrument, out of service since April 2026 (Peltier element,
+    #                Error 5040), shipped to MediSell Rwanda Ltd and expected back.
+    #   ON LOAN      a cobas c 111 supplied by MediSell while the above is repaired.
+    #                Currently DOWN itself since 11/11/2026 (Ready-mode failure).
+    #   DECOMMISSIONED (August 2026)   Sysmex KX-21N, XS-500i, Pochi, Humacount 5,
+    #                Humastar 80, Humalyzer 3500 -- see WITHDRAWN.
+    #
+    # Consequence for this repository: BIO-SOP-001 to BIO-SOP-009 are all Humastar 80
+    # procedures and are withdrawn; the glucose SOP is valid in content but its
+    # examination cannot currently be performed on either cobas c 111.
+    "cobas_loan": {
+        "issue": "The laboratory is measuring on a loaned analyser, and both instruments "
+                 "are currently down",
+        "detail": "The hospital's own cobas c 111 (serial 65053, asset "
+                  "RULIDH/LAB/ME/0486) failed in April 2026 with a Peltier element fault "
+                  "(Error 5040) and was shipped to MediSell Rwanda Ltd for repair; it is "
+                  "expected back. MediSell supplied a loan c 111 in the meantime. On "
+                  "11/11/2026 the loan instrument also failed -- it will not enter Ready "
+                  "mode, reporting a Transfer Head Fluid Sensor Calibration Error and a "
+                  "Level Detection Frequency Error, both persistent after every corrective "
+                  "step in the service manual. Biochemistry testing is at a standstill.",
+        "options": "This is recorded, not solved here: it needs the service visit, the "
+                   "loan agreement and the return of the hospital's instrument. In the "
+                   "meantime the glucose SOP states the contingency (backup method, "
+                   "referral, suspension) so that no result is reported from an analyser "
+                   "that is not in Ready mode. When the instrument returns, section 8.1 of "
+                   "the glucose SOP must be updated to remove the loan unit and record the "
+                   "verification of the repaired instrument.",
+    },
 }
 
 # Documents whose equipment has been DECOMMISSIONED. The document is superseded: it is
@@ -218,6 +219,17 @@ IN_SERVICE = [
     ("Sysmex XN-330", "17156", "RULIDH/LAB/ME/0501", "Hematology bench"),
     ("Sysmex XQ-320", "12357", "RULIDH/LAB/ME/0499", "Hematology bench"),
     ("Alere Pima CD4", "PIMA-D-005378", "RULIDH/LAB/ME/0485", "Hematology room"),
+]
+
+# Equipment that is not decommissioned but is not working either. A document must not
+# describe these as in service, and must not pretend they do not exist.
+AWAITING_REPAIR = [
+    ("Roche cobas c 111", "65053", "RULIDH/LAB/ME/0486",
+     "hospital's own unit — Peltier element failure, Error 5040, out of service since "
+     "April 2026, shipped to MediSell Rwanda Ltd"),
+    ("Roche cobas c 111", "not recorded", "no asset tag issued",
+     "MediSell loan unit in use while the above is repaired — itself down since "
+     "11/11/2026, will not enter Ready mode"),
 ]
 
 # Every serial already spoken for beyond the registered set, so a duplicate is
@@ -945,7 +957,11 @@ GLUCOSE = {
                   "metabolic, endocrine and critical illness."),
             ("p", "Ruli District Hospital Laboratory measures glucose in serum and plasma on the "
                   "Roche cobas c 111 analyser with the Glucose HK (GLUC2) reagent. Requests and "
-                  "results are kept in the EMR."),
+                  "results are kept in the EMR. The instrument currently at the bench is a "
+                  "loan unit supplied by MediSell Rwanda Ltd — the hospital's own analyser is "
+                  "away for repair — and at the date of this revision neither instrument is "
+                  "operating. Section 8.1 states the position in full and section 17 states "
+                  "what to do about it."),
         ]),
         ("2. Principle of the Test", [
             ("p", "The GLUC2 assay is an enzymatic ultraviolet test based on the hexokinase "
@@ -963,8 +979,10 @@ GLUCOSE = {
                   "reliable."),
         ]),
         ("4. Scope", [
-            ("p", "This SOP applies to all laboratory biotechnologists who operate the cobas "
-                  "c 111 and perform glucose testing in the biochemistry section. It covers "
+            ("p", "This SOP applies to all laboratory biotechnologists who operate a cobas "
+                  "c 111 — the hospital's own or the loan unit — and perform glucose testing "
+                  "in the biochemistry section, once an instrument is in Ready mode and has "
+                  "passed control. It covers "
                   "specimen receipt, calibration, quality control, analysis, validation and "
                   "reporting. It does not cover glucose measured with a glucometer at the "
                   "bedside (point-of-care), or glucose in urine or cerebrospinal fluid."),
@@ -1109,10 +1127,26 @@ GLUCOSE = {
         ("8. Equipment, Reagents, and Consumables", [
             ("h2", "8.1 Equipment"),
             ("b", [
-                "Roche cobas c 111 analyser (in service: serial 65053, hospital tag "
-                "RULIDH/LAB/ME/0486, Biochemistry Room — Laboratory Medical Equipment "
-                "Presence List, 16/06/2025); the serial number and asset tag are also "
-                "recorded in the instrument logbook.",
+                "Roche cobas c 111 analyser, Biochemistry Room. TWO instruments are "
+                "involved and staff must know which one they are standing at:",
+                "1) The hospital's own cobas c 111 — serial 65053, hospital tag "
+                "RULIDH/LAB/ME/0486. It has been OUT OF SERVICE since April 2026 following "
+                "failure of a Peltier element (Error 5040, cooling system), reported to "
+                "MediSell Rwanda on 18/04/2026. It was shipped to MediSell for repair and is "
+                "expected back. It is NOT in use and must not be operated.",
+                "2) A cobas c 111 supplied on loan by MediSell Rwanda Ltd while the "
+                "hospital's own instrument is under repair. This is the instrument currently "
+                "at the bench. Its serial number and asset status MUST be entered in the "
+                "instrument logbook before results are reported under this SOP; no asset tag "
+                "has been issued for it.",
+                "At the time of this revision the loan instrument is ALSO OUT OF SERVICE: "
+                "since 11/11/2026 it fails to enter Ready mode, with a Transfer Head Fluid "
+                "Sensor Calibration Error and a Level Detection Frequency Error, both "
+                "persistent after every corrective step in the service manual. Biochemistry "
+                "testing is therefore suspended unless and until an instrument is restored to "
+                "Ready mode and passes control (section 17).",
+                "A report that does not state which instrument produced the result is not "
+                "valid; the two are different analysers with different service histories.",
                 "Technical service and installation (electrodes, interface, corrective "
                 "maintenance): MediSell Rwanda Ltd.",
                 "Uninterruptible power supply (UPS).",
@@ -1189,8 +1223,12 @@ GLUCOSE = {
         ("10. Procedural Steps", [
             ("h2", "10.1 Instrument start-up and daily checks"),
             ("steps", [
-                ("1.", "Check that the analyser and the UPS are connected. Switch on the cobas "
-                       "c 111 and wait for the self-check."),
+                ("1.", "Confirm WHICH instrument you are at (8.1) and that it is in service. "
+                       "Do not attempt to start an analyser that is out of service or awaiting "
+                       "repair: record it and apply section 17. Check that the analyser and "
+                       "the UPS are connected, switch on, and wait for the self-check. An "
+                       "instrument that will not reach Ready mode after the steps in 8.1 is "
+                       "out of service — stop and report it."),
                 ("2.", "Check the system water and the waste container; refill or empty as "
                        "needed."),
                 ("3.", "Check the GLUC2 reagent: tests remaining, on-board expiry and lot "
@@ -1409,6 +1447,16 @@ GLUCOSE = {
                   "delta check before release"],
                  ["Control failure not detected",
                   "Two-level IQC before patient testing; Westgard rules; weekly chart review"],
+                 ["No analyser available (both the hospital's instrument and the loan unit "
+                  "down)",
+                  "Biochemistry is suspended and the suspension is reported to the Laboratory "
+                  "Manager and the Director General. Critical glucose is measured with the "
+                  "backup method recorded in the contingency plan (glucometer with a "
+                  "documented, traceable method) and the method used is stated on every "
+                  "report. Requests that cannot be met are referred to the National "
+                  "Reference Laboratory or the nearest district hospital laboratory, with "
+                  "the referral recorded. Do not report a result from an instrument that is "
+                  "not in Ready mode (ISO 15189:2022, 7.5, 7.8)"],
                  ["Reagent lot shift", "Calibration and both control levels on every new lot "
                   "before patient specimens"],
                  ["Power interruption", "UPS; record the event; repeat controls after power "
