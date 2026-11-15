@@ -221,9 +221,14 @@ table(["N°", "Document Code", "Document Title", "Effective date", "Review date"
        "Locations", "Status"], rows, [0.8, 3.9, 4.4, 1.9, 1.9, 2.6, 3.5], body_size=7.5)
 
 body(
-    "The venous SOP takes RliDHL-IH-SOP-002-VERS-001. The Master List carries no IH "
-    "section at all, so IH-SOP-001 is not registered to any document in it. The number is "
-    "reserved here rather than assumed free from a working note.", size=9
+    "The venous SOP is shown as RliDHL-IH-SOP-002-VERS-001, but that code is provisional "
+    "and must not be relied on. The Master List has no IH section: its department codes "
+    "are ADM, BAC, BIO, HEM, IMM, MYC, PAR, SER and STC. More to the point, HEM-SOP-001 "
+    "is already “Vein blood collection and preparation of hematology sample” (16/08/2016). "
+    "On the titles alone this new document looks like a revision of that SOP rather than "
+    "a new one. That cannot be settled from the register, because HEM-SOP-001 has not "
+    "been read — a title is not a scope. The Laboratory Manager has to open it and decide "
+    "before the venipuncture SOP is issued or signed.", size=9
 )
 body(
     f"The ADM series stands at {SERIES_KNOWN_MAX['RliDHL-ADM-SOP']:03d}: serials 001–049 are "
@@ -255,7 +260,16 @@ body(
     "RliDHL-ADM-SOP-058-F01 and the rest of the November block.", size=9
 )
 
-# ---- D. why 060 ----
+body(
+    "One further collision is recorded rather than corrected. The glucose SOP cites "
+    "RliDHL-BIO-SOP-001-VERS-005, but BIO serial 001 is registered to “Use and "
+    "preventive maintenance of Humastar 80” (VERS-002, 25/05/2016). Glucose in the "
+    "registered series is BIO-SOP-007. Renumbering a signed, in-force SOP is the "
+    "Director General’s act, so the number is left as it stands and flagged here.",
+    size=9
+)
+
+# ---- D. why 064 ----
 h("D.  Why SOP 064 has to exist")
 body(
     "Every SOP in the collection ends with a signature page that records that a member "
