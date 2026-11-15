@@ -107,7 +107,13 @@ SERIES_KNOWN_MAX = {
     # There is NO IH section in the register: the areas it uses are ADM, BAC,
     # BIO, HEM, IMM, MYC, PAR, SER and STC. "IH" was introduced by this library
     # and is not an established department code.
-    "RliDHL-ADM-SOP": 49,
+    # Corrected against the 2026 register (MASTER LIST - 2024 - 2025.docx,
+    # modified 17/02/2026). The ADM-SOP serials it actually lists are 001, 002,
+    # 009, 020, 024 and 034. The older MASTER LIST 2025.docx ran to 049, but it
+    # is not the current register. See docs/register/tb-ept-register-transcript.md.
+    "RliDHL-ADM-SOP": 34,
+    "RliDHL-ADM-MAN": 2,    # 001 Quality Control Manual, 002 Safety Manual
+    "RliDHL-ADM-GUID": 3,   # 001 Scope of Test, 002 Critical Results, 003 Normal Ranges
     "RliDHL-BAC-SOP": 6,
     "RliDHL-BIO-SOP": 9,
     "RliDHL-HEM-SOP": 6,   # 005 XN-330, 006 XQ-320
@@ -252,8 +258,32 @@ AWAITING_REPAIR = [
 # caught before it ships. This is the list that would have caught ADM-060.
 SERIES_ALLOCATED = {
     "RliDHL-ADM-SOP": {
-        # the 49 registered rows (035 is the one known gap)
-        **{n: "Master List 2025" for n in range(1, 50) if n != 35},
+        # ---- ADM SOP serials, corrected against the 2026 register --------------
+        #
+        # The previous version of this table claimed every serial 1-49 except 035
+        # was registered. That was read from MASTER LIST 2025.docx (15/04/2025),
+        # which is NOT the current register. The register the laboratory actually
+        # works to is MASTER LIST - 2024 - 2025.docx, modified 17/02/2026, and it
+        # lists only these ADM-SOP serials:
+        #
+        #     001  002  009  020  024  034
+        #
+        # Everything else between 001 and 034 is ABSENT from the register -- not
+        # proven free, but not proven taken either. The full transcription and the
+        # list of defects are in docs/register/tb-ept-register-transcript.md.
+        #
+        # Serial 035 is retired: the older register skipped from 034 to 036 and no
+        # document ever held it (SOP-PROGRAMME-HANDOFF). It stays retired.
+        1: "ADM SOP 001 Laboratory Temperature Control (2026 register; DOCUMENT AND "
+           "RECORD CONTROL is also printed on 001 -- a register defect)",
+        2: "ADM SOP 002 Documentation of Examination Procedure (2026 register)",
+        9: "ADM SOP 009 Disposal of sharps and needles (2026 register)",
+        20: "ADM SOP 020 Pre-Examination Procedure (2026 register)",
+        24: "ADM SOP 024 Quality Control and Quality Assurance (2026 register)",
+        34: "ADM SOP 034 Laboratory Waste Management, and Handling of biological spills "
+            "(2026 register; TWO documents share this serial -- a register defect)",
+        **{n: "ADM SOP 035 retired -- never used, no document ever held it"
+           for n in (35,)},
         # the November 2026 equipment block: built, uploaded, unsigned
         50: "ADM SOP 050 Microscope (Nov 2026 block)",
         51: "ADM SOP 051 Centrifuge (Nov 2026 block)",
@@ -401,6 +431,7 @@ REGISTER = {
     },
     "exam_docs": {
         "code": "RliDHL-ADM-SOP-041", "vers": "001",
+        "new": True,
         "title": "Documentation of examination procedures",
         "master_list": "Master List, Crosscutting SOPs",
     },
@@ -416,6 +447,39 @@ REGISTER = {
         "code": "RliDHL-ADM-SOP-063", "vers": "001",
         "title": "Use, Care and Preventive Maintenance of the GeneXpert Dx System",
         "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
+    },
+    # --- documents cited by the EQA/PT SOP, registered so they are cited by
+    # code rather than typed. All are in the 2026 register.
+    "qca": {
+        "code": "RliDHL-ADM-SOP-024", "vers": "004",
+        "title": "Quality Control and Quality Assurance",
+        "master_list": "Master List, Crosscutting SOPs",
+    },
+    "scope_test": {
+        "code": "RliDHL-ADM-GUID-001", "vers": "004",
+        "title": "Laboratory Scope of Test",
+        "master_list": "Master List, Guidelines",
+    },
+    "qc_manual": {
+        "code": "RliDHL-ADM-MAN-001", "vers": "006",
+        "title": "Laboratory Quality Control Manual",
+        "master_list": "Master List, Manuals",
+    },
+    "safety_manual": {
+        "code": "RliDHL-ADM-MAN-002", "vers": "006",
+        "title": "Laboratory Safety Manual",
+        "master_list": "Master List, Manuals",
+    },
+    # Serial 025. The 2026 register (MASTER LIST - 2024 - 2025.docx, modified
+    # 17/02/2026) holds ADM-024 (Quality Control and Quality Assurance) and
+    # ADM-020 (Pre-Examination Procedure) and nothing between them. The
+    # Laboratory Manager's instruction was to fill the gap rather than skip past
+    # it, so this SOP takes the free serial 025 instead of a number past 065.
+    "eqa_pt": {
+        "code": "RliDHL-ADM-SOP-025", "vers": "001",
+        "title": "External Quality Assessment and Proficiency Testing",
+        "master_list": "Master List, Crosscutting SOPs",
+        "new": True,
     },
     # Serial 065. The gap 064 -> 065 is not a gap: 064 is taken by the SOP on the
     # signing of SOPs, which this library issues. 065 is the next free serial.
@@ -1616,6 +1680,7 @@ GLUCOSE = {
 # ---------------------------------------------------------------------------
 
 ADM_EXAM_DOCS = code("exam_docs")        # ADM SOP 041, Documentation of examination procedures
+# 041 is a NEW allocation by this library; the 2026 register does not carry it.
 ADM_EQUIP_MAINT = code("equip_maint")    # ADM SOP 062, Hematology analyser maintenance
 
 
@@ -3102,7 +3167,569 @@ TROUBLE = {
     ],
 }
 
-DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE]
+# ---------------------------------------------------------------------------
+# ADM SOP 025 -- External Quality Assessment and Proficiency Testing
+#
+# Serial 025, taken on the Laboratory Manager's instruction to fill the gap
+# between ADM-024 and ADM-026 rather than skip past it.
+#
+# Written against what the laboratory actually does, which is recorded in
+# docs/register/tb-ept-register-transcript.md: Dried Tube Specimen HIV serology
+# PT from RBC/NRL, MTB PT on GeneXpert, and the quarterly NRL biochemistry and
+# haematology PT that covers creatinine, glucose, ALT and the full blood count.
+#
+# The content follows ISO 15189:2022 7.3.7 (and 7.3.7.3 for EQA specifically),
+# which is not a suggestion: 7.3.7.3 requires participation in EQA appropriate
+# to the examinations performed, review of the data at regular intervals against
+# pre-defined acceptability criteria, and defined action where performance falls
+# outside them, including an assessment of whether the nonconformance is
+# clinically significant. It also follows the SLIPTA checklist items 8.20 and
+# 8.21, which are what the accreditation assessor will score.
+# ---------------------------------------------------------------------------
+
+EQ = REGISTER["eqa_pt"]
+EQ_CODE = code("eqa_pt")
+EQ_EFF = "14/11/2026"
+EQ_REV = "14/11/2028"
+
+EQA = {
+    "meta": {"doc_no": EQ_CODE, "title": EQ["title"], "version": EQ["vers"]},
+    "out_stem": f"{EQ_CODE} - External Quality Assessment and Proficiency Testing",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", EQ["vers"], EQ_EFF,
+         "First issue. The laboratory takes part in EQA for HIV serology, TB on GeneXpert, "
+         "biochemistry and the full blood count, and no controlled document governed it: who "
+         "enrols, who tests the panels, who submits the results, what happens when a result is "
+         "unsatisfactory, and how the annual plan is made were all held in one person's head. "
+         "Written to ISO 15189:2022, 7.3.7 and 7.3.7.3."],
+    ],
+    "control_rows": [
+        ("SOP Number", EQ_CODE),
+        ("SOP Title", EQ["title"]),
+        ("Version", EQ["vers"]),
+        ("Effective Date", EQ_EFF),
+        ("Next Review Date", EQ_REV),
+        ("Supersedes", "— (first issue; no previous SOP covered EQA or PT)"),
+        ("Document Owner", "Kelvin SAMAHANI — Laboratory Manager"),
+        ("Applies to", "Every examination the laboratory performs, including point-of-care "
+                       "testing, and every examination referred to a laboratory whose EQA covers it"),
+        ("Classification", "Controlled document — master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "Internal quality control tells the laboratory whether a run was under control. It "
+                  "cannot tell the laboratory whether its results are right in the way another "
+                  "laboratory's results are right. Two laboratories can each be perfectly in control "
+                  "of an assay that both have calibrated wrongly, and both will report the same wrong "
+                  "answer with complete confidence. Only comparison with an outside body detects "
+                  "that, and that comparison is external quality assessment."),
+            ("p", "This laboratory already participates. The records show Dried Tube Specimen "
+                  "proficiency testing for HIV serology from the National Reference Laboratory of the "
+                  "Rwanda Biomedical Centre, MTB proficiency testing on the GeneXpert, and the "
+                  "quarterly NRL biochemistry and haematology programme covering creatinine, glucose, "
+                  "ALT and the full blood count. In the January–March 2026 event the laboratory's "
+                  "peers included 56 public hospital laboratories and 36 private laboratories."),
+            ("p", "What was missing was not participation but governance. No document said who "
+                  "enrols for what, who tests the panel, who signs the submission, what must happen "
+                  "when a result is unsatisfactory, or how the laboratory knows that it is enrolled "
+                  "in EQA for everything it reports. This SOP supplies that. It does not replace the "
+                  "provider's instructions; where this SOP and the provider's instructions differ, "
+                  "the provider's instructions govern that event and the difference is recorded."),
+            ("p", "The reason this matters beyond the certificate: an unsatisfactory EQA result is "
+                  "the clearest early warning a laboratory gets that patients may be receiving wrong "
+                  "results. Handled as a formality it becomes a tick in a file. Handled as this SOP "
+                  "requires, it becomes the trigger for finding out what went wrong and whether a "
+                  "patient was affected."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To set out how this laboratory plans, performs, records, reviews and acts on "
+                  "external quality assessment and proficiency testing, so that participation is "
+                  "complete and demonstrable, the panels are tested exactly as patient specimens are "
+                  "tested, every unsatisfactory result is investigated to its cause, and corrective "
+                  "action is verified as effective rather than merely declared."),
+        ]),
+        ("3. Scope", [
+            ("p", "This SOP applies to every examination on the laboratory's Scope of Test list "
+                  "that is performed at Ruli District Hospital, including point-of-care examinations, "
+                  "and to examinations referred to another laboratory where the referring laboratory "
+                  "relies on that laboratory's EQA. It covers the full EQA cycle: the annual plan, "
+                  "enrolment, receipt and handling of panels, testing, submission, review of the "
+                  "report, investigation and corrective action, verification of effectiveness, and "
+                  "the reports to management."),
+            ("p", "It does not govern internal quality control, which is required by the quality "
+                  "control procedure and by the examination SOPs of each section."),
+        ]),
+        ("4. Definitions", [
+            ("tbl", ["Term", "Meaning in this laboratory"],
+             [
+                 ["External quality assessment (EQA)",
+                  "Evaluation of the laboratory's performance against pre-established criteria by "
+                  "comparison with other laboratories — ISO 15189:2022, 3.10. Encompasses "
+                  "proficiency testing, re-testing and onsite assessment."],
+                 ["Proficiency testing (PT)",
+                  "EQA in which samples of known but undisclosed composition are circulated and "
+                  "participants' results are scored against the expected values or against the "
+                  "consensus of participants."],
+                 ["Panel / survey",
+                  "One distribution of EQA material, with its provider code, shipment code and "
+                  "closing date."],
+                 ["Target value",
+                  "The value against which the participant's result is scored: a reference value, "
+                  "the consensus value of the peer group, or the value assigned by the scheme "
+                  "organiser."],
+                 ["SDI / z-score",
+                  "The standard deviation index or the standard score used by the scheme to express "
+                  "how far the result lies from the target, in units of the acceptable standard "
+                  "deviation. Different schemes use different names for the same idea."],
+                 ["Satisfactory / unsatisfactory",
+                  "Satisfactory means inside the acceptability criteria the scheme publishes and "
+                  "this SOP adopts. Unsatisfactory means outside them. The laboratory does not "
+                  "redefine a provider's criteria to make a result satisfactory."],
+                 ["Alternative approach",
+                  "Where no EQA programme exists for an examination: comparison with another "
+                  "laboratory, re-testing, analysis of commutable reference material, clinical "
+                  "correlation, or a blind re-test, with the rationale recorded — "
+                  "ISO 15189:2022, 7.3.7.3, note."],
+             ],
+             [4.5, 12.0]),
+        ]),
+        ("5. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and provide the funds for enrolment and participation",
+                  "Hospital Director General"],
+                 ["Own the EQA programme: the annual plan, the enrolment, the register of panels, "
+                  "the reports to management, and this SOP", "Laboratory Manager"],
+                 ["Prepare the annual EQA plan against the Scope of Test list and check that every "
+                  "examination is covered or has a recorded alternative", "Laboratory Manager and "
+                  "Quality Officer"],
+                 ["Receive, log and store the panel; test it; submit the results by the closing date",
+                  "Section head or designated authorised biotechnologist"],
+                 ["Approve the submission before it is sent", "Laboratory Manager or Senior "
+                  "Biotechnologist"],
+                 ["Review each provider report and assess it against 8.4", "Laboratory Manager"],
+                 ["Investigate an unsatisfactory result, identify the cause, propose and implement "
+                  "the corrective action", "Section head, with the Laboratory Manager"],
+                 ["Verify that the corrective action was effective", "Quality Officer and "
+                  "Laboratory Manager"],
+                 ["Assess whether any patient result may have been affected, and act if so",
+                  "Laboratory Manager"],
+                 ["Keep the EQA file complete and retrievable", "Quality Officer"],
+             ],
+             [8.0, 9.0]),
+            ("p", "Authorisation. Only staff trained on this SOP and authorised by the Laboratory "
+                  "Manager plan or review EQA. Any authorised biotechnologist of the section "
+                  "performs the panel, because the whole value of the exercise is that the panel is "
+                  "handled by the person who handles patients' specimens "
+                  f"({code('training')})."),
+        ]),
+        ("6. The annual EQA plan", [
+            ("p", "Before the end of each calendar year the Laboratory Manager prepares an EQA plan "
+                  "for the coming year. It is a controlled record, approved by the Hospital Director "
+                  "General, and it is the document an assessor asks for first."),
+            ("p", "The plan is built from the Scope of Test list, not from memory. Every examination "
+                  "on that list is entered against one of three columns: **covered by an EQA "
+                  "programme** (naming the programme and the provider), **covered by a recorded "
+                  "alternative approach** (naming it, with the rationale), or **not covered** "
+                  "(naming the reason and the action being taken to close it). An examination in the "
+                  "third column is a finding, and it is reported to management review."),
+            ("tbl", ["Examination", "Programme and provider", "Frequency", "Status"],
+             [
+                 ["HIV serology — rapid testing per the national algorithm",
+                  "Dried Tube Specimen PT for HIV antibody diagnostics, RBC / National Reference "
+                  "Laboratory", "Per NRL survey schedule",
+                  "In place. Panels on file for 2022, 2023 and 2024."],
+                 ["TB — Xpert MTB/RIF Ultra on GeneXpert",
+                  "MTB proficiency testing, RBC / National Reference Laboratory",
+                  "Per NRL survey schedule",
+                  "In place. Panels on file for 2023 and 2024."],
+                 ["Biochemistry — creatinine, glucose, ALT",
+                  "NRL biochemistry and haematology EQA, quarterly",
+                  "Quarterly", "In place. January–March 2026 report on file."],
+                 ["Haematology — full blood count: RBC, Hb, Hct, WBC, platelet count",
+                  "NRL biochemistry and haematology EQA, quarterly",
+                  "Quarterly", "In place. January–March 2026 report on file."],
+                 ["HIV early infant diagnosis (Xpert HIV-1 Qual XC)",
+                  "No PT report held by the laboratory", "—",
+                  "**GAP.** Either enrolled with RBC/NRL and the reports are not filed, or not "
+                  "enrolled. The Laboratory Manager establishes which, within one month of this SOP "
+                  "taking effect, and records the answer."],
+                 ["HBV viral load, HCV viral load, TB LAM", "No PT report held", "—",
+                  "**GAP.** Same action. If no programme exists, an alternative approach under "
+                  "section 9 is designed and recorded."],
+                 ["CD4 enumeration (Alere Pima)", "PT results on file from 2023", "—",
+                  "Confirm the programme is still active and file the intervening reports."],
+             ],
+             [4.2, 4.6, 2.4, 5.3]),
+        ]),
+        ("7. Enrolment and participation", [
+            ("b", [
+                "The laboratory is enrolled in a programme for every examination in the first column "
+                "of the plan. Enrolment is renewed before it lapses; the renewal date is entered in "
+                "the EQA register so that a lapse is visible before it happens.",
+                "Where a provider allocates a participant code and a site code, both are recorded and "
+                "used on every submission. The laboratory's participant code on the MTB programme "
+                "the laboratory holds is **20044**; a submission under any other code is traced "
+                "before it is sent.",
+                "Where two laboratories share a programme, or an examination is performed on more "
+                "than one analyser, the panel is tested on the analyser in routine use for patients "
+                "and the submission states which one was used.",
+                "Where the laboratory starts a new examination, the plan is amended and an EQA route "
+                "identified before results are reported — not after the first accreditation visit.",
+                "The laboratory does not share its panel, its result or its expected values with "
+                "another laboratory, and does not accept another laboratory's results as its own.",
+            ]),
+        ]),
+        ("8. Handling a panel", [
+            ("h2", "8.1 On receipt"),
+            ("p", "The panel is opened by the section head, who records on the EQA register: the "
+                  "provider, the programme, the survey or shipment code, the date received, the "
+                  "storage conditions the provider requires, the closing date for results, and who "
+                  "is assigned to test it. Any damage, delay in transit or breach of the transport "
+                  "conditions is recorded at once and reported to the provider before testing."),
+            ("p", "NRL's own recommendation is that PT panels are tested **immediately upon "
+                  "receipt**, within one day. A panel left in a refrigerator while routine work is "
+                  "done is being assessed as a different sample from the one the provider intended."),
+            ("h2", "8.2 Testing — the rule that gives the exercise its value"),
+            ("p", "The panel is tested exactly as a patient specimen is tested, by the person who "
+                  "normally performs that examination, using the routine method, the routine "
+                  "reagents, the routine calibrators and the routine analyser, in the routine run, "
+                  "with the same quality control as a patient run. It is **not** given to the most "
+                  "senior member of staff, **not** repeated until it agrees with an expectation, "
+                  "**not** run on a different analyser chosen for the occasion, and **not** discussed "
+                  "with another laboratory before submission."),
+            ("p", "The panel's results are entered in the same worksheet or record the examination "
+                  "uses for patients, marked as EQA, so that both the panel and the patient run "
+                  "carry the same traceable record."),
+            ("h2", "8.3 Review and submission"),
+            ("b", [
+                "Before submission, the Laboratory Manager or a Senior Biotechnologist reviews the "
+                "result sheet for completeness: every sample answered, every required field "
+                "completed — including the kit name, the lot number and the expiry date of the "
+                "reagent used, which are among the commonest causes of a submission being rejected.",
+                "The submission is made through the channel the provider requires, before the "
+                "closing date, and the date sent and the person who sent it are recorded. NRL asks "
+                "for feedback within **two weeks** of receipt of the panel.",
+                "A copy of the submitted result sheet is kept in the EQA file, whether it was "
+                "submitted on paper, by e-mail or in an electronic system.",
+                "A submission that is late or incomplete is a nonconformity and is recorded as one, "
+                "even if the result itself would have been satisfactory.",
+            ]),
+        ]),
+        ("9. Where no EQA programme exists", [
+            ("p", "ISO 15189:2022, 7.3.7.3 permits an alternative approach where no EQA programme is "
+                  "available, provided the rationale is justified and the effectiveness of the "
+                  "alternative is shown. The laboratory may use, in this order of preference:"),
+            ("b", [
+                "A comparison with another laboratory performing the same examination on "
+                "commutable material — the National Reference Laboratory by preference.",
+                "Re-testing of the same material by a second person, on a second analyser or by a "
+                "second method.",
+                "Analysis of certified reference material that is commutable with patient samples, "
+                "where such material exists for the examination.",
+                "A blind re-test of previously examined patient material with known results, "
+                "organised so that the person performing it does not know which specimens they are.",
+                "Clinical correlation, where no material can be compared and the examination's "
+                "interpretation is the thing being assessed.",
+            ]),
+            ("p", "The choice, the reason for it and the evidence that it worked are recorded in the "
+                  "EQA plan. An alternative approach that is claimed but never performed is worse "
+                  "than an acknowledged gap, because it looks like coverage."),
+        ]),
+        ("10. Reviewing the provider's report", [
+            ("p", "Each report is reviewed by the Laboratory Manager within **one month** of receipt, "
+                  "and the review is recorded with a date and a signature. The review answers four "
+                  "questions for every examination in the report."),
+            ("tbl", ["Question", "What the reviewer does"],
+             [
+                 ["Did the laboratory take part?",
+                  "Checks that the report shows the laboratory per programme and per examination, "
+                  "and that the participation rate is 100%. A nil return or an absence from the "
+                  "report is followed up with the provider on the same day."],
+                 ["Was the performance satisfactory?",
+                  "Applies the acceptability criteria in 8.4. Every result outside them is listed, "
+                  "not just the overall score: a satisfactory overall score can hide one badly wrong "
+                  "result among four correct ones."],
+                 ["Is there a trend?",
+                  "Reads the current result against the previous reports for the same examination. A "
+                  "**satisfactory** result that is consistently positive or consistently negative of "
+                  "the target is a bias and is investigated as an adverse trend, even though it "
+                  "passes."],
+                 ["Could a patient have been affected?",
+                  "Considers every unsatisfactory or biased result against the results the laboratory "
+                  "reported in the same period, under 8.5."],
+             ],
+             [5.0, 12.0]),
+            ("p", "The review is not a formality performed for the file. Where the answer to any of "
+                  "the four questions is not a clean yes, an investigation is opened."),
+        ]),
+        ("11. Acceptability criteria, and what counts as unsatisfactory", [
+            ("h2", "11.1 The criteria the laboratory uses"),
+            ("b", [
+                "The scheme's own criteria govern, where it publishes them. The NRL biochemistry "
+                "and haematology programme scores against **± 2 SDI**: a result outside ± 2 SDI from "
+                "the target is outside the acceptable range.",
+                "The Dried Tube Specimen HIV serology programme scores on the **number of correct "
+                "reports** across the five-sample panel, and on whether the reported result matches "
+                "the expected result for each sample. A single wrong sample on a qualitative panel "
+                "is a serious error, not a rounding error.",
+                "Where a scheme publishes no numeric criterion, the laboratory adopts the criterion "
+                "the provider states in its instructions and records it in the plan.",
+                "The laboratory may set a stricter internal target; it may never set a laxer one.",
+            ]),
+            ("h2", "11.2 What makes a result unsatisfactory"),
+            ("p", "Any of the following is an unsatisfactory EQA result and is handled as a "
+                  "nonconformity:"),
+            ("b", [
+                "A result outside the scheme's acceptability criteria.",
+                "A qualitative result reported wrongly, on any sample of the panel.",
+                "A result reported for the wrong sample, or two samples transposed.",
+                "A result that could not be scored because a required field — kit name, lot, expiry "
+                "date — was missing.",
+                "A panel not tested, or tested but not submitted by the closing date.",
+                "A satisfactory result showing a bias or a trend against previous reports.",
+                "A report showing that the laboratory did not in fact participate for an examination "
+                "on its scope.",
+            ]),
+        ]),
+        ("12. Investigation and corrective action", [
+            ("p", "An unsatisfactory result is investigated to its cause, not explained away. The "
+                  "investigation is recorded on the nonconformity record, and it follows "
+                  "ISO 15189:2022, 8.7: contain the effect, find the cause, decide whether corrective "
+                  "action is needed, take it, and **verify that it worked**."),
+            ("h2", "12.1 First: contain"),
+            ("b", [
+                "Establish whether the affected examination is still producing results and whether "
+                "those results can be relied on. If not, stop reporting for that examination.",
+                "Inform the Laboratory Manager the same day and, where patients may be affected, the "
+                "Hospital Director General.",
+                "Do not wait for the root cause before containing the risk.",
+            ]),
+            ("h2", "12.2 Then: find the cause"),
+            ("p", "The investigation works through the whole examination process, in this order, "
+                  "because that is the order in which the causes are commonest:"),
+            ("tbl", ["Stage", "What is examined", "Examples of a finding"],
+             [
+                 ["Pre-examination",
+                  "The panel's own handling: receipt date, storage, whether it was tested "
+                  "immediately, whether the panel was reconstituted as the instructions require, "
+                  "whether it was tested within the stated time after reconstitution",
+                  "A rehydrated Dried Tube Specimen tested outside the hours the instructions "
+                  "allow — one of the corrective actions NRL's own report required"],
+                 ["Examination — the method",
+                  "Whether the result was produced by the routine method; whether the national "
+                  "testing algorithm was followed for a serology panel; whether the correct assay "
+                  "definition file or programme was selected",
+                  "A rapid test read against the wrong algorithm; the wrong assay file loaded for a "
+                  "whole-blood versus dried-blood-spot EID panel"],
+                 ["Examination — the reagent",
+                  "Kit and lot in use, expiry, storage temperature, whether the same lot was in "
+                  "routine use for patients, whether a new lot was introduced in the period",
+                  "An expired kit in routine use — a finding about patients, not only about the "
+                  "panel"],
+                 ["Examination — the equipment",
+                  "Calibration status, the analyser's recent internal quality control, the error "
+                  "rate and error codes for the period, module performance where the analyser has "
+                  "modules",
+                  "A module that has been failing and was masked by the others; a calibration that "
+                  "was overdue"],
+                 ["Examination — the person",
+                  "Whether the panel was tested by the person who normally performs the "
+                  "examination; their training, competence and authorisation record; whether the "
+                  "failure mode has appeared before for that person",
+                  "A tester whose failure rate is high — the same signal the GeneXpert error review "
+                  "produces"],
+                 ["Post-examination",
+                  "Transcription of the result, transposition of samples, the units reported, "
+                  "rounding, the fields submitted",
+                  "Two samples transposed on the submission sheet; a result reported in the wrong "
+                  "unit"],
+             ],
+             [2.8, 7.0, 7.2]),
+            ("p", "The cause is recorded in one of the four categories the laboratory uses "
+                  "everywhere — **specimen**, **operator technique**, **consumable or reagent**, "
+                  "**instrument** — plus a fifth for EQA, **the submission itself**, which covers "
+                  "transcription, transposition and missing fields. A cause that cannot be "
+                  "established is recorded as not established, with what was excluded; it is not "
+                  "invented to close the record."),
+            ("h2", "12.3 Then: corrective action"),
+            ("b", [
+                "The action addresses the cause, not the symptom. Re-testing the panel is not a "
+                "corrective action; it is a re-check, and on a PT panel it is not even permissible "
+                "after submission.",
+                "Where the cause is technique, the action is retraining and re-assessment, recorded "
+                "in the personnel file, with the effectiveness checked by supervised work or a "
+                "further blind comparison.",
+                "Where the cause is a reagent or a lot, the action includes reviewing the patient "
+                "results produced with the same lot, informing the supplier, and, where required, "
+                "the Rwanda Food and Drugs Authority.",
+                "Where the cause is the instrument, the action is the service intervention and the "
+                "verification the maintenance and troubleshooting SOPs require.",
+                "Where the cause is the submission, the action is a change to the review step that "
+                "let it through.",
+            ]),
+            ("h2", "12.4 Finally: verify effectiveness, and report"),
+            ("p", "Corrective action is not closed when it is implemented; it is closed when it is "
+                  "shown to have worked. Effectiveness is verified by the **next EQA event for the "
+                  "same examination** being satisfactory, or, where the next event is too far away, "
+                  "by a defined internal check — a blind comparison, a supervised batch, or a review "
+                  "of internal quality control over the intervening period. The verification is "
+                  "recorded against the original nonconformity."),
+            ("p", "Where the provider conducts an onsite corrective-action visit — NRL does so within "
+                  "three weeks of issuing a report — the visit's findings and the laboratory's "
+                  "response are filed with the nonconformity."),
+        ]),
+        ("13. Patient results, and what an EQA failure means for them", [
+            ("p", "This is the section that makes EQA worth doing. An unsatisfactory EQA result may "
+                  "mean that patients examined in the same period received wrong results, and the "
+                  "laboratory is required to assess that, not to assume it is not so "
+                  "(ISO 15189:2022, 7.3.7.3 h and 7.5)."),
+            ("p", "The assessment starts from the cause. Where the cause is confined to the panel — a "
+                  "storage error affecting only the EQA material, a submission error — the "
+                  "assessment is short and states why patients are not affected. Where the cause "
+                  "could have affected patient work — a reagent lot, a calibration, an instrument "
+                  "fault, a person's technique — the assessment covers every result the laboratory "
+                  "reported in the period the cause was active, and answers:"),
+            ("b", [
+                "Which patients' results could have been wrong, and how many?",
+                "How wrong could they have been, in the units the clinician acts on?",
+                "Is the error clinically significant — would it have changed a decision about this "
+                "patient?",
+                "Do the results need to be repeated, and can the specimen be obtained again?",
+                "Does the requester, and the patient's clinician, need to be told, and a corrected "
+                "report issued?",
+            ]),
+            ("p", "Where a patient result is found to have been affected, a corrected report is issued "
+                  "under the laboratory's procedure for reporting, the requester is informed, and the "
+                  "event is recorded. A corrected report states plainly that it replaces an earlier "
+                  "report and why. The laboratory does not quietly withdraw a result."),
+        ]),
+        ("14. Records", [
+            ("tbl", ["Record", "Where kept", "Retention"],
+             [
+                 ["EQA annual plan, approved", "Quality file (EQA section)", "At least 6 years"],
+                 ["EQA register — every panel: provider, code, dates received and submitted, "
+                  "assignee", "Quality file", "At least 6 years"],
+                 ["Panels as received, and the result sheet as submitted", "Quality file",
+                  "At least 6 years"],
+                 ["Provider reports and the record of the review, with date and signature",
+                  "Quality file", "At least 6 years"],
+                 ["Investigation, cause, corrective action and verification of effectiveness",
+                  "Nonconformity file, cross-referenced", "At least 6 years"],
+                 ["Assessment of the effect on patient results", "Nonconformity file",
+                  "At least 6 years"],
+                 ["Reports to management review", "Quality file", "At least 6 years"],
+                 ["Records of training and re-assessment arising from an EQA failure",
+                  "Personnel file", "Duration of employment plus the period national rules "
+                  "require"],
+             ],
+             [6.4, 5.0, 4.6]),
+            ("p", "Records are made at the time of the activity, in ink where paper, corrected by a "
+                  "single line through the entry with the correction beside it and initials and date "
+                  f"({ADM_DOC_CONTROL}). Electronic records are held with a backup and are "
+                  "attributable to a named user account."),
+        ]),
+        ("15. Reporting to management and to the authority", [
+            ("b", [
+                "Every EQA report and the outcome of its review is an input to the management "
+                "review (ISO 15189:2022, 8.9.2 c and e): participation, performance by examination, "
+                "trends, unsatisfactory results, the corrective actions and whether they worked.",
+                "An annual summary states, for every examination on the scope, whether EQA was "
+                "available, whether the laboratory participated, the results obtained and the status "
+                "of any open corrective action. An examination with no EQA and no recorded "
+                "alternative is shown as such — that is the finding, not a paragraph to be softened.",
+                "Where the provider or the regulator requires the laboratory to submit its results "
+                "or its corrective action, the submission is made within the stated period and "
+                "recorded.",
+                "Where a scheme is withdrawn, changes its scoring, or ceases to be offered, the plan "
+                "is amended and the change recorded.",
+            ]),
+        ]),
+        ("16. Risk Management, Nonconforming Work and Contingency", [
+            ("tbl", ["Risk", "Control measure"],
+             [
+                 ["The laboratory believes it is enrolled and is not",
+                  "The annual plan is built from the Scope of Test list and the renewal date is "
+                  "held in the EQA register"],
+                 ["An examination on the scope has no EQA at all",
+                  "The three-column plan makes the gap visible; an alternative approach under "
+                  "section 9 is designed and recorded"],
+                 ["The panel is tested as a special exercise, so the result says nothing about "
+                  "patient work", "Section 8.2: routine person, routine method, routine analyser"],
+                 ["The panel is repeated until it agrees, or discussed with another laboratory",
+                  "Section 8.2 prohibits both; the submission is reviewed before it is sent"],
+                 ["A submission is late or incomplete",
+                  "The closing date and the review step in 8.3; a late submission is recorded as a "
+                  "nonconformity"],
+                 ["An unsatisfactory result is explained rather than investigated",
+                  "Section 12: cause, corrective action and verification, on the nonconformity "
+                  "record"],
+                 ["Corrective action is declared effective without evidence",
+                  "Section 12.4: effectiveness is verified by the next event or a defined internal "
+                  "check"],
+                 ["Patients were affected and nobody looked",
+                  "Section 13: the effect on patient results is assessed every time, and a corrected "
+                  "report issued where needed"],
+                 ["A satisfactory result with a bias is ignored",
+                  "Section 10 and 11.2: a trend against previous reports is investigated even when "
+                  "it passes"],
+                 ["The EQA file cannot be produced at an assessment",
+                  "Section 14: the file is a defined record set, held in one place, retrievable"],
+                 ["The provider's report is received and filed unread",
+                  "Section 10: review within one month, recorded with a date and a signature"],
+             ],
+             [6.0, 11.0]),
+        ]),
+        ("17. Supporting Documents and References", [
+            ("h2", "17.1 Controlled documents of this laboratory"),
+            ("b", [
+                f"Document and Record Control ({ADM_DOC_CONTROL}).",
+                f"Signing of SOPs, and the Training, Competence and Authorisation Record "
+                f"({code('training')}).",
+                f"Troubleshooting of laboratory analysers — error codes, causes and corrective "
+                f"action ({code('trouble')}).",
+                "Quality Control and Quality Assurance ({code('qca')}) — internal quality "
+                "control, with which this SOP is used and which it does not replace.",
+                f"Pre-Examination Procedure ({ADM_PRE_EXAM}).",
+                "Laboratory Scope of Test ({code('scope_test')}) — the list the annual plan is built "
+                "from.",
+                "Laboratory Critical Results (ADM-GUID-002); Normal Ranges for Laboratory "
+                "Tests (RliDHL-ADM-GUID-003).",
+                f"Laboratory Quality Control Manual ({code('qc_manual')}); Laboratory Safety "
+                f"Manual ({code('safety_manual')}).",
+                "The examination SOPs of every section, each of which states the EQA the section "
+                "takes part in.",
+                "Procedure for nonconformities and corrective action; procedure for reporting and "
+                "release of results; Laboratory Waste Management procedure.",
+            ]),
+            ("h2", "17.2 Standards and external references"),
+            ("b", [
+                "ISO 15189:2022 — Medical laboratories: requirements for quality and competence, "
+                "in particular 7.3.7 (and 7.3.7.3, external quality assessment), 7.5, 8.4, 8.7, "
+                "8.8 and 8.9.",
+                "ISO/IEC 17043 — Conformity assessment: general requirements for proficiency "
+                "testing, which governs what a provider of PT must do.",
+                "ASLM / SLIPTA Checklist version 3:2023, items 8.20 (procedure for EQA) and 8.21 "
+                "(participation in EQA), which are scored during accreditation preparation.",
+                "WHO. Laboratory Quality Management System (LQMS) Handbook — the EQA chapter.",
+                "Rwanda Biomedical Centre / National Reference Laboratory. Biochemistry and "
+                "Haematology External Quality Assessment Proficiency Testing performance report, "
+                "January–March 2026 (RBC/AG. DIVISION MANAGER OF NRL/17302/2026), including its "
+                "recommendations on immediate testing of panels, feedback within two weeks, and "
+                "onsite corrective action within three weeks.",
+                "RBC / National Reference Laboratory. Proficiency Testing Program for HIV Antibody "
+                "Diagnostics using Dried Tube Specimen — all participants summary reports.",
+                "RBC / National Reference Laboratory. MTB proficiency testing reports, participant "
+                "code 20044.",
+                "The current instructions, scheme description and acceptability criteria of each "
+                "EQA provider the laboratory uses, held with the EQA file.",
+            ]),
+        ]),
+    ],
+}
+
+DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE, EQA]
 
 # ---------------------------------------------------------------------------
 # DOCX builder

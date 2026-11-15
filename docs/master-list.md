@@ -18,7 +18,7 @@ RliDHL-<AREA>-<TYPE>-<NNN>-F<NN>          e.g. RliDHL-ADM-SOP-062-F01
 
 | Part | Rule |
 |---|---|
-| `AREA` | Dept code. **The register uses exactly these:** `ADM` `BAC` `BIO` `HEM` `IMM` `MOL` `PAR` `SER` `STC` `TB`. **There is no `IH` section**, and this library no longer uses one — see §4. `MYC` was renamed `TB` and `MOL` was created on 15/11/2026 — see §3.1. |
+| `AREA` | Dept code. **The register uses exactly these:** `ADM` `BAC` `BIO` `HEM` `IMM` `MOL` `PAR` `SER` `STC` `TB`. **There is no `IH` section**, and this library no longer uses one — see §4. `MYC` was renamed `TB` and `MOL` was confirmed in the 2026 register — see §3.1. |
 | `TYPE` | `MAN` · `GUID` · `SOP` |
 | `NNN` | Serial, allocated once, held for life, never changed at revision. |
 | `VERS` | Version, `001` at first issue. |
@@ -96,8 +96,40 @@ why 060 is taken, and why the next free ADM serial is 064.**
 
 ## 3. Every SOP series in the register, as read on 15/11/2026
 
-Read line by line from `MASTER LIST 2025.docx`. "Entries" counts distinct serials; the
-"gap" column is what is absent from the sequence, not what is free.
+**Source corrected on 15/11/2026.** This section was read from `MASTER LIST 2025.docx`
+(last modified 15/04/2025). **That is not the current register.** The register the laboratory
+works to — and the one prepared for the 2026 accreditation — is
+**`MASTER LIST - 2024 - 2025.docx`, last modified 17 February 2026**. Despite its file name it
+is the newer document: it contains a `MOLECULAR BIOLOGY SECTION` that the older list lacks, and
+carries a document effective 18/02/2026.
+
+Full transcription, the serials the register **does not** contain, its defects, and the EQA
+evidence: **`docs/register/tb-ept-register-transcript.md`**.
+
+The 2026 register's serials, by section — an absent serial is *unproven*, never free:
+
+| Series | Serials the 2026 register lists |
+|---|---|
+| `ADM-SOP` | 001, 002, 009, 020, 024, 034 |
+| `ADM-GUID` | 001, 002, 003 |
+| `ADM-MAN` | 001, 002 |
+| `BAC-SOP` | 004, 029 |
+| `BIO-SOP` | 001, 002, 003, 004, 006, 008, 012, 015, 021, 026, 027, 031 |
+| `HEM-SOP` | 001, 004, 005, 007, 008, 010, 016, 019, 023, 032 |
+| `MOL-SOP` | 001, 002, 003, 004 |
+| `MYC-SOP` | 001, 002, 003 |
+| `PAR-SOP` | 001, 002, 008, 017 |
+| `SER-SOP` | 002, 003, 004, 007, 008, 010, 012, 013, 014, 018, 020, 030 |
+
+**What this corrected.** `ADM-025` is free in the 2026 register, which is why the new EQA/PT SOP
+takes it rather than skipping to 066. `ADM-041` — the serial this library gave *Documentation of
+examination procedures* — is **not in the register at all**; it is a new allocation by this
+library and is now marked as such. The old table's claim that every ADM serial 1–49 except 035
+was registered came from the superseded list and is withdrawn: those serials are declared
+**unprovable**, not free.
+
+"Entries" counts distinct serials; the "gap" column is what is absent from the sequence, not what
+is free.
 
 | Series | Sections in the register | Serials seen | Gap | What the series actually holds |
 |---|---|---|---|---|
@@ -107,7 +139,7 @@ Read line by line from `MASTER LIST 2025.docx`. "Entries" counts distinct serial
 | `HEM-SOP` | Haematology | 001–004 | none | Blood collection, Sysmex and Humacount analyses |
 | `IMM-SOP` | Immunology | 001–004 | none | FACSCount CD4 procedures |
 | `TB-SOP` | Tuberculosis (was Mycobacteriology) | 001–012 | none | **All TB testing, by any method**: ZN and auramine bacilloscopy, culture and DST, GeneXpert MTB/RIF and Ultra, and **TB LAM**. Renamed from `MYC` on 15/11/2026; serials unchanged |
-| `MOL-SOP` | Molecular | 002–004 | **001** | HIV EID and HBV/HCV viral loads. **New series, 15/11/2026** — its three live documents were moved out of `MYC`, not renumbered. **HIV *qualitative* testing is NOT here: it is serology (`SER`)** |
+| `MOL-SOP` | Molecular | 002–004 | **001** | HIV EID and HBV/HCV viral loads. **Already in the 2026 register** (`MOLECULAR BIOLOGY SECTION`, 001–004) — not invented by this library. The examination documents keep their serials, out of `MYC`, not renumbered. **HIV *qualitative* testing is NOT here: it is serology (`SER`)** |
 | `PAR-SOP` | Parasitology | 001–010 | none | Parasitology procedures |
 | `SER-SOP` | Serology | 001–007 | none | Serology procedures |
 | `STC-SOP` | Stock / stores | 001–007 | none | Commodity and reagent management |
@@ -254,12 +286,16 @@ documents — which is exactly the failure this repository's checker exists to p
 | 15/11/2026 | Read every series in the register, not just ADM. Found that **no IH series exists** and that `BIO-SOP-001` is registered to *Use and preventive maintenance of Humastar 80*, not to the glucose SOP. Both recorded as open decisions in `DECISIONS`, not silently renumbered. |
 | 15/11/2026 | Found `ADM-FORM-014` *Signature page* and `ADM-FORM-001` *Staff competency assessment form* already in the register. Form `064-F01` overlaps both; recorded as an open decision. |
 | 15/11/2026 | **Corrected a serious error: decommissioned equipment treated as live.** The previous change moved *Use and preventive maintenance of Humastar 80* to `BIO-SOP-002`, and BIO-002 is the **Humalyzer 3500** SOP. Both analysers have been decommissioned; the register rows were read as live documents because the equipment status had not been checked. Both are now withdrawn in place, `WITHDRAWN` records why, and the checker fails on a decommissioned analyser named outside a withdrawal clause. |
-| 15/11/2026 | **`MYC` renamed `TB`, and `MOL` created.** The register's "Mycobacteriology" section is the tuberculosis section, so `MYC 001–012` become `TB 001–012` — **same serials, same documents, same effective and review dates**. A rename is not a renumbering: no serial is freed, skipped or re-issued. HIV early infant diagnosis and the hepatitis B and C viral loads are molecular examinations and were being filed in a TB series, so they move to a new **`MOL`** series. The three live documents keep their serials — **`MOL-002`, `MOL-003`, `MOL-004`** — because a document that changes series has not changed identity.
+| 15/11/2026 | **`MYC` renamed `TB`; `MOL` confirmed in the register.** The register's "Mycobacteriology" section is the tuberculosis section, so `MYC 001–012` become `TB 001–012` — **same serials, same documents, same effective and review dates**. A rename is not a renumbering: no serial is freed, skipped or re-issued. HIV early infant diagnosis and the hepatitis B and C viral loads are molecular examinations and were being filed in a TB series, so they move to a new **`MOL`** series. The three live documents keep their serials — **`MOL-002`, `MOL-003`, `MOL-004`** — because a document that changes series has not changed identity.
 
 **Serology is untouched by this move.** Rapid `Determine`, `Unigold`, capillary collection for HIV testing and HIV QC transport are **serology** and stay in `SER` (`SER-001`, `-002`, `-004`, `-005`). The distinction is **method, not analyte and not instrument**: an antibody rapid test is serology; an assay that amplifies nucleic acid is molecular. The same GeneXpert runs both molecular viral loads and TB assays, so the instrument cannot decide the series either. `MOL-001` is **held for life** by `RliDHL-MOL-SOP-001-VERS-003` (*HIV-1 Qualitative Testing Using Xpert HIV-1 Assays*), which `MOL-002-VERS-002` records that it replaces and which is withdrawn — so it is not free.
 | 15/11/2026 | **Serology vs molecular — do not conflate them.** `MOL` is **molecular only**: HIV early infant diagnosis, HBV viral load, HCV viral load — assays that amplify nucleic acid. **HIV rapid testing is serology and stays in `SER`**: `Determine` (001), `Unigold` (002), capillary collection for HIV testing (004), HIV QC sample transport (005). The distinction is the **method**, not the analyte and not the instrument. The only HIV document that was molecular was the Xpert HIV-1 Qual assay, `MOL-001-VERS-003`, and it is **withdrawn**. |
 | 15/11/2026 | **A wrong entry was written here and has been taken back out.** For a few minutes this log claimed `MOL-001` had never existed and that the Xpert Qual SOP was a SER document. That is false: `MOL-002-VERS-002` states on its own face that it replaces `RliDHL-MOL-SOP-001-VERS-003`, *HIV-1 Qualitative Testing Using Xpert HIV-1 Assays*. The serial is held, the series has no gap, and the record stands. The error is recorded rather than quietly deleted, because a correction log that hides its own corrections is not a correction log. |
 | 15/11/2026 | **The TB series holds all TB testing, whatever the method.** Renamed `MYC` → `TB` and inspected row by row: the section holds sputum collection with CPC (001), specimen rejection (002), ZN microscopy QC (003), auramine fluorescence microscopy (004), sample transport (005), IQC (006), turnaround time (007), slide re-testing (008), an untitled row (009), and GeneXpert sample processing (010, 011, 012). **TB LAM belongs here**, not in `SER`: it is a TB test performed by the TB section, and the register's own logic is that a test follows the section, not the method — which is exactly why bacilloscopy is here. **Register defects recorded, not fixed:** `TB-009` has no title in the register, and `TB-010`/`TB-012` carry the same subject (*Sample processing using GeneXpert*). **TB LAM is not registered at all:** no row for TB lipoarabinomannan exists anywhere in the register, and nor does one for the TB-in-stool Xpert Ultra SOP the laboratory holds as a document. TB LAM stays in `TB` when it is written, exactly as bacilloscopy does — the method does not move it to `SER`. The next free TB serial is **013**; nothing is allocated here, because writing those procedures is the Laboratory Manager's decision, not a numbering one. |
+| 15/11/2026 | **The 2026 register was found, and it is not the one this file was built from.** `MASTER LIST - 2024 - 2025.docx` (Drive `1ESTwzyHMWFWKWJV76Krj6JCvrD7Ulr_9`, **modified 17/02/2026**) is the renewed register prepared for the 2026 accreditation, despite the file name. It contains a `MOLECULAR BIOLOGY SECTION` with `MOL-001`–`004` and a document effective 18/02/2026; `MASTER LIST 2025.docx` (15/04/2025) has neither. **`MOL` therefore already existed in the register** — this library did not invent it, and the earlier entry recording `MOL` as a new series is corrected. The register's serials are transcribed in `docs/register/tb-ept-register-transcript.md`. |
+| 15/11/2026 | **`ADM-SOP-025` written: *External Quality Assessment and Proficiency Testing*.** No document governed EQA: who enrols, who tests the panel, who signs the submission, what happens when a result is unsatisfactory and how the annual plan is made were all unwritten. **The laboratory performs EQA for HIV serology** (Dried Tube Specimen PT, RBC/NRL — 2022, 2023, 2024 reports on file), **TB on GeneXpert** (MTB PT, participant code 20044 — 2023, 2024), **biochemistry** (creatinine, glucose, ALT) and **the full blood count** (NRL quarterly; January–March 2026 report `RBC/AG. DIVISION MANAGER OF NRL/17302/2026`). The SOP covers the annual plan built from the Scope of Test list, receipt and immediate testing of panels, routine-person/routine-method testing, submission, review within one month, acceptability criteria including ±2 SDI, investigation by cause across the whole examination process, verification of effectiveness, and — the section that matters — assessment of whether **patients** were affected. Serial 025 is free in the 2026 register, so the gap between 024 and 026 is filled rather than skipped. |
+| 15/11/2026 | **EQA gaps recorded, not papered over.** No PT report is held for **HBV or HCV viral load**, **HIV early infant diagnosis** or **TB LAM**. Section 6 of `ADM-025` records these as gaps with an owner and a deadline; the Laboratory Manager establishes within one month whether the laboratory is enrolled and the reports are unfiled, or not enrolled at all. |
+| 15/11/2026 | **The 2026 register does not number every section without a skip.** Its own serial sets are listed verbatim in `docs/register/tb-ept-register-transcript.md`, and most sections have large absent ranges — `ADM-SOP` lists six serials of 34, `BAC-SOP` two of 29. Those serials are declared **unprovable**, not free, and `check_codes.py` now fails if any of them is allocated. Where an allocation had to be made, the lowest genuinely absent serial in the right place was used: **025** for EQA, **065** for troubleshooting. |
 | 15/11/2026 | **`ADM-SOP-065` written: *Troubleshooting of laboratory analysers*.** None of the four examination SOPs carried the error codes of the analyser it governs — they told staff to record a code and consult a manufacturer's manual, and supplied neither. This SOP carries, per analyser, the code or message as displayed, its meaning, the cause the manufacturer gives, the operator action, the action if it persists, whether the module is withdrawn, and who is responsible. Every entry is taken from the manufacturer's own documentation (Sysmex XN-L/XN Series manuals and flagging guide; Roche cobas c 111 Operator's Manual ch. 9; Cepheid GeneXpert Dx Operator Manual ch. 9 and the GLI Module 9 training package; Abbott Pima User Guide §8–9). The examination SOPs now cite it. `check_codes.py` confirms 065 is free and that every reference resolves. |
 | 15/11/2026 | **Why 065 and not 064:** 064 was taken by the SOP on the signing of SOPs, which this library issued. **Why one document and not four:** most failure modes are shared within an analyser family, and four copies of one table drift apart within a year. |
 | 15/11/2026 | **Equipment status corrected from the maintenance record, not the spreadsheet.** Decommissioning was August 2026; `RDH EQUIPMENTS CODE25 JANV 2026.xlsx` is stale. Recorded that the hospital's cobas c 111 (serial 65053) has been with MediSell for repair since April 2026 after a Peltier element failure (Error 5040), and that a **loan** replacement supplied by MediSell is itself down since 11/11/2026 (Ready-mode failure). The glucose SOP was **reverted to its own-instrument form**: it names serial 65053 only and handles the outage through the section 17 contingency, because a controlled procedure must not be written around borrowed equipment. `check_codes.py` now fails on any SOP that mentions a loan or borrowed instrument. Version 005 was kept — its review date is 14/11/2028, so no re-version was triggered. |
