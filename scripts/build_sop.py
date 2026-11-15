@@ -112,7 +112,18 @@ SERIES_KNOWN_MAX = {
     "RliDHL-BIO-SOP": 9,
     "RliDHL-HEM-SOP": 6,   # 005 XN-330, 006 XQ-320
     "RliDHL-IMM-SOP": 5,   # 005 Pima CD4
-    "RliDHL-MYC-SOP": 12,
+    # MYC was renamed TB on 15/11/2026 by the Laboratory Manager: the section is
+    # the tuberculosis section and "MYC" was a mycobacteriology label the register
+    # used for cells that are TB work. The serials do NOT move with the name --
+    # MYC 001-012 become TB 001-012, same numbers, same documents, same dates.
+    # A rename is not a renumbering: no serial is freed, skipped or reused.
+    "RliDHL-TB-SOP": 12,
+    # MOL is new. It exists because HIV early infant diagnosis and the hepatitis
+    # B and C viral loads are molecular examinations and were being filed in a
+    # mycobacteriology series that is now named for TB. MOL starts at 001.
+    # These three documents are MOVED, not renumbered: MOL-002/003/004 keep their
+    # serials, because a document that changes series has not changed identity.
+    "RliDHL-MOL-SOP": 4,
     "RliDHL-PAR-SOP": 10,
     "RliDHL-SER-SOP": 7,
     "RliDHL-STC-SOP": 7,
@@ -267,6 +278,23 @@ SERIES_ALLOCATED = {
         3: "IMM SOP 003 CD4 sample preparation on FACSCount (legacy, register)",
         4: "IMM SOP 004 Enumeration of CD4+ T lymphocytes, FACSCount (legacy, register)",
     },
+    # MYC 001-012 -> TB 001-012, same serials. The register's Mycobacteriology
+    # section is the TB section; the prefix is being renamed to say so.
+    "RliDHL-TB-SOP": {
+        n: f"TB SOP {n:03d} (was MYC SOP {n:03d} — register, renamed 15/11/2026)"
+        for n in range(1, 13)
+    },
+    # MOL takes the molecular examinations out of the TB series. The three
+    # documents below already carry these serials; the move does not renumber.
+    # Serial 001 is held: RliDHL-MOL-SOP-001-VERS-003 ("HIV-1 Qualitative Testing
+    # Using Xpert HIV-1 Assays") was absorbed into MOL-002-VERS-002 and withdrawn.
+    # A withdrawn document keeps its serial for life, so 001 is NOT free.
+    "RliDHL-MOL-SOP": {
+        1: "MOL SOP 001 HIV-1 Qualitative (WITHDRAWN — absorbed into MOL SOP 002)",
+        2: "MOL SOP 002 HIV Early Infant Diagnosis using GeneXpert (this library)",
+        3: "MOL SOP 003 Hepatitis B Virus Viral Load using GeneXpert",
+        4: "MOL SOP 004 Hepatitis C Virus Viral Load using GeneXpert",
+    },
     # BIO serial 002 is NOT allocated. Its registered holder is the Humalyzer 3500
     # SOP, and the Humalyzer has been decommissioned. The document is superseded,
     # not renumbered and not replaced -- see WITHDRAWN. Moving the Humastar SOP
@@ -342,6 +370,28 @@ REGISTER = {
         "code": "RliDHL-ADM-SOP-062", "vers": "001",
         "title": "Use, Care and Preventive Maintenance of Hematology Analysers",
         "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
+    },
+    # The GeneXpert maintenance SOP is already in the Nov 2026 equipment block
+    # (ADM-SOP-063) and is cited by the troubleshooting SOP. Registering it here
+    # lets it be referenced by code() rather than typed.
+    "genexpert_maint": {
+        "code": "RliDHL-ADM-SOP-063", "vers": "001",
+        "title": "Use, Care and Preventive Maintenance of the GeneXpert Dx System",
+        "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
+    },
+    # Serial 065. The gap 064 -> 065 is not a gap: 064 is taken by the SOP on the
+    # signing of SOPs, which this library issues. 065 is the next free serial.
+    #
+    # One document for every analyser, not one per analyser. The failure modes the
+    # manufacturer names are mostly common to a family (the Sysmex pair share a
+    # software generation), and four copies of the same table would drift apart
+    # within a year -- which is the defect this library was built to stop.
+    "trouble": {
+        "code": "RliDHL-ADM-SOP-065", "vers": "001",
+        "title": "Troubleshooting of laboratory analysers: error codes, causes and "
+                 "corrective action",
+        "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
+        "new": True,
     },
     "glucose": {
         # 001 was carried by two documents: this SOP at VERS-005, and "Use and
@@ -1782,6 +1832,8 @@ def analyser_sop(key, *, model, manufacturer, serial, asset, bench, discipline,
             f"Pre-Examination Procedure ({ADM_PRE_EXAM}).",
             f"Venous Blood Sample Collection ({code('venous')}).",
             f"Maintenance of haematology analysers ({ADM_EQUIP_MAINT}).",
+            f"Troubleshooting of laboratory analysers — error codes, causes and corrective "
+            f"action ({code('trouble')}).",
             "Laboratory Normal Ranges list; Critical Results list; Tests TAT list; Safety "
             "Manual; Waste Management procedure; Result Reporting and Release procedure.",
         ] + extra_support),
@@ -1880,7 +1932,10 @@ XN330 = analyser_sop(
         ("2.", "Load the tube in the position the analyser requires and start the run. Do not "
                "re-load a tube that has already been aspirated unless the analyser asks for it."),
         ("3.", "Watch the aspiration and the flags. A short sample, a clot or an obstruction is a "
-               "fault, not a result: clear it and repeat the specimen (section 17)."),
+               "fault, not a result: clear it and repeat the specimen (section 17). When the "
+               "analyser shows an error message or code, act on it from the code table for this "
+               "analyser and record the code — "
+               f"{code('trouble')}."),
         ("4.", "Repeat any specimen that the analyser flags as needing review, or that gives a "
                "result outside the clinically plausible range."),
         ("5.", "For a flagged differential or an unexpected cell population, prepare and examine "
@@ -2202,7 +2257,814 @@ PIMA = analyser_sop(
                      "not applicable to this analyser.",
 )
 
-DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA]
+# ---------------------------------------------------------------------------
+# ADM SOP 065 -- Troubleshooting of laboratory analysers
+#
+# One document, every analyser. This replaces the phrase "troubleshoot the
+# error" with a procedure: a code, what it means, what caused it, what the
+# operator does, what the supervisor does, and who is called.
+#
+# EVERY code, message and corrective action below is taken from the
+# manufacturer's own documentation for the instrument (listed in section 20).
+# Nothing is an operator's guess and nothing is remembered. Where a
+# manufacturer does not publish a numeric code for a failure, that is stated
+# rather than invented -- the Pima and the Xpert failures without codes are the
+# clearest example: they are real failures with no number, and a table that
+# pretended otherwise would send staff hunting for a code that does not exist.
+#
+# The last column of each table is the part the laboratory was missing: WHO is
+# responsible. An error code that anyone may act on is an error code nobody
+# acts on.
+# ---------------------------------------------------------------------------
+
+TRB = REGISTER["trouble"]
+TRB_CODE = code("trouble")
+
+TRB_ESC = [
+    "Stop testing on the affected module or instrument, and do not release the result. "
+    "An error is not a result and must never be reported as one, not even with a comment.",
+    "Record the numeric code, the approximate time, the module, the assay and your initials "
+    "in the instrument log at the moment it appears. Record the code from the screen, not "
+    "from memory at the end of the shift: a code read later is a guess.",
+    "If the same code appears twice in a row on the same module, treat the module as suspect "
+    "even if the third attempt works. Intermittent is not fixed.",
+    "Tell the Laboratory Manager or the senior biotechnologist on duty the same day, and tell "
+    "the requester that the result will be delayed and why.",
+    "The Laboratory Manager reviews the failure log monthly against the error rate, looks for "
+    "a code that has become common, a module that has become worse and an operator whose rate "
+    "is high, and records the review.",
+]
+
+TROUBLE = {
+    "meta": {"doc_no": TRB_CODE, "title": TRB["title"], "version": TRB["vers"]},
+    "out_stem": f"{TRB_CODE} - Troubleshooting of laboratory analysers",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", TRB["vers"], "14/11/2026",
+         "First issue. Written because none of the examination SOPs carried the error codes "
+         "of the analyser they govern: they told staff to record a code and to consult the "
+         "manufacturer's manual, and supplied neither. Every code and corrective action here "
+         "is taken from the manufacturer's own documentation for the instrument."],
+    ],
+    "control_rows": [
+        ("SOP Number", TRB_CODE),
+        ("SOP Title", TRB["title"]),
+        ("Version", TRB["vers"]),
+        ("Effective Date", "14/11/2026"),
+        ("Next Review Date", "14/11/2028"),
+        ("Supersedes", "— (first issue; no previous SOP covered troubleshooting)"),
+        ("Document Owner", "Kelvin SAMAHANI — Laboratory Manager"),
+        ("Applies to", "Every analyser, instrument and device in the laboratory that displays "
+                       "an error code or reports an error, no result or invalid result"),
+        ("Classification", "Controlled document — master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "The laboratory holds four analysers in service and one awaiting repair. Each of "
+                  "them fails: the GeneXpert returned 938 failed tests in 9,460 runs between "
+                  "February 2022 and April 2025, and the Alere Pima CD4 is reported in the "
+                  "literature to return invalid results on about one test in eight. A failure is "
+                  "not an accident to be apologised for; it is a defined event with a code, a "
+                  "cause and a response."),
+            ("p", "Until this SOP was issued, the examination SOPs said what to do in principle — "
+                  "\"note the error code\", \"troubleshoot and repeat\" — and then referred the "
+                  "reader to a manufacturer's manual held somewhere else, in a form the SOP never "
+                  "converted. The codes were therefore never read, never recorded and never "
+                  "analysed. This SOP puts that content where the operator can reach it and makes "
+                  "the recording of a code mandatory."),
+            ("p", "It does not replace the manufacturer's manual, and it does not licence anyone to "
+                  "go beyond it. Where this SOP and the current manual differ, the manual is "
+                  "authoritative and this SOP is corrected: that is an amendment, not a decision "
+                  "for the bench."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To give, for each analyser in the laboratory, the error codes and messages the "
+                  "instrument actually displays, what each one means, the cause the manufacturer "
+                  "attributes to it, the corrective action the manufacturer specifies, and the "
+                  "point at which the operator stops and escalates — so that a failure is handled "
+                  "the same way by every member of staff and is recorded well enough to be "
+                  "investigated."),
+        ]),
+        ("3. Scope", [
+            ("p", "This SOP applies to every analyser, instrument and device in the laboratory that "
+                  "can display an error code or can return an error, no-result or invalid result:"),
+            ("b", [
+                "Sysmex XN-330 haematology analyser — section 5.",
+                "Sysmex XQ-320 haematology analyser — section 6.",
+                "Roche cobas c 111 clinical chemistry analyser — section 7.",
+                "GeneXpert Dx system, all assays in use (MTB/RIF, MTB/RIF Ultra, Xpert HIV-1 "
+                "Qual XC, Xpert HBV viral load, Xpert HCV viral load) — section 8.",
+                "Alere Pima CD4 analyser — section 9.",
+            ]),
+            ("p", "A device not listed here is added by amendment before it is used to produce a "
+                  "result. Devices that cannot fail in a reportable way (a centrifuge, a "
+                  "thermometer, a water bath) are covered by their own maintenance SOPs and by the "
+                  "laboratory's procedure for nonconforming work, not by this document."),
+        ]),
+        ("4. How to use this SOP, and where responsibility stops", [
+            ("p", "Every table in this SOP has the same seven columns: the code or message as the "
+                  "instrument displays it; what it means; the cause the manufacturer gives; what "
+                  "the operator does first; what is done when the first action does not clear it; "
+                  "whether the module is taken out of service; and who does it. Read the row for "
+                  "the code shown on the screen, and do what the row says."),
+            ("h2", "4.1 The rules that apply to every analyser"),
+            ("b", TRB_ESC),
+            ("h2", "4.2 What the operator may and may not do"),
+            ("p", "An operator may: clear the error and restart the instrument; repeat the test "
+                  "with a new cartridge, a new specimen aliquot or a new reagent; clean what the "
+                  "manufacturer's instructions for that code tell them to clean; take a module out "
+                  "of service; and call the service provider."),
+            ("p", "An operator may not: open the instrument beyond the access the manufacturer's "
+                  "maintenance instructions allow; remove a stuck cartridge by force or by "
+                  "dismantling a module (this needs the supervisor, the service provider's "
+                  "instructions and, in practice, the service provider); defeat, disable or ignore "
+                  "an alarm; re-run a test to get the answer that was expected; or report a result "
+                  "that came with an error, no matter how plausible it looks."),
+            ("h2", "4.3 Recording — the part that was missing"),
+            ("p", "The single reason the laboratory cannot today say whether its failures are "
+                  "cartridges, specimens, modules or people is that the numeric code was never "
+                  "written down. The raw GeneXpert export for 2022 to 2025 records a failure as "
+                  "\"Error\" 772 times, \"Load Error\" 38 times and \"Warning\" twice, and does not "
+                  "record one code. A failure with no code cannot be investigated, cannot be "
+                  "counted by cause, and cannot be shown to have been fixed."),
+            ("p", "From the effective date of this SOP, the instrument log carries the code. The "
+                  "log is a controlled record: code, date and time, module (where the instrument "
+                  "has modules), assay, specimen or control, the action taken, whether the repeat "
+                  "passed, and the initials. Entries are made in ink at the time; a correction is a "
+                  "single line through the entry, the correct entry beside it, and initials and "
+                  "date."),
+            ("h2", "4.4 Monthly review"),
+            ("p", "The Laboratory Manager reviews, each month: the number of tests and the number of "
+                  "failures by analyser; the ten most frequent codes; the failure rate by module "
+                  "and by operator; and whether any code has risen against the previous three "
+                  "months. A code that recurs on one module, a rate above the laboratory's "
+                  "objective, or a rate that has doubled is investigated and recorded as "
+                  "nonconforming work with a corrective action. The review is a record and is "
+                  "kept."),
+        ]),
+        ("5. Sysmex XN-330 haematology analyser", [
+            ("p", "The XN-330 does not display a numeric error code. It displays an error message in "
+                  "words, colour-coded by severity — a red background is a warning that stops "
+                  "analysis, an orange background is a caution — and it sorts each failure into "
+                  "[Result], [Func.] or a barcode read error. The message is the identifier, and it "
+                  "is the message that is recorded."),
+            ("tbl",
+             ["Message or indication", "Meaning", "Cause (Sysmex)", "Operator action", "If it "
+              "persists", "Module out of service", "Responsible"],
+             [
+                 ["Blood cannot be aspirated.",
+                  "The aspiration sensor did not detect blood. No result is produced.",
+                  "Short sample, clot at the tube bottom, tube not presented correctly, or a "
+                  "blocked probe.",
+                  "Check the tube volume against the minimum on the analyser; remix by inversion; "
+                  "check for a clot with a applicator stick; rerun.",
+                  "Clean the aspiration probe as the maintenance SOP directs; rerun once.",
+                  "No — the analyser, not a module.",
+                  "Operator; supervisor if the second rerun fails."],
+                 ["Insufficient blood volume (short sample).",
+                  "The sample was aspirated but the volume was below the analyser's requirement.",
+                  "Under-filled tube, or the tube was pulled from the aspirator too early.",
+                  "Check the fill line; recollect if the tube is short; rerun.",
+                  "If it recurs on correctly filled tubes, check the aspiration volume setting and "
+                  "call service.",
+                  "No.",
+                  "Operator."],
+                 ["Low count error / Blank data.",
+                  "A parameter counted abnormally low against the blank.",
+                  "Clotted or very dilute specimen, aspiration fault, or a dirty flow cell.",
+                  "Remix, inspect for clots and haemolysis, rerun once.",
+                  "Run a background check; if it fails three times in a row, stop and call service.",
+                  "No.",
+                  "Operator; supervisor for the background check."],
+                 ["0.06 MPa pressure error / 0.25 MPa pressure error / Pressure sensor error / "
+                  "Vacuum sensor error.",
+                  "The pneumatic pressure or vacuum is outside the range the analyser requires.",
+                  "Blocked or leaking tubing, a stuck valve, a waste container that is full, or a "
+                  "failed pressure sensor.",
+                  "Empty the waste; check that all reagent and waste connections are seated; "
+                  "restart the analyser.",
+                  "Do not open the pneumatic path beyond the maintenance SOP. Call service.",
+                  "No — instrument-level.",
+                  "Operator to restart; service provider beyond that."],
+                 ["Temperature or thermistor error (reagent heater 34 °C or 41 °C, ambient "
+                  "temperature, FCM reaction chamber, FCM sheath, detector).",
+                  "A temperature sensor reads outside its range.",
+                  "Room temperature above the analyser's operating range, a blocked or dirty fan "
+                  "filter, insufficient clearance around the analyser, or a failed heater.",
+                  "Check the room temperature against the range in the maintenance SOP; check the "
+                  "10 cm clearance; check that the rear fan is running and the filter is clean; "
+                  "restart.",
+                  "Call service. A heater or thermistor is not an operator-replaceable part. Record "
+                  "the module temperature from the Maintenance menu with the call.",
+                  "No.",
+                  "Operator to check the room; service provider for the heater."],
+                 ["Laser output error / APD thermistor error / FCM detector thermistor error.",
+                  "A failure in the optical or detector subsystem.",
+                  "Component failure. The manufacturer suppresses this message on screen and "
+                  "performs an automatic repeat; when it is visible, the repeat did not clear it.",
+                  "Do not attempt repair. Stop using the analyser and call service the same day.",
+                  "—",
+                  "Yes, the analyser.",
+                  "Service provider; supervisor informs the Laboratory Manager."],
+                 ["ID read error (sample or rack barcode).",
+                  "A barcode label could not be read.",
+                  "Damaged, wet, wrinkled or badly placed label; dirty read window; a label outside "
+                  "the specification.",
+                  "Wipe the label and the reader window; re-present the tube; if it still fails, "
+                  "enter the sample number manually and record that it was entered manually.",
+                  "Report a label that cannot be read to the collection site; the specimen is not "
+                  "rejected for this alone.",
+                  "No.",
+                  "Operator."],
+                 ["QC alarm / X-barM limit error / L-J limit error / Control expired error / "
+                  "Unregistered control.",
+                  "Quality control has failed, or the control in use is expired or not registered.",
+                  "Control out of limits, expired control, wrong control file, or a real shift in "
+                  "the analyser.",
+                  "Do not test patient specimens. Check the control's expiry and storage, repeat "
+                  "the control once.",
+                  "Follow the quality control procedure: stop, record the nonconformity, review the "
+                  "patient results released since the last acceptable control.",
+                  "The analyser is stopped for patient testing until the control passes.",
+                  "Operator stops; supervisor authorises resumption."],
+                 ["Reagent expired error.",
+                  "An expired reagent is loaded.",
+                  "Expiry passed, or the on-board stability has been exceeded.",
+                  "Replace the reagent; record the lot and the date opened.",
+                  "Check whether results were produced with the expired reagent and review them.",
+                  "No.",
+                  "Operator; supervisor reviews affected results."],
+                 ["HC off-line / HC buffer full / LAN no response.",
+                  "Communication with the laboratory information system or host computer has "
+                  "failed.",
+                  "Network or interface fault, host down, or a full transmission buffer.",
+                  "Check the cable and the network indicator; continue in offline mode and record "
+                  "results on the paper worksheet.",
+                  "Inform whoever supports the LIS; results are entered when the link is restored, "
+                  "and the report states that they were entered retrospectively.",
+                  "No.",
+                  "Operator; LIS support."],
+                 ["Red status light, alarm sounding.",
+                  "An error has occurred and the analyser has stopped.",
+                  "Read the message on the screen — the light alone says nothing.",
+                  "Touch the screen to silence the alarm, read the error message, and follow that "
+                  "message's row in this table.",
+                  "—",
+                  "Only if the message says so.",
+                  "Operator."],
+             ],
+             [2.5, 2.6, 2.9, 2.9, 2.9, 1.6, 1.6]),
+            ("p", "IP messages (Blasts/Abn Lympho?, Left Shift?, Atypical Lympho?, NRBC?, RBC "
+                  "Agglutination?, Turbidity/HGB Interf?, Fragments?, PLT Clumps?, and the rest) "
+                  "are not errors. They are the analyser reporting a suspicion about the specimen. "
+                  "They do not stop the run and they are not cleared: they are acted on by making a "
+                  "film and by a manual differential, as the examination SOP requires. A result "
+                  "carrying an IP message is released with the review the SOP defines, never "
+                  "silently."),
+        ]),
+        ("6. Sysmex XQ-320 haematology analyser", [
+            ("p", "The XQ-320 belongs to the same Sysmex generation and reports through the same "
+                  "software, so its messages, meanings and corrective actions are the ones in "
+                  "section 5. What differs is the hardware: three-part differential only, no "
+                  "reticulocyte channel, a single aspiration path and no sampler. Two consequences "
+                  "matter here, and both are recorded in the maintenance SOP rather than repeated:"),
+            ("b", [
+                "A failure that stops the analyser stops the whole laboratory's XQ-320 work, "
+                "because there is no second module to fall back on. The XN-330 is then the backup "
+                "and the report states which analyser produced the result.",
+                "The part numbers, the fluid volumes and the maintenance intervals differ from the "
+                "XN-330. When a code in section 5 sends the operator to service, the call is made "
+                "quoting the XQ-320 serial number, not the XN-330's.",
+            ]),
+            ("p", "A message on the XQ-320 that is not in the section 5 table is treated as a "
+                  "failure with no known corrective action: stop, record the exact wording, and "
+                  "call service. Do not try the corrective action for a similar-looking message on "
+                  "another analyser."),
+        ]),
+        ("7. Roche cobas c 111 clinical chemistry analyser", [
+            ("p", "The cobas c 111 is the only analyser in the laboratory whose manufacturer "
+                  "publishes a complete numeric alarm list, and the laboratory has already been "
+                  "stopped by one of them: the instrument was withdrawn from service in April 2026 "
+                  "with error 5040, which is a failed Peltier element in the cooling system. That "
+                  "is a service intervention, not a bench fix, and the table says so."),
+            ("p", "Codes are four digits. Alarms in the 5xxx range are hardware and fluidics; 6xxx "
+                  "are photometer; 7xxx are transfer, position and level detection. Every row below "
+                  "is from the cobas c 111 Operator's Manual, chapter 9, \"Messages and alarms\"."),
+            ("tbl",
+             ["Code", "Message", "Meaning and cause (Roche)", "Operator action", "If it persists",
+              "Out of service", "Responsible"],
+             [
+                 ["5040", "Error cooling system. One of the Peltier elements does not react "
+                  "anymore.",
+                  "A Peltier element in the cooling system has failed. This is the fault that "
+                  "withdrew this analyser from service in April 2026.",
+                  "Restart the system once.",
+                  "Call service. Do not open the instrument: the cooling system is not a "
+                  "user-serviceable assembly.",
+                  "Yes — the analyser.",
+                  "Service provider; the Laboratory Manager records the withdrawal."],
+                 ["5038", "Error analyzer heating system. The heating system does not react "
+                  "anymore.",
+                  "The heating system has failed.",
+                  "Restart once.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5034", "Error wash valve V1. The valve does not react anymore.",
+                  "A fluidic valve has failed.", "Restart once.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5028 / 5030 / 5032 / 5036", "Error temperature sensor (analyzer heating, "
+                  "analyzer cooling, cooling-system heat sink, or instrument ambient).",
+                  "A temperature sensor does not respond.",
+                  "Restart once. Check the room temperature and that the vents are clear.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5026", "Error wash pump P1 or mixer motor. The pump or motor could not be "
+                  "started.",
+                  "A drive has failed or is jammed.",
+                  "Switch off; check the mixing mechanism and the fan for an obstruction as the "
+                  "manual directs; restart.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5052 / 5055", "Analyzer temperature is outside the range. / Analyzer heating "
+                  "system overheated.",
+                  "The instrument is above or below its operating temperature, or the heating "
+                  "system has overheated.",
+                  "Check the room temperature and the air circulation (unrestricted, vents not "
+                  "blocked); restart.",
+                  "Call service if it recurs with the room in range.", "Yes.", "Operator, then "
+                  "service."],
+                 ["5056", "The calibration of the transfer head fluid sensor failed.",
+                  "The fluid sensor in the transfer head cannot be calibrated.",
+                  "Check that the sample probe tube and the syringe are correctly installed; "
+                  "restart.",
+                  "Call service.", "Yes.", "Operator, then service."],
+                 ["5013 / 5019", "Error fluid sensor transfer head. / Error fluid sensor "
+                  "degasser.",
+                  "A fluid sensor does not respond, or air is in the fluid system.",
+                  "For 5019, perform Initialise Degasser Fluid Sensor as the screen directs. "
+                  "Restart.",
+                  "Call service.", "Yes.", "Operator, then service."],
+                 ["6024 / 6025 / 6026 / 6027", "Photometer error (lamp fan speed, dark shutter "
+                  "motor or shutter jamming, internal circuitry, signals out of range during a "
+                  "dark measurement).",
+                  "A fault in the photometer or its shutter.",
+                  "Restart once.",
+                  "Call service. Do not adjust the photometer.", "Yes.", "Service provider."],
+                 ["6001 / 7071", "Photometer error. Signal is invalid or unstable. / Photometer "
+                  "lamp error.",
+                  "The photometer signal is unusable: dirty rotor, ageing lamp, or blocked light "
+                  "path.",
+                  "Switch off. Remove and clean the rotor as the maintenance SOP directs; restart.",
+                  "Perform Replace Photometer Lamp and then Abs Air/Water Calibration — supervisor "
+                  "level — and if it persists call service.",
+                  "Yes, until the lamp and calibration are acceptable.", "Supervisor; service for "
+                  "the lamp."],
+                 ["7013 / 7130 / 7131 / 7132", "Position error X-transfer. / Rotor position error. "
+                  "/ Position error X-transfer. / Initialization error Z-transfer.",
+                  "A mechanical axis is blocked or jammed, or a home position is invalid.",
+                  "Switch off immediately. Check the rotor, the transfer head and the probe for an "
+                  "obstruction; check that the transfer head cover is seated; restart.",
+                  "Call service. Never force a jammed axis.", "Yes.", "Supervisor; service "
+                  "provider."],
+                 ["7072", "The reagent mixing failed due to a level detection problem.",
+                  "The probe could not detect the reagent level.",
+                  "Check the probe for an obstruction and check the reagent bottle's fill level.",
+                  "Call service if the level is adequate.", "Yes.", "Operator, then service."],
+                 ["7111 / 7122 / 7123 / 7124", "Transfer movement failed due to open cover. / "
+                  "Prepare stopped due to open cover. / Extra wash cycle after reagent pipetting "
+                  "failed. / Analyzer temperature outside the range.",
+                  "A cover was opened while the instrument was operating, or a wash cycle failed.",
+                  "Ensure every cover is closed during initialisation, operation and maintenance; "
+                  "for 7123 perform Deproteinise Probe before the next run; restart.",
+                  "Call service if the temperature alarm recurs with the room in range.", "No, "
+                  "unless it recurs.", "Operator."],
+                 ["5002 / 5003 / 5004 / 5010", "Error motor X-transfer, Z-transfer, syringe "
+                  "initialisation, or mixer motor.",
+                  "A motor could not be started, or an initialisation failed.",
+                  "Restart once. Check the relevant mechanism for jamming or blockage and that the "
+                  "syringe is correctly installed.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["7001 / 7002 / 13002 / 13005 / 13009 / 13010", "Instrument Control software "
+                  "exception / software error.",
+                  "A software fault.",
+                  "Restart the system.",
+                  "Export the log files with the system still in the error condition and call "
+                  "service. Note the code: it identifies the fault.",
+                  "Yes, until service has the log.", "Service provider; supervisor exports the "
+                  "log."],
+                 ["Any code not in this table", "—", "—",
+                  "Stop. Record the exact code and message text from the screen.",
+                  "Call service quoting the code and send the system log.",
+                  "Yes.", "Supervisor."],
+             ],
+             [1.7, 2.7, 3.0, 3.2, 2.8, 1.4, 1.6]),
+            ("p", "The 5040 entry is the reason the laboratory's own analyser is away for repair and "
+                  "the reason a report cannot be produced on it today. It is recorded here so that "
+                  "the next occurrence is recognised in seconds rather than after a service visit, "
+                  "and so that nobody at the bench spends a shift attempting a repair the "
+                  "manufacturer reserves for a service engineer."),
+        ]),
+        ("8. GeneXpert Dx system", [
+            ("p", "The GeneXpert is the analyser the laboratory uses for everything molecular: "
+                  "tuberculosis, HIV early infant diagnosis, and the hepatitis B and C viral "
+                  "loads. It is also, by the laboratory's own record, the analyser that fails "
+                  "most — 938 failed tests out of 9,460 between February 2022 and April 2025."),
+            ("p", "Two things about its errors are not obvious and both matter. First, the result "
+                  "codes INVALID and NO RESULT are failures with no number, so a table that listed "
+                  "only numeric codes would leave the commonest failures unexplained. Second, a "
+                  "test result of ERROR is not one code: the numeric code is in the Errors tab of "
+                  "the result, and it must be read from there and recorded. An entry that says only "
+                  "\"ERROR\" destroys the information needed to fix it."),
+            ("h2", "8.1 Failures without a numeric code"),
+            ("tbl",
+             ["Result", "Meaning", "Cause (Cepheid)", "Operator action", "If it persists", "Module "
+              "out of service", "Responsible"],
+             [
+                 ["INVALID",
+                  "An internal control failed: the Sample Processing Control, the Sample Adequacy "
+                  "Control or the internal quantification standard, depending on the assay.",
+                  "The reaction was inhibited — blood, food particles or pus in the specimen — or "
+                  "too little specimen was added, or the kit was stored outside its conditions.",
+                  "Check the specimen for blood or particles before repeating; repeat once with a "
+                  "new cartridge from the same specimen.",
+                  "If INVALID repeats, the specimen is inhibiting the assay: do not test it a third "
+                  "time. Request a new specimen and record the event.",
+                  "No, unless it repeats on one module.",
+                  "Operator; supervisor for the repeat specimen request."],
+                 ["NO RESULT",
+                  "The run did not complete and insufficient data were collected.",
+                  "Power interruption during the run, the Stop Test function was used, or the "
+                  "computer froze.",
+                  "Check the power supply and the UPS; repeat with a new cartridge. Do not use Stop "
+                  "Test unless the run must be abandoned, and never leave other applications "
+                  "running on the instrument computer.",
+                  "If NO RESULT follows a power event, record the event and inform the Laboratory "
+                  "Manager — the UPS is at fault, not the cartridge.",
+                  "No.", "Operator."],
+             ],
+             [1.8, 3.0, 3.2, 3.2, 3.0, 1.4, 1.8]),
+            ("h2", "8.2 Failures with a numeric code"),
+            ("p", "Read the code from the Errors tab of the result before removing the cartridge. "
+                  "The Xpert assays in use differ: the TB assays load a liquefied specimen with "
+                  "sample reagent, while the whole-blood and dried-blood-spot assays load a small "
+                  "volume of blood directly, so the viscosity and particle causes below apply "
+                  "mainly to the TB and stool work, and the inhibition causes to the blood work."),
+            ("tbl",
+             ["Code", "Message", "Meaning and cause (Cepheid)", "Operator action", "If it persists",
+              "Module out of service", "Responsible"],
+             [
+                 ["5006 / 5007 / 5008",
+                  "Probe Check failed.",
+                  "The Probe Check Control failed and the run was stopped before amplification. "
+                  "Cause: specimen too viscous or the wrong volume added; the reaction tube "
+                  "improperly filled or containing bubbles; damaged reagents from incorrect "
+                  "cartridge storage; overdue maintenance or Xpert Check.",
+                  "Check that the specimen is completely liquefied and that the volume is the one "
+                  "the assay's instructions require; load without introducing bubbles; use a new "
+                  "cartridge; confirm the cartridges have been stored within their range and are "
+                  "in date.",
+                  "Repeat once more. If 5006 or 5007 recurs on the same module, suspect the module "
+                  "and exclude it; if it recurs across modules, suspect the cartridge lot and "
+                  "quarantine it.",
+                  "Yes if it recurs on one module.", "Operator; supervisor to exclude the module."],
+                 ["5011", "Signal loss detected in the amplification curve.",
+                  "Loss of tube pressure: the cartridge tube is not airtight or the cartridge valve "
+                  "is not working. Can be a module fluidics fault.",
+                  "Repeat with a new cartridge.",
+                  "If 5011 recurs, the module's fluidics are suspect: exclude the module and call "
+                  "service.", "Yes if it recurs.", "Supervisor; service provider."],
+                 ["2008 / 2005", "Abnormal pressure detected. / Pressure exceeds the maximum.",
+                  "The pressure reading exceeded the maximum: the cartridge filter is clogged by a "
+                  "viscous specimen or by particles, or the pressure sensor has failed.",
+                  "Ensure the specimen is fully liquefied and free of solid particles; repeat with "
+                  "a new cartridge.",
+                  "Run a new cartridge with sample reagent only: if the error persists with no "
+                  "specimen, the module is at fault. Exclude it and call service.",
+                  "Yes if it persists without specimen.", "Operator, then supervisor."],
+                 ["2037", "Cartridge integrity test failed.",
+                  "At the start of the run the instrument checks the pressure in the tube; the "
+                  "cartridge is not airtight.",
+                  "Discard the cartridge — do not use it — and repeat with a new one from a "
+                  "different lot if possible.",
+                  "If several cartridges from one lot fail, quarantine the lot, record the lot "
+                  "number and inform the supplier and the Laboratory Manager.",
+                  "No.", "Operator; supervisor for the lot."],
+                 ["2120 / 2122 / 2123 / 2124 / 2126 / 2127",
+                  "Module communication loss detected.",
+                  "Communication between the module and the software was lost: unstable mains or "
+                  "UPS supply, a loose or damaged Ethernet cable, a poor connection at the gateway "
+                  "board, or excessive room temperature.",
+                  "Check and reseat the Ethernet cable between the computer and the instrument; "
+                  "restart the system; check the room temperature.",
+                  "Check the UPS and fit a surge protector. If the code returns, the gateway board "
+                  "or a cable is at fault: call service.",
+                  "Yes if it recurs.", "Operator; supervisor for the UPS; service provider."],
+                 ["1001 / 1002 / 2014 / 4009 / 4010 / 4017 / 3074 / 3075",
+                  "Temperature or heater failure.",
+                  "A heater component in a module has failed, the ambient temperature is outside "
+                  "the range, or a fan has failed or its filter is blocked.",
+                  "Check the room temperature (the instrument requires 15–30 °C), that there is "
+                  "10–15 cm clearance on every side, that the rear fan runs and that the filter is "
+                  "clean. Check the module temperature in the Maintenance menu.",
+                  "If the error follows one module, that module's heater has failed: exclude it and "
+                  "call service.", "Yes, the affected module.", "Operator, then service."],
+                 ["Any other code", "—",
+                  "Not in this SOP.",
+                  "Stop. Record the exact code, the module and the assay.",
+                  "Look the code up in the current GeneXpert Dx Operator Manual, chapter 9, and in "
+                  "the manufacturer's troubleshooting guide; if it is not there, call service "
+                  "quoting it. Report it to the Laboratory Manager so it is added here by "
+                  "amendment.",
+                  "Yes until it is understood.", "Supervisor."],
+             ],
+             [2.2, 2.6, 3.2, 3.0, 3.0, 1.5, 1.7]),
+            ("h2", "8.3 Module out of service, and the stuck cartridge"),
+            ("p", "A module is taken out of service by excluding it in the software — Setup, then "
+                  "System configuration, then Select Modules — and the exclusion is recorded in the "
+                  "instrument log with the reason and the code. An excluded module that has been "
+                  "repaired is not returned to use until it has completed the manufacturer's check "
+                  "and a control has passed; the exclusion is then removed and the removal "
+                  "recorded."),
+            ("p", "A cartridge stuck in a module is a supervisor-level event. The door is first "
+                  "opened from the software (Maintenance, Open Module Door). Only if that fails, and "
+                  "only with the service provider's instruction and in consultation with the "
+                  "Laboratory Manager, is the manual removal the manufacturer describes performed. "
+                  "The instrument must be disconnected from power and the computer first, and it "
+                  "must never be turned upside down or on its side: spilled cartridge contents "
+                  "destroy the module."),
+            ("h2", "8.4 Error rate"),
+            ("p", "The laboratory's objective is an error rate at or below 5% per assay per month, "
+                  "which is the figure the World Health Organization gives for molecular "
+                  "diagnostics. The rate is calculated from the instrument log and reviewed "
+                  "monthly. An assay above the objective for two consecutive months is a "
+                  "nonconformity and is investigated by cause, which is only possible because the "
+                  "numeric code is now recorded."),
+        ]),
+        ("9. Alere Pima CD4 analyser", [
+            ("p", "The Pima reports a failure as an invalid test with a numeric code, and it "
+                  "initialises with a self-test that reports its own codes. Published evaluations of "
+                  "this analyser in routine use found 10% to 13% of tests invalid, most of them "
+                  "attributable to how the cartridge was filled rather than to the instrument — "
+                  "which is why the operator actions below concentrate on filling and on which "
+                  "specimen type is being used."),
+            ("tbl",
+             ["Code", "Meaning", "Cause", "Operator action", "If it persists", "Out of service",
+              "Responsible"],
+             [
+                 ["810", "Invalid test — channel filling error.",
+                  "The cartridge channel was not filled correctly with blood.",
+                  "Repeat with a new cartridge, filling slowly to the mark and without bubbles; do "
+                  "not squeeze the finger repeatedly and do not use a clotted specimen.",
+                  "If it recurs on venous specimens, suspect the cartridge lot; if on capillary "
+                  "specimens, retrain the collection technique.",
+                  "No.", "Operator; supervisor reviews the technique."],
+                 ["850", "Invalid test — the most frequently reported Pima code, most often seen "
+                  "with blood applied directly from a finger-stick.",
+                  "Improper loading and filling of the cartridge, or a specimen affected by the "
+                  "collection — haemolysis, interstitial fluid, a clotted or short sample. The "
+                  "cartridge and the analyser cannot be excluded as causes.",
+                  "Repeat with a new cartridge. Prefer blood collected into an EDTA microtube or a "
+                  "venous EDTA tube over direct finger-stick application: the published data show "
+                  "fewer invalid results and the possibility of a repeat without a second prick.",
+                  "If it recurs on one analyser with venous specimens, stop using the analyser and "
+                  "call the distributor; keep a sample of the failing lot.",
+                  "Yes if venous specimens fail repeatedly.", "Operator; supervisor for the "
+                  "analyser."],
+                 ["Other invalid test codes", "An invalid test with a code not in this table.",
+                  "Not established.",
+                  "Record the exact number, repeat once with a new cartridge.",
+                  "Report it to the Laboratory Manager, who obtains the meaning from the "
+                  "distributor and adds it here by amendment.",
+                  "No.", "Supervisor."],
+                 ["Self-test failure code at switch-on", "The analyser failed its initialisation "
+                  "and self-test.",
+                  "A hardware fault, or the analyser was moved or the temperature changed.",
+                  "Switch off, wait, and restart. Allow 30 minutes for temperature equilibration if "
+                  "the analyser has been moved.",
+                  "Record the code and call the distributor. The analyser is maintenance-free and "
+                  "has no user-serviceable parts; it is not opened.",
+                  "Yes.", "Supervisor; distributor."],
+             ],
+             [2.2, 2.8, 3.2, 3.4, 2.9, 1.4, 1.7]),
+            ("p", "A Pima result is reported only from a test the analyser completed. An invalid "
+                  "test is not a low CD4 count, and a repeat that gives a result does not mean the "
+                  "first attempt may be forgotten: both attempts are recorded."),
+        ]),
+        ("10. Failures of the specimen rather than the instrument", [
+            ("p", "Some of what arrives at the bench as an instrument error is a specimen problem "
+                  "that the instrument has correctly detected. These are handled here only far "
+                  "enough to tell them apart; the rejection criteria themselves belong to the "
+                  "examination SOP of each section and are not repeated."),
+            ("tbl",
+             ["What is seen", "Instrument or specimen?", "How to tell", "What happens next"],
+             [
+                 ["Clotted specimen; short sample",
+                  "Specimen.",
+                  "Visible clot, or a fill volume below the tube's minimum.",
+                  "Reject, record in the specimen rejection log, and request a new specimen. Do not "
+                  "repeat on the analyser hoping for a result."],
+                 ["Repeated INVALID on the same specimen, or a control passed on the same run",
+                  "Specimen (inhibition), not the instrument.",
+                  "The control is acceptable and the specimen fails repeatedly.",
+                  "Do not test a third time; request a new specimen."],
+                 ["The same code on one module, with the other modules working",
+                  "Module.",
+                  "The other modules run the same assay correctly.",
+                  "Exclude that module, record it, and call service."],
+                 ["The same code on every module or the whole analyser",
+                  "Instrument, environment or consumable lot.",
+                  "Check the room temperature, the power supply and the cartridge or reagent lot.",
+                  "Stop, record, and follow sections 5 to 9 and the maintenance SOP."],
+                 ["One operator's failures much higher than the others",
+                  "Neither: technique.",
+                  "The monthly review in 4.4 shows it.",
+                  "Retraining and supervised re-assessment, recorded in the training file."],
+             ],
+             [3.4, 2.6, 4.0, 6.0]),
+        ]),
+        ("11. Reagents, controls and consumables", [
+            ("b", [
+                "An error is not treated as a reagent fault until the obvious has been excluded: "
+                "expiry, storage temperature, lot number, and whether the kit was opened and "
+                "handled as the manufacturer directs.",
+                "A lot that produces the same code repeatedly across more than one module is "
+                "quarantined, the lot number is recorded, and the supplier is informed. The "
+                "Laboratory Manager decides whether the remaining stock is used and records the "
+                "decision.",
+                "A defect in a reagent, kit or device that could have affected a patient result is "
+                "reported to the Laboratory Manager, who records it and informs the supplier and, "
+                "where required, the Rwanda Food and Drugs Authority and the national reference "
+                "programme.",
+            ]),
+        ]),
+        ("12. Quality control, and what a passed control does not prove", [
+            ("p", "A passed control shows that the analyser and the reagents were working when the "
+                  "control ran. It does not show that a failed test was caused by the specimen, and "
+                  "it does not authorise the release of a result that came with an error. The two "
+                  "questions are separate: the control is evidence about the run, the error code is "
+                  "evidence about the test."),
+            ("p", "When quality control fails, the preparation is stopped and the failure is "
+                  "handled as nonconforming work under the quality control procedure of the "
+                  "section. Nothing produced since the last acceptable control is released until it "
+                  "has been reviewed."),
+        ]),
+        ("13. Nonconforming work and the corrective action that follows", [
+            ("p", "Every error that is not cleared by the manufacturer's stated operator action is a "
+                  "nonconformity, and so is every error that recurs, every module taken out of "
+                  "service and every error rate above the objective. The procedure is the "
+                  "laboratory's: stop the affected work; do not release what it produced; record "
+                  "the event; assess whether results already released are affected and act on them; "
+                  "identify the cause; take the corrective action; check that the action worked, "
+                  "using the same error-rate review that raised it."),
+            ("p", "The cause is recorded as one of four, because these four need four different "
+                  "responses: specimen, operator technique, consumable or reagent, instrument. "
+                  "Until this SOP, the laboratory could not assign a cause at all, because the code "
+                  "was not recorded."),
+        ]),
+        ("14. Records", [
+            ("tbl", ["Record", "Where kept", "Retention"],
+             [
+                 ["Instrument error log — code, date and time, module, assay, action, outcome, "
+                  "initials", "Instrument logbook of each analyser",
+                  "At least 10 years"],
+                 ["Exclusion and return of a module", "Instrument logbook and maintenance log",
+                  "At least 10 years"],
+                 ["Service call, intervention report and engineer's report",
+                  "Equipment file of each analyser", "Life of the instrument"],
+                 ["System log export (cobas, GeneXpert) sent to the manufacturer",
+                  "Equipment file", "Life of the instrument"],
+                 ["Monthly error-rate review and the corrective actions raised from it",
+                  "Quality file", "As the laboratory records policy requires"],
+                 ["Nonconformity and corrective action records", "Quality file", "As above"],
+                 ["Training and re-assessment after a technique-related failure",
+                  "Personnel file", "Duration of employment plus the period national rules "
+                  "require"],
+             ],
+             [6.0, 5.0, 5.0]),
+            ("p", "Records are made at the time of the activity, in ink, and corrected as described "
+                  "in section 4.3. Records are legible, traceable to the person or the user account, "
+                  "and retrievable (ISO 15189:2022, 8.4; "
+                  f"{ADM_DOC_CONTROL})."),
+        ]),
+        ("15. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and provide the resources to apply it",
+                  "Hospital Director General"],
+                 ["Ensure every user is trained, assessed as competent and authorised, and that "
+                  "this is recorded; review this SOP at least every two years",
+                  "Laboratory Manager"],
+                 ["Read the code, record it, act on it within the limits of section 4.2, and "
+                  "escalate at the point the table says",
+                  "Authorised Laboratory Biotechnologists"],
+                 ["Exclude a module; authorise resumption of testing; decide the fate of a "
+                  "quarantined lot; review the monthly error rate",
+                  "Laboratory Manager or Senior Biotechnologist"],
+                 ["Call the service provider and keep the equipment file complete",
+                  "Laboratory Manager and Quality Officer"],
+                 ["Report a defect in a reagent, kit or device to the supplier and the authority",
+                  "Laboratory Manager"],
+                 ["Add a newly observed code to this SOP by amendment", "Laboratory Manager"],
+             ],
+             [8.5, 8.5]),
+            ("p", "Authorisation. Only staff trained on this SOP, assessed as competent and "
+                  "authorised by the Laboratory Manager act on an error code. Staff in training act "
+                  "under direct supervision, and the supervisor countersigns. Training, competence "
+                  "and authorisation are recorded in the personnel file "
+                  f"({code('training')})."),
+        ]),
+        ("16. Training and competence for this SOP", [
+            ("b", [
+                "A new member of staff is trained on the analysers they will use, not on all of "
+                "them, and on this SOP once.",
+                "Competence includes: finding the code on the instrument; recording it correctly; "
+                "choosing the right row of the table; knowing the point at which they must stop; "
+                "and knowing who to call.",
+                "A competence assessment is repeated when a new analyser is introduced, when this "
+                "SOP is amended, and after a failure attributed to technique.",
+            ]),
+        ]),
+        ("17. Risk Management, Nonconforming Work and Contingency", [
+            ("tbl", ["Risk", "Control measure"],
+             [
+                 ["A result released from a failed test",
+                  "An error is never a result; the release check in each examination SOP; the "
+                  "recording rule in 4.3"],
+                 ["The code is not recorded, so the failure cannot be investigated",
+                  "Section 4.3 and the monthly review in 4.4 — the specific gap this SOP closes"],
+                 ["The same fault is fixed repeatedly without the cause being found",
+                  "The four-way cause classification in section 13 and the monthly review"],
+                 ["A module deteriorates while the others mask it",
+                  "Error rate by module, reviewed monthly; exclusion at the second recurrence"],
+                 ["An operator works outside the manufacturer's limits and damages the instrument",
+                  "Section 4.2; the service call instead of the improvised repair"],
+                 ["A quarantined lot is put back into use",
+                  "Quarantine is recorded and the Laboratory Manager alone releases it"],
+                 ["Testing stops and the requester is not told",
+                  "Every escalation includes informing the requester of the delay"],
+                 ["The instrument is unavailable and specimens expire",
+                  "Refer specimens as the examination SOP's contingency requires; storage limits "
+                  "are those in that SOP"],
+             ],
+             [6.0, 11.0]),
+        ]),
+        ("18. Supporting Documents and References", [
+            ("h2", "18.1 Controlled documents of this laboratory"),
+            ("b", [
+                f"Document and Record Control ({ADM_DOC_CONTROL}).",
+                f"Signing of SOPs, and the Training, Competence and Authorisation Record "
+                f"({code('training')}).",
+                f"Use, Care and Preventive Maintenance of Hematology Analysers ({ADM_EQUIP_MAINT}).",
+                f"Use, Care and Preventive Maintenance of the GeneXpert Dx System "
+                f"({code('genexpert_maint')}).",
+                f"Examination of Blood by the Sysmex XN-330 ({code('xn330')}); by the Sysmex XQ-320 "
+                f"({code('xq320')}).",
+                f"CD4 Enumeration by the Alere Pima CD4 Analyser ({code('pima')}).",
+                f"Glucose Testing using Cobas c 111 ({code('glucose')}).",
+                f"HIV Early Infant Diagnosis, and the hepatitis B and C viral loads, on the "
+                f"GeneXpert: MOL-SOP-002, -003 and -004, in the new MOL series "
+                f"(RliDHL-{'MOL'}-SOP).",
+                "Laboratory Waste Management procedure; procedure for nonconformities and "
+                "corrective action; quality control procedure; Laboratory Safety Manual.",
+            ]),
+            ("h2", "18.2 Manufacturer documentation consulted for this SOP"),
+            ("p", "The codes, causes and corrective actions in sections 5 to 9 are taken from these "
+                  "documents. A copy of each is held at the bench and in the equipment file, and the "
+                  "revision in force is the one cited by the examination SOP of the section."),
+            ("b", [
+                "Sysmex. Automated Hematology Analyzer XN-L Series XN-530/XN-430/XN-330, Basic "
+                "Operation; and the XN Series Instruction for Use, chapter \"Troubleshooting\", "
+                "error message list. Sysmex Corporation, Kobe.",
+                "Sysmex. XN-L Series Flagging Guide, document 1399-LSS — for the IP messages that "
+                "section 5 states are not errors.",
+                "Sysmex. Automated Hematology Analyzer XQ-320 Instructions for Use — the message "
+                "list and maintenance intervals.",
+                "Roche Diagnostics. cobas c 111 Operator's Manual, version 3.0, chapter 9, "
+                "\"Messages and alarms\", and the list of alarm messages from which every code in "
+                "section 7 is taken — including 5040, the Peltier element fault.",
+                "Cepheid. GeneXpert Dx System Operator Manual, chapter 9, troubleshooting; and the "
+                "Genexpert Dx troubleshooting guidance for INVALID, NO RESULT, 5006/5007, 2008, "
+                "2037, 2127, 5011 and the temperature codes.",
+                "Global Laboratory Initiative. Xpert MTB/RIF Training Package, Module 9: "
+                "Troubleshooting — the source for the corrective actions on the code table and for "
+                "the NO RESULT and INVALID definitions.",
+                "Abbott (Alere). Pima Analyser User Guide, sections 8 and 9 — error codes and "
+                "troubleshooting; WHO Prequalification public report PQDx 0099-032-00, Pima CD4 "
+                "Test.",
+                "Evidence for the invalid-test rates quoted in sections 8 and 9: published "
+                "evaluations of the Pima CD4 analyser in routine use, including the multi-country "
+                "study reporting 13.1% invalid results and the specimen-type evaluation reporting "
+                "error 850 as the most frequent code.",
+            ]),
+            ("h2", "18.3 Standards"),
+            ("b", [
+                "ISO 15189:2022 — Medical laboratories: requirements for quality and competence, in "
+                "particular 7.3.1, 7.3.6, 7.3.7, 7.5 and 8.4 to 8.7.",
+                "WHO. Laboratory Quality Management System (LQMS) Handbook — equipment "
+                "troubleshooting and maintenance.",
+            ]),
+        ]),
+    ],
+}
+
+DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE]
 
 # ---------------------------------------------------------------------------
 # DOCX builder

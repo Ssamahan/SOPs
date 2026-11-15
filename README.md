@@ -15,6 +15,7 @@ Sample Referral Manifest).
 | `sop/RliDHL-HEM-SOP-005-VERS-001 - Sysmex XN-330 examination.{pdf,docx}` | Examination SOP for the Sysmex XN-330 (9 pages) — the analyser in service had none |
 | `sop/RliDHL-HEM-SOP-006-VERS-001 - Sysmex XQ-320 examination.{pdf,docx}` | Examination SOP for the Sysmex XQ-320 (9 pages) |
 | `sop/RliDHL-IMM-SOP-005-VERS-001 - Alere Pima CD4 examination.{pdf,docx}` | CD4 enumeration on the Alere Pima CD4 (9 pages) — absolute count and percentage, stability limits, critical thresholds |
+| `sop/RliDHL-ADM-SOP-065-VERS-001 - Troubleshooting of laboratory analysers.{pdf,docx}` | **Error codes, causes and corrective action for every analyser** (16 pages) — Sysmex XN-330 and XQ-320, Roche cobas c 111, GeneXpert Dx (all assays), Alere Pima CD4. Each row: code or message, meaning, cause as the manufacturer states it, operator action, action if it persists, whether the module is withdrawn, who is responsible. Sourced from the manufacturers' own manuals; see section 18.2 |
 | `sop/RliDHL-BIO-SOP-001-VERS-005 - Glucose Testing using Cobas c 111.{pdf,docx}` | Glucose examination SOP sample (11 pages) — reference intervals in both units, clinical decision limits, critical results with the escalation route, measurement uncertainty, comparability of results, interpretive notes |
 | `assets/Ruli-District-Hospital-logo.png` | Hospital logo used on covers |
 | `scripts/build_sop.py` | Regenerates both files from one content model; every code comes from `REGISTER` |
