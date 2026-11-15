@@ -472,6 +472,15 @@ REGISTER = {
         "title": "Laboratory Safety Manual",
         "master_list": "Master List, Manuals",
     },
+    # Serial 066. The next genuinely absent serial above the November 2026 block.
+    # The 2026 register lists no ADM SOP above 034, and 060-065 were allocated by
+    # this library, so 066 is the next free and is not claimed by anything.
+    "pbf_hc": {
+        "code": "RliDHL-ADM-SOP-066", "vers": "001",
+        "title": "Quarterly Performance Evaluation of Health Centres",
+        "master_list": "Master List, Crosscutting SOPs",
+        "new": True,
+    },
     # Serial 050. The November 2026 equipment block opened 050 (Microscope), 051
     # (Centrifuge) and 052 (Water Bath); those three are built and uploaded but
     # UNSIGNED, so they are not in force. 050 has therefore been released back to
@@ -4180,7 +4189,463 @@ HC_REVIEW = {
     ],
 }
 
-DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE, EQA, HC_REVIEW]
+# ---------------------------------------------------------------------------
+# ADM-SOP-066 -- Quarterly performance evaluation of the health centres.
+#
+# Built from the instrument the laboratory actually uses: six domains, nine
+# scored questions, 25 points, a weighted index, a quarterly visit calendar and
+# a recorded recommendation per site. The register has no SOP for it.
+# ---------------------------------------------------------------------------
+
+PBF = REGISTER["pbf_hc"]
+PBF_CODE = code("pbf_hc")
+PBF_EFF = "14/11/2026"
+PBF_REV = "14/11/2028"
+
+PBF_REVIEW = {
+    "meta": {"doc_no": PBF_CODE, "title": PBF["title"], "version": PBF["vers"]},
+    "out_stem": f"{PBF_CODE} - Quarterly Performance Evaluation of Health Centres",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", PBF["vers"], PBF_EFF,
+         "First issue. The laboratory evaluates all eight health centres in its network every "
+         "quarter against a nine-question, 25-point instrument across six domains, and reports an "
+         "index with a recommendation per site. No controlled document governed the evaluation: "
+         "how a question is scored, what evidence is acceptable, how the index is derived from 25 "
+         "points on a 100-point scale, what happens when a visit slips or a site is not visited, "
+         "and how a recommendation is verified were all unwritten. Written to ISO 15189:2022."],
+    ],
+    "control_rows": [
+        ("SOP Number", PBF_CODE),
+        ("SOP Title", PBF["title"]),
+        ("Version", PBF["vers"]),
+        ("Effective Date", PBF_EFF),
+        ("Next Review Date", PBF_REV),
+        ("Supersedes", "\u2014 (first issue; the evaluation was performed without a controlled "
+                       "document)"),
+        ("Document Owner", "Kelvin SAMAHANI \u2014 Laboratory Manager"),
+        ("Applies to", "The quarterly performance evaluation of the eight health centres in the "
+                       "Ruli District Hospital laboratory network, performed by the hospital "
+                       "laboratory"),
+        ("Classification", "Controlled document \u2014 master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "This laboratory is not only a laboratory. It is the reference point for eight "
+                  "health centres \u2014 Ruli, Coko, Nyange, Minazi, Rushashi, Muyongwe, Rwankuba and "
+                  "Muhondo \u2014 whose microscopy, rapid tests and specimen handling determine what "
+                  "a patient in those catchment areas is told. A result reported at Coko is a result "
+                  "this district acts on."),
+            ("p", "Once a quarter the laboratory therefore evaluates each site, scores it against a "
+                  "fixed instrument, and reports an index together with the actions the site must "
+                  "take. That evaluation is currently performed competently and without a controlled "
+                  "procedure behind it. This SOP supplies the procedure."),
+            ("p", "**This is the third document in a set, and the three measure different things.** "
+                  "`ADM-SOP-025` governs the assessment **of this laboratory** by an external "
+                  "provider. `ADM-SOP-050` governs the re-reading **this laboratory performs** on "
+                  "health-centre slides. This SOP governs the **whole-site evaluation** of a health "
+                  "centre \u2014 its quality system, turnaround, commodities, infrastructure and "
+                  "records \u2014 of which slide re-reading is one source of evidence. A site can "
+                  "score 100 on re-reading and fail this evaluation, and the reverse; neither "
+                  "substitutes for the other."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To define how the quarterly evaluation is planned, conducted, scored, reported "
+                  "and followed up, so that the index means the same thing at every site and in every "
+                  "quarter, so that a finding produces an action with an owner, and so that the "
+                  "action is verified as **effective** rather than merely declared complete."),
+            ("p", "The purpose is not the score. A score that is not followed by a verified change "
+                  "is a number. The purpose is that the weakest site improves and that the "
+                  "laboratory can show a district officer, an assessor or a patient what changed and "
+                  "how it knows."),
+        ]),
+        ("3. Scope", [
+            ("p", "**In scope:** every health centre in the network, every quarter of the fiscal "
+                  "year, against the instrument in section 7. It covers the planning of the visit "
+                  "calendar, the conduct of the visit, the evidence required for each question, the "
+                  "scoring and the derivation of the index, the report and the feedback to the site, "
+                  "the corrective action, and the verification of that action at the following "
+                  "quarter."),
+            ("p", "**Out of scope:** the hospital laboratory's own assessment, which is "
+                  "`ADM-SOP-025`; the slide and sample re-reading the laboratory performs for the "
+                  "sites, which is `ADM-SOP-050` and supplies evidence into this evaluation but is "
+                  "not repeated by it; and the internal quality control of the hospital laboratory, "
+                  "which is the quality control SOP."),
+            ("p", "**What this SOP is not.** It is not a substitute for the national supervision "
+                  "instrument, and it does not claim the authority of the national performance-based "
+                  "financing framework. Where the district or the Ministry evaluates a site with its "
+                  "own tool, that evaluation stands on its own and this one is additional. Where the "
+                  "two disagree, the disagreement is reconciled in writing and both records are "
+                  "kept \u2014 neither is quietly discarded."),
+        ]),
+        ("4. Definitions", [
+            ("tbl", ["Term", "Meaning in this laboratory"],
+             [
+                 ["Health centre (site)", "One of the eight peripheral facilities in the network. "
+                                          "The unit evaluated."],
+                 ["Instrument", "The fixed set of domains, questions and maximum points in "
+                                "section 7. It is version-controlled: a change to it starts a new "
+                                "version and the quarter boundary is recorded."],
+                 ["Domain", "A group of questions scored together: quality management, turnaround "
+                            "and referral, commodity security, infrastructure and safety, data, and "
+                            "human resources."],
+                 ["Maximum points", "The most a question can score. Non-integer maxima are used and "
+                                    "are not rounded."],
+                 ["Partial credit", "A score between zero and the maximum where the evidence meets "
+                                    "part of the question. The rule for each question is in "
+                                    "section 7; the assessor does not improvise one."],
+                 ["Index", "The site's score expressed out of 100, derived from the points earned as "
+                           "section 9 defines. The figure reported to the site and the district."],
+                 ["Recommendation", "The action recorded against a site at the end of the visit. It "
+                                    "has an owner and a date, and it is not a description of the "
+                                    "finding."],
+                 ["On-time compliance", "Whether the visit happened on or before the planned date. "
+                                        "Recorded per visit, because a quarterly cycle that slips "
+                                        "silently is not quarterly."],
+                 ["Verification of effectiveness", "Evidence at the next quarter that the action "
+                                                   "worked. Completion of the action is not "
+                                                   "effectiveness."],
+             ],
+             [4.4, 12.1]),
+        ]),
+        ("5. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and the visit calendar", "Laboratory Manager"],
+                 ["Own the instrument and its version control", "Laboratory Manager"],
+                 ["Plan and publish the quarterly calendar", "Quality Manager"],
+                 ["Conduct the visits", "Designated assessor, recorded on every visit"],
+                 ["Score the site and derive the index", "Assessor, recomputed by the Quality "
+                                                         "Manager"],
+                 ["Sign the site report", "Laboratory Manager"],
+                 ["Deliver the feedback to the site in person", "Assessor, with the site in-charge"],
+                 ["Agree the recommendation and its date with the site", "Assessor and site "
+                                                                        "in-charge"],
+                 ["Track the recommendations to closure", "Quality Manager"],
+                 ["Verify effectiveness at the next quarter", "Assessor, recorded at the next visit"],
+                 ["Escalate a site that repeats a finding", "Laboratory Manager"],
+             ],
+             [9.0, 8.0]),
+        ]),
+        ("6. Planning the quarter", [
+            ("steps", [
+                ("1.", "Before the quarter begins, the Quality Manager publishes a calendar giving "
+                       "every site a planned visit date. **Every site appears.** A site with no "
+                       "planned date has been dropped, and a dropped site is a finding against the "
+                       "laboratory, not against the site."),
+                ("2.", "The calendar is sequenced so that no two sites are visited on the same day, "
+                       "and so that a visit is not scheduled on a market day or a public holiday at "
+                       "that site. The site is told the week of the visit, not the day: the "
+                       "evaluation is of the site's routine work, and a site that knows the day can "
+                       "present a tidied version of itself."),
+                ("3.", "The visit is recorded as **on time** where it happened on or before the "
+                       "planned date, and **late** otherwise, with the number of days and the "
+                       "reason. A late visit is not hidden by moving the planned date afterwards."),
+                ("4.", "A site that cannot be visited in the quarter is recorded as **not visited**, "
+                       "with the reason and the person who decided. It is not given a score, and it "
+                       "is not carried into the district index as though it had one."),
+                ("5.", "The calendar, the actual dates, the on-time status and the reasons are one "
+                       "record, and they are reported to the district with the indices. A quarter "
+                       "that covered six of eight sites says so."),
+            ]),
+        ]),
+        ("7. The instrument, and how each action is evaluated", [
+            ("p", "The instrument is a fixed set of **nine scored questions carrying 25 points** "
+                  "across **six domains**. It is applied unchanged at every site in a quarter. The "
+                  "questions, their maxima and the evidence required are set out below, and they are "
+                  "the authority for the visit: an assessor scores what is listed, and does not add "
+                  "a question or a mark of their own. A question that must be added or changed is a "
+                  "change of instrument, handled at 7.3."),
+            ("p", "**7.1 Quality management \u2014 5 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Results of the quarterly quality control are present and score above 95 %",
+                  "2",
+                  "The site's QC records for the quarter, with the results and the review "
+                  "signature. For a site using rapid tests, the external QC or the national "
+                  "scheme result.",
+                  "**2** where the records are present for every month and every result is above "
+                  "95 %; **1** where present but a result falls below 95 % and an investigation is "
+                  "recorded; **0** where records are missing, or a result is below 95 % with no "
+                  "investigation."],
+                 ["Evidence of quality control of rapid malaria diagnostic tests",
+                  "3",
+                  "The site's rapid-test QC record: positive and negative control results per lot, "
+                  "with the lot number and the date.",
+                  "**3** where every lot in the quarter has a recorded positive and negative "
+                  "control; **1.5** where some lots are missing; **0** where there is no record or "
+                  "QC was not performed."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.2 Turnaround and referral \u2014 2 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Assessment of specimen collection and result turnaround time",
+                  "2",
+                  "The site's register or dispatch book for the quarter, from which collection "
+                  "dates and dispatch or result dates can be compared.",
+                  "**2** where turnaround can be demonstrated for a sample of at least ten "
+                  "specimens and is inside the stated target; **1** where it can be demonstrated "
+                  "but exceeds the target, with an investigation recorded; **0** where the site "
+                  "cannot demonstrate turnaround at all."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.3 Commodity security \u2014 11.5 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Equipment and supplies are available and functional",
+                  "5",
+                  "Physical check of the analysers and equipment in use, and the consumables on "
+                  "the shelf, with the expiry dates.",
+                  "Scored against the checklist at 7.4. **5** where every item is present and "
+                  "within expiry; **0** where a reagent required for a test the site reports is out "
+                  "of stock or expired."],
+                 ["Availability of the annual equipment inventory, the quarterly maintenance plan "
+                  "and the maintenance or repair execution report",
+                  "3",
+                  "Three documents: the annual inventory, the quarter's maintenance plan, and the "
+                  "record that the planned maintenance happened.",
+                  "**3** where all three are present; **1** where some are present; **0** where "
+                  "none is. Missing headings on a document count against it."],
+                 ["No stock-out of reagents and consumables during the quarter",
+                  "3.5",
+                  "The stock card and the daily or weekly stock record, reconciled against the "
+                  "tests performed.",
+                  "**3.5** where there is no stock-out; **1.5** where a stock-out of a "
+                  "non-critical item occurred and was managed; **0** where a test the site reports "
+                  "could not be performed because of a stock-out."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.4 Infrastructure and safety \u2014 8.5 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Waste segregation and sharps disposal are correct",
+                  "2",
+                  "Direct observation of the bins, the sharps container and the disposal route, "
+                  "plus the disposal record.",
+                  "**2** where segregation is correct and the sharps container is not overfilled "
+                  "and is closed; **1** where one defect is found; **0** where sharps are "
+                  "recapped, the container is overfilled or open, or general waste holds "
+                  "infectious material."],
+                 ["Presence of an appropriate wastewater or liquid-waste disposal system",
+                  "2",
+                  "Direct observation of the sink, the trap or the collection vessel, and the "
+                  "discharge route.",
+                  "**2** where liquid waste is disposed of without contaminating the water supply "
+                  "or the ground; **0** where it is not."],
+                 ["Availability of a separate, well-ventilated room for sputum collection, smear "
+                  "preparation and staining",
+                  "2.5",
+                  "Direct observation. The room must be separate from the general working area and "
+                  "ventilated.",
+                  "**2.5** where all three activities have a separate ventilated space; **1** "
+                  "where the space is separate but ventilation is inadequate; **0** where smear "
+                  "preparation happens in the general working area."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.5 Data \u2014 no surviving question.** The instrument carries two weighted "
+                  "domains for which the question set is currently empty: **data (20)** and "
+                  "**human resources (20)**. Until questions exist, neither can contribute. This is "
+                  "recorded as an instrument defect at 12, not worked around."),
+            ("p", "**7.6 Version control of the instrument.** The instrument is dated and versioned. "
+                  "A question may not be added, removed, reworded or re-weighted in the middle of a "
+                  "quarter: where it must change, the change starts a new version at the next "
+                  "quarter boundary, and the version used at every site is recorded on the visit "
+                  "record. **Scores made with different versions of the instrument are not "
+                  "compared**, and where a quarter contains more than one version the report says "
+                  "so and the indices are not ranked against each other."),
+        ]),
+        ("8. Conducting the visit", [
+            ("steps", [
+                ("1.", "Arrive unannounced on the day. Present identification, and ask for the "
+                       "site in-charge. The evaluation is of the routine work, so it starts from the "
+                       "records already on the bench, not from a folder produced for the visit."),
+                ("2.", "Walk the working area first, before looking at any document. Observe waste, "
+                       "sharps, ventilation and the state of the equipment as they are."),
+                ("3.", "Take a sample of records rather than a single example: at least ten "
+                       "specimens for turnaround, every reagent lot for the rapid-test QC, every "
+                       "month of the quarter for the QC results. One well-kept month is not a "
+                       "quarter."),
+                ("4.", "Score each question against the rule at section 7, with the evidence "
+                       "recorded beside the score. **A score without recorded evidence is not a "
+                       "score** and is struck out at review."),
+                ("5.", "Where a score is zero, say why in one sentence that the site can act on "
+                       "\u2014 \"no positive control recorded for lot 4471 in August\", not "
+                       "\"QC inadequate\"."),
+                ("6.", "Agree the recommendation with the site in-charge before leaving, with an "
+                       "owner, a date and what evidence will show it is done. The site's own view "
+                       "is recorded, including disagreement, and a disagreement is not a reason to "
+                       "change the score."),
+                ("7.", "Record the visit: date, planned date, on-time status, assessor, instrument "
+                       "version, answers, index, recommendation and the names of the people present."),
+                ("8.", "Leave a copy of the findings with the site in-charge. A visit that ends with "
+                       "the findings in the assessor's bag does not change anything."),
+            ]),
+            ("p", "**What the assessor may not do.** Score from memory after leaving. Score a "
+                  "document they did not see. Accept a report of an activity without the record of "
+                  "it. Carry a finding from the previous quarter forward as though it had been "
+                  "re-observed. Adjust a score because the site is understaffed or the roads were "
+                  "bad \u2014 those are recorded as context beside the score, and the score stands."),
+        ]),
+        ("9. Scoring and the index", [
+            ("steps", [
+                ("1.", "Add the points earned for the nine questions. The maximum is **25**."),
+                ("2.", "Convert to the index: **index = points earned \u00f7 25 \u00d7 100**, to one "
+                       "decimal place. If the instrument's maximum changes, the divisor changes "
+                       "with it and the change is recorded."),
+                ("3.", "Record the domain subtotals beside the index, so that a site and the "
+                       "district can see **where** the points were lost and not only how many."),
+                ("4.", "Where a site was not visited, there is **no index**. It is reported as not "
+                       "visited, with the reason, and it is excluded from the district average with "
+                       "the exclusion stated."),
+                ("5.", "Recompute the index independently before the report is signed. An index "
+                       "that cannot be reproduced from the answers is a defect in the report and the "
+                       "report is not issued."),
+            ]),
+            ("p", "**Worked example, Q1 2026/27.** Ruli HC scored 2 (QC results) + 0 (rapid-test "
+                  "QC) + 0 (turnaround) + 5 (equipment and supplies) + 1 (inventory, plan, "
+                  "execution) + 3.5 (no stock-out) + 2 (waste) + 2 (wastewater) + 2.5 (sputum "
+                  "room) = **18 of 25**, giving an index of **72.0**. The subtotals show the loss "
+                  "is concentrated in quality (0 of 5) and turnaround (0 of 2), which is what the "
+                  "recommendation must address."),
+            ("p", "**The index is not a grade of the staff.** It is a statement about the site's "
+                  "systems at the moment of the visit. A low index at a single-staffed site is a "
+                  "finding about support and supervision, and the report says which of the lost "
+                  "points the laboratory itself could have prevented."),
+        ]),
+        ("10. The report and the feedback", [
+            ("p", "The report contains, for each site: the visit date, the planned date and the "
+                  "on-time status; the instrument version; the answer and evidence for all nine "
+                  "questions; the domain subtotals; the index; the recommendation with owner and "
+                  "date; the site's own comment; and the status of the previous quarter's "
+                  "recommendation. The laboratory's index across all sites visited is reported with "
+                  "the coverage stated \u2014 six of eight is reported as six of eight."),
+            ("p", "The feedback is given **in person** at the site, at the end of the visit and "
+                  "again when the written report is issued. It names the two or three findings that "
+                  "matter most and the action for each. A site is never told its index without being "
+                  "told what produced it."),
+        ]),
+        ("11. Corrective action and verification of effectiveness", [
+            ("p", "Every zero and every partial score produces a recommendation. The "
+                  "recommendation has four parts and none is optional: **what** will be done, "
+                  "**who** will do it, **by when**, and **what evidence** will show it is done."),
+            ("p", "**Verification is the point.** At the next quarter's visit the assessor checks "
+                  "the previous recommendation first, and records one of four outcomes: "
+                  "**effective** (the evidence exists and the score has moved), **done but not "
+                  "effective** (the action was taken and the situation did not change \u2014 which "
+                  "means the cause was wrong), **not done** (with the reason), or **no longer "
+                  "applicable** (with the reason). Completion is not effectiveness, and a site that "
+                  "receives a mark for having done the action while the finding persists has been "
+                  "failed by the evaluation."),
+            ("p", "A recommendation that is **not done** at two consecutive quarters goes to the "
+                  "Laboratory Manager and into the district review, with the laboratory's own "
+                  "contribution to the failure recorded: a site that was never given the reagent, "
+                  "never trained and never followed up has not failed on its own."),
+        ]),
+        ("12. Defects found in the instrument and the cycle, November 2026", [
+            ("p", "The review of 15 November 2026 examined the instrument, the visit records for "
+                  "Q1 2026/27 and the previous rounds. Six matters are recorded. They are recorded "
+                  "rather than corrected silently, because each changes what a score means:"),
+            ("tbl",
+             ["Finding", "Why it matters", "Action and owner"],
+             [
+                 ["The instrument changed **during** Q1 2026/27. Seven questions carrying 25 points "
+                  "each were removed on 22 October 2026 at 14:08, 15:02, 15:04 and 15:08 \u2014 "
+                  "after visits had already taken place on 20 and 21 October",
+                  "Visits made before and after the change were not made with the same instrument, "
+                  "so the quarter's indices are not comparable and must not be ranked",
+                  "Record the version and date against every visit; report Q1 2026/27 as a "
+                  "transition quarter with no ranking. Laboratory Manager"],
+                 ["Two of eight sites were **not visited** in Q1 2026/27: Rushashi (planned "
+                  "29 October) and Muyongwe (planned 28 October). At 15 November neither has a "
+                  "recorded visit or a recorded reason",
+                  "A quarterly cycle covering six of eight sites is not a quarterly cycle, and the "
+                  "two missing sites are invisible in an average",
+                  "Visit both, or record the reason and the decision; report coverage as six of "
+                  "eight until then. Quality Manager"],
+                 ["The domain weights **total 70, not 100**, and there are six weighted domains of "
+                  "which four carry questions",
+                  "An index derived from a 25-point instrument and an index derived from weighted "
+                  "domains out of 70 are two different numbers; which one is reported is not "
+                  "written anywhere",
+                  "Adopt one derivation, state it on the report, and correct the weights or the "
+                  "question set so that they reconcile. Laboratory Manager"],
+                 ["The **data (20)** and **human resources (20)** domains carry weight but no "
+                  "questions, so 40 per cent of the nominal instrument can never be scored",
+                  "A site cannot be credited for records management or staffing, and the index "
+                  "silently omits them",
+                  "Write the questions or withdraw the weight. Until then the index is stated as "
+                  "covering four domains. Quality Manager"],
+                 ["Every site in Q1 2026/27 answered the **same nine questions**, and three sites "
+                  "scored zero on rapid-test QC while one recorded no turnaround evidence \u2014 "
+                  "yet the recorded recommendations are general (\"adding the missing headings to "
+                  "documents\")",
+                  "A recommendation that does not name the failed question cannot be verified as "
+                  "effective at the next visit",
+                  "Bind each recommendation to the question it answers, as section 11 requires. "
+                  "Assessor, from the next quarter"],
+                 ["The instrument's non-integer maxima (3.5, 2.5) are correct and must be kept, "
+                  "but nothing states the rounding of the index",
+                  "Two assessors can report 72.0 and 72 from the same answers",
+                  "Index to one decimal place, as section 9.1 states. Quality Manager"],
+             ],
+             [5.4, 5.6, 6.0]),
+        ]),
+        ("13. Records", [
+            ("tbl",
+             ["Record", "Who keeps it", "How long"],
+             [
+                 ["The quarterly visit calendar, with planned dates", "Quality Manager", "6 years"],
+                 ["The visit record: answers, evidence, scores, index, assessor, instrument version",
+                  "Quality Manager", "6 years"],
+                 ["The site report as issued, with the site's comment", "Quality Manager", "6 years"],
+                 ["The recommendation log, with owner, date and closure evidence", "Quality Manager",
+                  "6 years, and until effectiveness is verified"],
+                 ["The verification record at the following quarter", "Quality Manager", "6 years"],
+                 ["The instrument, every version, with the date each took effect",
+                  "Laboratory Manager", "Permanently"],
+             ],
+             [7.8, 4.2, 5.0]),
+            ("p", "Any quarter must be reconstructible from the file: which instrument version, "
+                  "which questions, what evidence, what score, and what was recommended. A quarter "
+                  "that cannot be reconstructed is treated as not having been evaluated, and the "
+                  "site is told so rather than being given a number it cannot rely on."),
+        ]),
+        ("14. References", [
+            ("b", [
+                "ISO 15189:2022, 4.1 \u2014 the laboratory's responsibility for the examinations it "
+                "reports, including those performed at peripheral sites, and its duty to ensure "
+                "they are performed under a defined quality system.",
+                "ISO 15189:2022, 6.2 \u2014 personnel: competence, training and the records of both, "
+                "which is what the human-resources domain is meant to test.",
+                "ISO 15189:2022, 6.3 \u2014 facilities and environmental conditions, which is what "
+                "the sputum-room and ventilation question tests.",
+                "ISO 15189:2022, 6.4 and 6.5 \u2014 equipment and its maintenance, and the reagent "
+                "and consumable records, which the commodity and equipment questions test.",
+                "ISO 15189:2022, 7.3.7 \u2014 external quality assessment and interlaboratory "
+                "comparison, the evidence source for the quality-management domain.",
+                "ISO 15189:2022, 7.4 and 7.8 \u2014 reporting of results and the control of records, "
+                "which the data domain is meant to test.",
+                "ISO 15189:2022, 8.5 \u2014 actions to address risks and opportunities, and 8.7 "
+                "\u2014 nonconforming work, under which a zero score is handled.",
+                "ISO 15189:2022, 8.9 \u2014 evaluation and improvement: the requirement that "
+                "improvement be evaluated for effectiveness, which section 11 of this SOP "
+                "implements.",
+                "ISO 15189:2022, 7.3.7.3 and the national supervision framework \u2014 where a "
+                "peripheral site performs testing, the laboratory's oversight of it, including "
+                "participation in EQA.",
+                "ASLM SLIPTA Checklist v3:2023 \u2014 the operational criteria that underpin the "
+                "question set, used where a national criterion is not stated.",
+            ]),
+        ]),
+    ],
+}
+
+DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE, EQA, HC_REVIEW, PBF_REVIEW]
 
 # ---------------------------------------------------------------------------
 # DOCX builder
