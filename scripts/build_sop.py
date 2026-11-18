@@ -107,12 +107,29 @@ SERIES_KNOWN_MAX = {
     # There is NO IH section in the register: the areas it uses are ADM, BAC,
     # BIO, HEM, IMM, MYC, PAR, SER and STC. "IH" was introduced by this library
     # and is not an established department code.
-    "RliDHL-ADM-SOP": 49,
+    # Corrected against the 2026 register (MASTER LIST - 2024 - 2025.docx,
+    # modified 17/02/2026). The ADM-SOP serials it actually lists are 001, 002,
+    # 009, 020, 024 and 034. The older MASTER LIST 2025.docx ran to 049, but it
+    # is not the current register. See docs/register/tb-ept-register-transcript.md.
+    "RliDHL-ADM-SOP": 34,
+    "RliDHL-ADM-MAN": 2,    # 001 Quality Control Manual, 002 Safety Manual
+    "RliDHL-ADM-GUID": 3,   # 001 Scope of Test, 002 Critical Results, 003 Normal Ranges
     "RliDHL-BAC-SOP": 6,
     "RliDHL-BIO-SOP": 9,
     "RliDHL-HEM-SOP": 6,   # 005 XN-330, 006 XQ-320
     "RliDHL-IMM-SOP": 5,   # 005 Pima CD4
-    "RliDHL-MYC-SOP": 12,
+    # MYC was renamed TB on 15/11/2026 by the Laboratory Manager: the section is
+    # the tuberculosis section and "MYC" was a mycobacteriology label the register
+    # used for cells that are TB work. The serials do NOT move with the name --
+    # MYC 001-012 become TB 001-012, same numbers, same documents, same dates.
+    # A rename is not a renumbering: no serial is freed, skipped or reused.
+    "RliDHL-TB-SOP": 12,
+    # MOL is new. It exists because HIV early infant diagnosis and the hepatitis
+    # B and C viral loads are molecular examinations and were being filed in a
+    # mycobacteriology series that is now named for TB. MOL starts at 001.
+    # These three documents are MOVED, not renumbered: MOL-002/003/004 keep their
+    # serials, because a document that changes series has not changed identity.
+    "RliDHL-MOL-SOP": 4,
     "RliDHL-PAR-SOP": 10,
     "RliDHL-SER-SOP": 7,
     "RliDHL-STC-SOP": 7,
@@ -241,10 +258,36 @@ AWAITING_REPAIR = [
 # caught before it ships. This is the list that would have caught ADM-060.
 SERIES_ALLOCATED = {
     "RliDHL-ADM-SOP": {
-        # the 49 registered rows (035 is the one known gap)
-        **{n: "Master List 2025" for n in range(1, 50) if n != 35},
+        # ---- ADM SOP serials, corrected against the 2026 register --------------
+        #
+        # The previous version of this table claimed every serial 1-49 except 035
+        # was registered. That was read from MASTER LIST 2025.docx (15/04/2025),
+        # which is NOT the current register. The register the laboratory actually
+        # works to is MASTER LIST - 2024 - 2025.docx, modified 17/02/2026, and it
+        # lists only these ADM-SOP serials:
+        #
+        #     001  002  009  020  024  034
+        #
+        # Everything else between 001 and 034 is ABSENT from the register -- not
+        # proven free, but not proven taken either. The full transcription and the
+        # list of defects are in docs/register/tb-ept-register-transcript.md.
+        #
+        # Serial 035 is retired: the older register skipped from 034 to 036 and no
+        # document ever held it (SOP-PROGRAMME-HANDOFF). It stays retired.
+        1: "ADM SOP 001 Laboratory Temperature Control (2026 register; DOCUMENT AND "
+           "RECORD CONTROL is also printed on 001 -- a register defect)",
+        2: "ADM SOP 002 Documentation of Examination Procedure (2026 register)",
+        9: "ADM SOP 009 Disposal of sharps and needles (2026 register)",
+        20: "ADM SOP 020 Pre-Examination Procedure (2026 register)",
+        24: "ADM SOP 024 Quality Control and Quality Assurance (2026 register)",
+        34: "ADM SOP 034 Laboratory Waste Management, and Handling of biological spills "
+            "(2026 register; TWO documents share this serial -- a register defect)",
+        **{n: "ADM SOP 035 retired -- never used, no document ever held it"
+           for n in (35,)},
         # the November 2026 equipment block: built, uploaded, unsigned
-        50: "ADM SOP 050 Microscope (Nov 2026 block)",
+        # 050 is NOT listed: it was released from the unsigned Microscope draft and
+        # re-allocated to the health-centre re-reading SOP, which is in REGISTER as a
+        # new allocation. Listing it here as well would be a double allocation.
         51: "ADM SOP 051 Centrifuge (Nov 2026 block)",
         52: "ADM SOP 052 Water Bath (Nov 2026 block)",
         60: "ADM SOP 060 Non-Medical Equipment (Nov 2026 block)",
@@ -266,6 +309,61 @@ SERIES_ALLOCATED = {
         2: "IMM SOP 002 CD4 sample rejection (legacy, register)",
         3: "IMM SOP 003 CD4 sample preparation on FACSCount (legacy, register)",
         4: "IMM SOP 004 Enumeration of CD4+ T lymphocytes, FACSCount (legacy, register)",
+    },
+    # MYC 001-012 -> TB 001-012, same serials. The register's Mycobacteriology
+    # section is the TB section; the prefix is being renamed to say so.
+    # The TB section holds ALL tuberculosis testing, whatever the method: the
+    # bacilloscopy (ZN and auramine), the culture and DST work, and the GeneXpert
+    # TB assays. TB LAM belongs here too, for the same reason -- it is a TB test
+    # performed in the TB section. A test's METHOD does not decide its series;
+    # the section that performs it does. That is why GeneXpert work is split
+    # between TB (the TB assays) and MOL (the viral loads) even though it is the
+    # same instrument, and why HIV *qualitative* serology stays in SER and does
+    # not follow the instrument into MOL.
+    "RliDHL-TB-SOP": {
+        1: "TB SOP 001 Sputum collection, preservation and transport using CPC "
+           "(was MYC SOP 001 — register, renamed 15/11/2026)",
+        2: "TB SOP 002 TB specimen rejection criteria for microscopy, culture and DST "
+           "(was MYC SOP 002)",
+        3: "TB SOP 003 TB microscopy by hot Ziehl-Neelsen staining for quality control "
+           "(was MYC SOP 003)",
+        4: "TB SOP 004 Fluorescence TB microscopy by auramine staining (was MYC SOP 004)",
+        5: "TB SOP 005 TB sample transportation (was MYC SOP 005)",
+        6: "TB SOP 006 Internal quality control for reagents and techniques in the TB "
+           "laboratory (was MYC SOP 006)",
+        7: "TB SOP 007 Turnaround time for TB tests at RliDH and the NRL (was MYC SOP 007)",
+        8: "TB SOP 008 Quality control for TB microscopy slide re-testing (was MYC SOP 008)",
+        9: "TB SOP 009 — register row has NO TITLE recorded (was MYC SOP 009). The "
+           "serial is allocated; the subject is unrecorded. This is a register defect, "
+           "recorded not fixed.",
+        10: "TB SOP 010 Sample processing using GeneXpert (was MYC SOP 010)",
+        11: "TB SOP 011 Data archiving and preventive maintenance of the GeneXpert Dx "
+            "system (was MYC SOP 011)",
+        12: "TB SOP 012 Sample processing using GeneXpert (was MYC SOP 012 — duplicate "
+            "subject with 010; a register defect, recorded not fixed)",
+    },
+    # MOL takes the MOLECULAR examinations: HIV early infant diagnosis and the
+    # hepatitis B and C viral loads. The three documents below already carry
+    # these serials; the move out of MYC does not renumber them.
+    #
+    # Serial 001 is HELD, not free. RliDHL-MOL-SOP-001-VERS-003, "HIV-1
+    # Qualitative Testing Using Xpert HIV-1 Assays", held it; MOL-002-VERS-002
+    # records that it "replaces" that document. A withdrawn document keeps its
+    # serial for life, so 001 cannot be allocated.
+    #
+    # HIV SEROLOGY IS NOT IN MOL AND IS NOT TOUCHED BY THIS MOVE. Rapid
+    # Determine, Unigold, capillary collection for HIV testing and HIV QC
+    # transport are SEROLOGY, and the register files them under SER (SER-001,
+    # -002, -004, -005). Those SOPs are unaffected by anything here. The
+    # distinction is method, not analyte: an antibody rapid test is serology; an
+    # assay that amplifies nucleic acid is molecular. The one HIV document that
+    # WAS molecular was the Xpert Qual assay, and it is withdrawn.
+    "RliDHL-MOL-SOP": {
+        1: "MOL SOP 001 HIV-1 Qualitative Testing using Xpert HIV-1 Assays — "
+           "WITHDRAWN, absorbed into MOL-002-VERS-002. Serial held for life.",
+        2: "MOL SOP 002 HIV Early Infant Diagnosis using GeneXpert (this library)",
+        3: "MOL SOP 003 Hepatitis B Virus Viral Load using GeneXpert",
+        4: "MOL SOP 004 Hepatitis C Virus Viral Load using GeneXpert",
     },
     # BIO serial 002 is NOT allocated. Its registered holder is the Humalyzer 3500
     # SOP, and the Humalyzer has been decommissioned. The document is superseded,
@@ -335,6 +433,7 @@ REGISTER = {
     },
     "exam_docs": {
         "code": "RliDHL-ADM-SOP-041", "vers": "001",
+        "new": True,
         "title": "Documentation of examination procedures",
         "master_list": "Master List, Crosscutting SOPs",
     },
@@ -342,6 +441,81 @@ REGISTER = {
         "code": "RliDHL-ADM-SOP-062", "vers": "001",
         "title": "Use, Care and Preventive Maintenance of Hematology Analysers",
         "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
+    },
+    # The GeneXpert maintenance SOP is already in the Nov 2026 equipment block
+    # (ADM-SOP-063) and is cited by the troubleshooting SOP. Registering it here
+    # lets it be referenced by code() rather than typed.
+    "genexpert_maint": {
+        "code": "RliDHL-ADM-SOP-063", "vers": "001",
+        "title": "Use, Care and Preventive Maintenance of the GeneXpert Dx System",
+        "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
+    },
+    # --- documents cited by the EQA/PT SOP, registered so they are cited by
+    # code rather than typed. All are in the 2026 register.
+    "qca": {
+        "code": "RliDHL-ADM-SOP-024", "vers": "004",
+        "title": "Quality Control and Quality Assurance",
+        "master_list": "Master List, Crosscutting SOPs",
+    },
+    "scope_test": {
+        "code": "RliDHL-ADM-GUID-001", "vers": "004",
+        "title": "Laboratory Scope of Test",
+        "master_list": "Master List, Guidelines",
+    },
+    "qc_manual": {
+        "code": "RliDHL-ADM-MAN-001", "vers": "006",
+        "title": "Laboratory Quality Control Manual",
+        "master_list": "Master List, Manuals",
+    },
+    "safety_manual": {
+        "code": "RliDHL-ADM-MAN-002", "vers": "006",
+        "title": "Laboratory Safety Manual",
+        "master_list": "Master List, Manuals",
+    },
+    # Serial 066. The next genuinely absent serial above the November 2026 block.
+    # The 2026 register lists no ADM SOP above 034, and 060-065 were allocated by
+    # this library, so 066 is the next free and is not claimed by anything.
+    "pbf_hc": {
+        "code": "RliDHL-ADM-SOP-066", "vers": "001",
+        "title": "Quarterly Performance Evaluation of Health Centres",
+        "master_list": "Master List, Crosscutting SOPs",
+        "new": True,
+    },
+    # Serial 050. The November 2026 equipment block opened 050 (Microscope), 051
+    # (Centrifuge) and 052 (Water Bath); those three are built and uploaded but
+    # UNSIGNED, so they are not in force. 050 has therefore been released back to
+    # the queue and re-used here -- see SERIES_ALLOCATED. Nothing was ever issued
+    # under 050, so no document loses its number.
+    "hc_slide_review": {
+        "code": "RliDHL-ADM-SOP-050", "vers": "001",
+        "title": "Re-reading of Health-Centre Slides and Re-Testing of Health-Centre Samples",
+        "master_list": "Master List, Crosscutting SOPs",
+        "new": True,
+    },
+    # Serial 025. The 2026 register (MASTER LIST - 2024 - 2025.docx, modified
+    # 17/02/2026) holds ADM-024 (Quality Control and Quality Assurance) and
+    # ADM-020 (Pre-Examination Procedure) and nothing between them. The
+    # Laboratory Manager's instruction was to fill the gap rather than skip past
+    # it, so this SOP takes the free serial 025 instead of a number past 065.
+    "eqa_pt": {
+        "code": "RliDHL-ADM-SOP-025", "vers": "001",
+        "title": "External Quality Assessment and Proficiency Testing",
+        "master_list": "Master List, Crosscutting SOPs",
+        "new": True,
+    },
+    # Serial 065. The gap 064 -> 065 is not a gap: 064 is taken by the SOP on the
+    # signing of SOPs, which this library issues. 065 is the next free serial.
+    #
+    # One document for every analyser, not one per analyser. The failure modes the
+    # manufacturer names are mostly common to a family (the Sysmex pair share a
+    # software generation), and four copies of the same table would drift apart
+    # within a year -- which is the defect this library was built to stop.
+    "trouble": {
+        "code": "RliDHL-ADM-SOP-065", "vers": "001",
+        "title": "Troubleshooting of laboratory analysers: error codes, causes and "
+                 "corrective action",
+        "master_list": "Master List, crosscutting (Nov 2026 equipment block)",
+        "new": True,
     },
     "glucose": {
         # 001 was carried by two documents: this SOP at VERS-005, and "Use and
@@ -1528,6 +1702,7 @@ GLUCOSE = {
 # ---------------------------------------------------------------------------
 
 ADM_EXAM_DOCS = code("exam_docs")        # ADM SOP 041, Documentation of examination procedures
+# 041 is a NEW allocation by this library; the 2026 register does not carry it.
 ADM_EQUIP_MAINT = code("equip_maint")    # ADM SOP 062, Hematology analyser maintenance
 
 
@@ -1782,6 +1957,8 @@ def analyser_sop(key, *, model, manufacturer, serial, asset, bench, discipline,
             f"Pre-Examination Procedure ({ADM_PRE_EXAM}).",
             f"Venous Blood Sample Collection ({code('venous')}).",
             f"Maintenance of haematology analysers ({ADM_EQUIP_MAINT}).",
+            f"Troubleshooting of laboratory analysers — error codes, causes and corrective "
+            f"action ({code('trouble')}).",
             "Laboratory Normal Ranges list; Critical Results list; Tests TAT list; Safety "
             "Manual; Waste Management procedure; Result Reporting and Release procedure.",
         ] + extra_support),
@@ -1880,7 +2057,10 @@ XN330 = analyser_sop(
         ("2.", "Load the tube in the position the analyser requires and start the run. Do not "
                "re-load a tube that has already been aspirated unless the analyser asks for it."),
         ("3.", "Watch the aspiration and the flags. A short sample, a clot or an obstruction is a "
-               "fault, not a result: clear it and repeat the specimen (section 17)."),
+               "fault, not a result: clear it and repeat the specimen (section 17). When the "
+               "analyser shows an error message or code, act on it from the code table for this "
+               "analyser and record the code — "
+               f"{code('trouble')}."),
         ("4.", "Repeat any specimen that the analyser flags as needing review, or that gives a "
                "result outside the clinically plausible range."),
         ("5.", "For a flagged differential or an unexpected cell population, prepare and examine "
@@ -2202,7 +2382,2270 @@ PIMA = analyser_sop(
                      "not applicable to this analyser.",
 )
 
-DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA]
+# ---------------------------------------------------------------------------
+# ADM SOP 065 -- Troubleshooting of laboratory analysers
+#
+# One document, every analyser. This replaces the phrase "troubleshoot the
+# error" with a procedure: a code, what it means, what caused it, what the
+# operator does, what the supervisor does, and who is called.
+#
+# EVERY code, message and corrective action below is taken from the
+# manufacturer's own documentation for the instrument (listed in section 20).
+# Nothing is an operator's guess and nothing is remembered. Where a
+# manufacturer does not publish a numeric code for a failure, that is stated
+# rather than invented -- the Pima and the Xpert failures without codes are the
+# clearest example: they are real failures with no number, and a table that
+# pretended otherwise would send staff hunting for a code that does not exist.
+#
+# The last column of each table is the part the laboratory was missing: WHO is
+# responsible. An error code that anyone may act on is an error code nobody
+# acts on.
+# ---------------------------------------------------------------------------
+
+TRB = REGISTER["trouble"]
+TRB_CODE = code("trouble")
+
+TRB_ESC = [
+    "Stop testing on the affected module or instrument, and do not release the result. "
+    "An error is not a result and must never be reported as one, not even with a comment.",
+    "Record the numeric code, the approximate time, the module, the assay and your initials "
+    "in the instrument log at the moment it appears. Record the code from the screen, not "
+    "from memory at the end of the shift: a code read later is a guess.",
+    "If the same code appears twice in a row on the same module, treat the module as suspect "
+    "even if the third attempt works. Intermittent is not fixed.",
+    "Tell the Laboratory Manager or the senior biotechnologist on duty the same day, and tell "
+    "the requester that the result will be delayed and why.",
+    "The Laboratory Manager reviews the failure log monthly against the error rate, looks for "
+    "a code that has become common, a module that has become worse and an operator whose rate "
+    "is high, and records the review.",
+]
+
+TROUBLE = {
+    "meta": {"doc_no": TRB_CODE, "title": TRB["title"], "version": TRB["vers"]},
+    "out_stem": f"{TRB_CODE} - Troubleshooting of laboratory analysers",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", TRB["vers"], "14/11/2026",
+         "First issue. Written because none of the examination SOPs carried the error codes "
+         "of the analyser they govern: they told staff to record a code and to consult the "
+         "manufacturer's manual, and supplied neither. Every code and corrective action here "
+         "is taken from the manufacturer's own documentation for the instrument."],
+    ],
+    "control_rows": [
+        ("SOP Number", TRB_CODE),
+        ("SOP Title", TRB["title"]),
+        ("Version", TRB["vers"]),
+        ("Effective Date", "14/11/2026"),
+        ("Next Review Date", "14/11/2028"),
+        ("Supersedes", "— (first issue; no previous SOP covered troubleshooting)"),
+        ("Document Owner", "Kelvin SAMAHANI — Laboratory Manager"),
+        ("Applies to", "Every analyser, instrument and device in the laboratory that displays "
+                       "an error code or reports an error, no result or invalid result"),
+        ("Classification", "Controlled document — master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "The laboratory holds four analysers in service and one awaiting repair. Each of "
+                  "them fails: the GeneXpert returned 938 failed tests in 9,460 runs between "
+                  "February 2022 and April 2025, and the Alere Pima CD4 is reported in the "
+                  "literature to return invalid results on about one test in eight. A failure is "
+                  "not an accident to be apologised for; it is a defined event with a code, a "
+                  "cause and a response."),
+            ("p", "Until this SOP was issued, the examination SOPs said what to do in principle — "
+                  "\"note the error code\", \"troubleshoot and repeat\" — and then referred the "
+                  "reader to a manufacturer's manual held somewhere else, in a form the SOP never "
+                  "converted. The codes were therefore never read, never recorded and never "
+                  "analysed. This SOP puts that content where the operator can reach it and makes "
+                  "the recording of a code mandatory."),
+            ("p", "It does not replace the manufacturer's manual, and it does not licence anyone to "
+                  "go beyond it. Where this SOP and the current manual differ, the manual is "
+                  "authoritative and this SOP is corrected: that is an amendment, not a decision "
+                  "for the bench."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To give, for each analyser in the laboratory, the error codes and messages the "
+                  "instrument actually displays, what each one means, the cause the manufacturer "
+                  "attributes to it, the corrective action the manufacturer specifies, and the "
+                  "point at which the operator stops and escalates — so that a failure is handled "
+                  "the same way by every member of staff and is recorded well enough to be "
+                  "investigated."),
+        ]),
+        ("3. Scope", [
+            ("p", "This SOP applies to every analyser, instrument and device in the laboratory that "
+                  "can display an error code or can return an error, no-result or invalid result:"),
+            ("b", [
+                "Sysmex XN-330 haematology analyser — section 5.",
+                "Sysmex XQ-320 haematology analyser — section 6.",
+                "Roche cobas c 111 clinical chemistry analyser — section 7.",
+                "GeneXpert Dx system, all assays in use (MTB/RIF, MTB/RIF Ultra, Xpert HIV-1 "
+                "Qual XC, Xpert HBV viral load, Xpert HCV viral load) — section 8.",
+                "Alere Pima CD4 analyser — section 9.",
+            ]),
+            ("p", "A device not listed here is added by amendment before it is used to produce a "
+                  "result. Devices that cannot fail in a reportable way (a centrifuge, a "
+                  "thermometer, a water bath) are covered by their own maintenance SOPs and by the "
+                  "laboratory's procedure for nonconforming work, not by this document."),
+        ]),
+        ("4. How to use this SOP, and where responsibility stops", [
+            ("p", "Every table in this SOP has the same seven columns: the code or message as the "
+                  "instrument displays it; what it means; the cause the manufacturer gives; what "
+                  "the operator does first; what is done when the first action does not clear it; "
+                  "whether the module is taken out of service; and who does it. Read the row for "
+                  "the code shown on the screen, and do what the row says."),
+            ("h2", "4.1 The rules that apply to every analyser"),
+            ("b", TRB_ESC),
+            ("h2", "4.2 What the operator may and may not do"),
+            ("p", "An operator may: clear the error and restart the instrument; repeat the test "
+                  "with a new cartridge, a new specimen aliquot or a new reagent; clean what the "
+                  "manufacturer's instructions for that code tell them to clean; take a module out "
+                  "of service; and call the service provider."),
+            ("p", "An operator may not: open the instrument beyond the access the manufacturer's "
+                  "maintenance instructions allow; remove a stuck cartridge by force or by "
+                  "dismantling a module (this needs the supervisor, the service provider's "
+                  "instructions and, in practice, the service provider); defeat, disable or ignore "
+                  "an alarm; re-run a test to get the answer that was expected; or report a result "
+                  "that came with an error, no matter how plausible it looks."),
+            ("h2", "4.3 Recording — the part that was missing"),
+            ("p", "The single reason the laboratory cannot today say whether its failures are "
+                  "cartridges, specimens, modules or people is that the numeric code was never "
+                  "written down. The raw GeneXpert export for 2022 to 2025 records a failure as "
+                  "\"Error\" 772 times, \"Load Error\" 38 times and \"Warning\" twice, and does not "
+                  "record one code. A failure with no code cannot be investigated, cannot be "
+                  "counted by cause, and cannot be shown to have been fixed."),
+            ("p", "From the effective date of this SOP, the instrument log carries the code. The "
+                  "log is a controlled record: code, date and time, module (where the instrument "
+                  "has modules), assay, specimen or control, the action taken, whether the repeat "
+                  "passed, and the initials. Entries are made in ink at the time; a correction is a "
+                  "single line through the entry, the correct entry beside it, and initials and "
+                  "date."),
+            ("h2", "4.4 Monthly review"),
+            ("p", "The Laboratory Manager reviews, each month: the number of tests and the number of "
+                  "failures by analyser; the ten most frequent codes; the failure rate by module "
+                  "and by operator; and whether any code has risen against the previous three "
+                  "months. A code that recurs on one module, a rate above the laboratory's "
+                  "objective, or a rate that has doubled is investigated and recorded as "
+                  "nonconforming work with a corrective action. The review is a record and is "
+                  "kept."),
+        ]),
+        ("5. Sysmex XN-330 haematology analyser", [
+            ("p", "The XN-330 does not display a numeric error code. It displays an error message in "
+                  "words, colour-coded by severity — a red background is a warning that stops "
+                  "analysis, an orange background is a caution — and it sorts each failure into "
+                  "[Result], [Func.] or a barcode read error. The message is the identifier, and it "
+                  "is the message that is recorded."),
+            ("tbl",
+             ["Message or indication", "Meaning", "Cause (Sysmex)", "Operator action", "If it "
+              "persists", "Module out of service", "Responsible"],
+             [
+                 ["Blood cannot be aspirated.",
+                  "The aspiration sensor did not detect blood. No result is produced.",
+                  "Short sample, clot at the tube bottom, tube not presented correctly, or a "
+                  "blocked probe.",
+                  "Check the tube volume against the minimum on the analyser; remix by inversion; "
+                  "check for a clot with a applicator stick; rerun.",
+                  "Clean the aspiration probe as the maintenance SOP directs; rerun once.",
+                  "No — the analyser, not a module.",
+                  "Operator; supervisor if the second rerun fails."],
+                 ["Insufficient blood volume (short sample).",
+                  "The sample was aspirated but the volume was below the analyser's requirement.",
+                  "Under-filled tube, or the tube was pulled from the aspirator too early.",
+                  "Check the fill line; recollect if the tube is short; rerun.",
+                  "If it recurs on correctly filled tubes, check the aspiration volume setting and "
+                  "call service.",
+                  "No.",
+                  "Operator."],
+                 ["Low count error / Blank data.",
+                  "A parameter counted abnormally low against the blank.",
+                  "Clotted or very dilute specimen, aspiration fault, or a dirty flow cell.",
+                  "Remix, inspect for clots and haemolysis, rerun once.",
+                  "Run a background check; if it fails three times in a row, stop and call service.",
+                  "No.",
+                  "Operator; supervisor for the background check."],
+                 ["0.06 MPa pressure error / 0.25 MPa pressure error / Pressure sensor error / "
+                  "Vacuum sensor error.",
+                  "The pneumatic pressure or vacuum is outside the range the analyser requires.",
+                  "Blocked or leaking tubing, a stuck valve, a waste container that is full, or a "
+                  "failed pressure sensor.",
+                  "Empty the waste; check that all reagent and waste connections are seated; "
+                  "restart the analyser.",
+                  "Do not open the pneumatic path beyond the maintenance SOP. Call service.",
+                  "No — instrument-level.",
+                  "Operator to restart; service provider beyond that."],
+                 ["Temperature or thermistor error (reagent heater 34 °C or 41 °C, ambient "
+                  "temperature, FCM reaction chamber, FCM sheath, detector).",
+                  "A temperature sensor reads outside its range.",
+                  "Room temperature above the analyser's operating range, a blocked or dirty fan "
+                  "filter, insufficient clearance around the analyser, or a failed heater.",
+                  "Check the room temperature against the range in the maintenance SOP; check the "
+                  "10 cm clearance; check that the rear fan is running and the filter is clean; "
+                  "restart.",
+                  "Call service. A heater or thermistor is not an operator-replaceable part. Record "
+                  "the module temperature from the Maintenance menu with the call.",
+                  "No.",
+                  "Operator to check the room; service provider for the heater."],
+                 ["Laser output error / APD thermistor error / FCM detector thermistor error.",
+                  "A failure in the optical or detector subsystem.",
+                  "Component failure. The manufacturer suppresses this message on screen and "
+                  "performs an automatic repeat; when it is visible, the repeat did not clear it.",
+                  "Do not attempt repair. Stop using the analyser and call service the same day.",
+                  "—",
+                  "Yes, the analyser.",
+                  "Service provider; supervisor informs the Laboratory Manager."],
+                 ["ID read error (sample or rack barcode).",
+                  "A barcode label could not be read.",
+                  "Damaged, wet, wrinkled or badly placed label; dirty read window; a label outside "
+                  "the specification.",
+                  "Wipe the label and the reader window; re-present the tube; if it still fails, "
+                  "enter the sample number manually and record that it was entered manually.",
+                  "Report a label that cannot be read to the collection site; the specimen is not "
+                  "rejected for this alone.",
+                  "No.",
+                  "Operator."],
+                 ["QC alarm / X-barM limit error / L-J limit error / Control expired error / "
+                  "Unregistered control.",
+                  "Quality control has failed, or the control in use is expired or not registered.",
+                  "Control out of limits, expired control, wrong control file, or a real shift in "
+                  "the analyser.",
+                  "Do not test patient specimens. Check the control's expiry and storage, repeat "
+                  "the control once.",
+                  "Follow the quality control procedure: stop, record the nonconformity, review the "
+                  "patient results released since the last acceptable control.",
+                  "The analyser is stopped for patient testing until the control passes.",
+                  "Operator stops; supervisor authorises resumption."],
+                 ["Reagent expired error.",
+                  "An expired reagent is loaded.",
+                  "Expiry passed, or the on-board stability has been exceeded.",
+                  "Replace the reagent; record the lot and the date opened.",
+                  "Check whether results were produced with the expired reagent and review them.",
+                  "No.",
+                  "Operator; supervisor reviews affected results."],
+                 ["HC off-line / HC buffer full / LAN no response.",
+                  "Communication with the laboratory information system or host computer has "
+                  "failed.",
+                  "Network or interface fault, host down, or a full transmission buffer.",
+                  "Check the cable and the network indicator; continue in offline mode and record "
+                  "results on the paper worksheet.",
+                  "Inform whoever supports the LIS; results are entered when the link is restored, "
+                  "and the report states that they were entered retrospectively.",
+                  "No.",
+                  "Operator; LIS support."],
+                 ["Red status light, alarm sounding.",
+                  "An error has occurred and the analyser has stopped.",
+                  "Read the message on the screen — the light alone says nothing.",
+                  "Touch the screen to silence the alarm, read the error message, and follow that "
+                  "message's row in this table.",
+                  "—",
+                  "Only if the message says so.",
+                  "Operator."],
+             ],
+             [2.5, 2.6, 2.9, 2.9, 2.9, 1.6, 1.6]),
+            ("p", "IP messages (Blasts/Abn Lympho?, Left Shift?, Atypical Lympho?, NRBC?, RBC "
+                  "Agglutination?, Turbidity/HGB Interf?, Fragments?, PLT Clumps?, and the rest) "
+                  "are not errors. They are the analyser reporting a suspicion about the specimen. "
+                  "They do not stop the run and they are not cleared: they are acted on by making a "
+                  "film and by a manual differential, as the examination SOP requires. A result "
+                  "carrying an IP message is released with the review the SOP defines, never "
+                  "silently."),
+        ]),
+        ("6. Sysmex XQ-320 haematology analyser", [
+            ("p", "The XQ-320 belongs to the same Sysmex generation and reports through the same "
+                  "software, so its messages, meanings and corrective actions are the ones in "
+                  "section 5. What differs is the hardware: three-part differential only, no "
+                  "reticulocyte channel, a single aspiration path and no sampler. Two consequences "
+                  "matter here, and both are recorded in the maintenance SOP rather than repeated:"),
+            ("b", [
+                "A failure that stops the analyser stops the whole laboratory's XQ-320 work, "
+                "because there is no second module to fall back on. The XN-330 is then the backup "
+                "and the report states which analyser produced the result.",
+                "The part numbers, the fluid volumes and the maintenance intervals differ from the "
+                "XN-330. When a code in section 5 sends the operator to service, the call is made "
+                "quoting the XQ-320 serial number, not the XN-330's.",
+            ]),
+            ("p", "A message on the XQ-320 that is not in the section 5 table is treated as a "
+                  "failure with no known corrective action: stop, record the exact wording, and "
+                  "call service. Do not try the corrective action for a similar-looking message on "
+                  "another analyser."),
+        ]),
+        ("7. Roche cobas c 111 clinical chemistry analyser", [
+            ("p", "The cobas c 111 is the only analyser in the laboratory whose manufacturer "
+                  "publishes a complete numeric alarm list, and the laboratory has already been "
+                  "stopped by one of them: the instrument was withdrawn from service in April 2026 "
+                  "with error 5040, which is a failed Peltier element in the cooling system. That "
+                  "is a service intervention, not a bench fix, and the table says so."),
+            ("p", "Codes are four digits. Alarms in the 5xxx range are hardware and fluidics; 6xxx "
+                  "are photometer; 7xxx are transfer, position and level detection. Every row below "
+                  "is from the cobas c 111 Operator's Manual, chapter 9, \"Messages and alarms\"."),
+            ("tbl",
+             ["Code", "Message", "Meaning and cause (Roche)", "Operator action", "If it persists",
+              "Out of service", "Responsible"],
+             [
+                 ["5040", "Error cooling system. One of the Peltier elements does not react "
+                  "anymore.",
+                  "A Peltier element in the cooling system has failed. This is the fault that "
+                  "withdrew this analyser from service in April 2026.",
+                  "Restart the system once.",
+                  "Call service. Do not open the instrument: the cooling system is not a "
+                  "user-serviceable assembly.",
+                  "Yes — the analyser.",
+                  "Service provider; the Laboratory Manager records the withdrawal."],
+                 ["5038", "Error analyzer heating system. The heating system does not react "
+                  "anymore.",
+                  "The heating system has failed.",
+                  "Restart once.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5034", "Error wash valve V1. The valve does not react anymore.",
+                  "A fluidic valve has failed.", "Restart once.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5028 / 5030 / 5032 / 5036", "Error temperature sensor (analyzer heating, "
+                  "analyzer cooling, cooling-system heat sink, or instrument ambient).",
+                  "A temperature sensor does not respond.",
+                  "Restart once. Check the room temperature and that the vents are clear.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5026", "Error wash pump P1 or mixer motor. The pump or motor could not be "
+                  "started.",
+                  "A drive has failed or is jammed.",
+                  "Switch off; check the mixing mechanism and the fan for an obstruction as the "
+                  "manual directs; restart.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["5052 / 5055", "Analyzer temperature is outside the range. / Analyzer heating "
+                  "system overheated.",
+                  "The instrument is above or below its operating temperature, or the heating "
+                  "system has overheated.",
+                  "Check the room temperature and the air circulation (unrestricted, vents not "
+                  "blocked); restart.",
+                  "Call service if it recurs with the room in range.", "Yes.", "Operator, then "
+                  "service."],
+                 ["5056", "The calibration of the transfer head fluid sensor failed.",
+                  "The fluid sensor in the transfer head cannot be calibrated.",
+                  "Check that the sample probe tube and the syringe are correctly installed; "
+                  "restart.",
+                  "Call service.", "Yes.", "Operator, then service."],
+                 ["5013 / 5019", "Error fluid sensor transfer head. / Error fluid sensor "
+                  "degasser.",
+                  "A fluid sensor does not respond, or air is in the fluid system.",
+                  "For 5019, perform Initialise Degasser Fluid Sensor as the screen directs. "
+                  "Restart.",
+                  "Call service.", "Yes.", "Operator, then service."],
+                 ["6024 / 6025 / 6026 / 6027", "Photometer error (lamp fan speed, dark shutter "
+                  "motor or shutter jamming, internal circuitry, signals out of range during a "
+                  "dark measurement).",
+                  "A fault in the photometer or its shutter.",
+                  "Restart once.",
+                  "Call service. Do not adjust the photometer.", "Yes.", "Service provider."],
+                 ["6001 / 7071", "Photometer error. Signal is invalid or unstable. / Photometer "
+                  "lamp error.",
+                  "The photometer signal is unusable: dirty rotor, ageing lamp, or blocked light "
+                  "path.",
+                  "Switch off. Remove and clean the rotor as the maintenance SOP directs; restart.",
+                  "Perform Replace Photometer Lamp and then Abs Air/Water Calibration — supervisor "
+                  "level — and if it persists call service.",
+                  "Yes, until the lamp and calibration are acceptable.", "Supervisor; service for "
+                  "the lamp."],
+                 ["7013 / 7130 / 7131 / 7132", "Position error X-transfer. / Rotor position error. "
+                  "/ Position error X-transfer. / Initialization error Z-transfer.",
+                  "A mechanical axis is blocked or jammed, or a home position is invalid.",
+                  "Switch off immediately. Check the rotor, the transfer head and the probe for an "
+                  "obstruction; check that the transfer head cover is seated; restart.",
+                  "Call service. Never force a jammed axis.", "Yes.", "Supervisor; service "
+                  "provider."],
+                 ["7072", "The reagent mixing failed due to a level detection problem.",
+                  "The probe could not detect the reagent level.",
+                  "Check the probe for an obstruction and check the reagent bottle's fill level.",
+                  "Call service if the level is adequate.", "Yes.", "Operator, then service."],
+                 ["7111 / 7122 / 7123 / 7124", "Transfer movement failed due to open cover. / "
+                  "Prepare stopped due to open cover. / Extra wash cycle after reagent pipetting "
+                  "failed. / Analyzer temperature outside the range.",
+                  "A cover was opened while the instrument was operating, or a wash cycle failed.",
+                  "Ensure every cover is closed during initialisation, operation and maintenance; "
+                  "for 7123 perform Deproteinise Probe before the next run; restart.",
+                  "Call service if the temperature alarm recurs with the room in range.", "No, "
+                  "unless it recurs.", "Operator."],
+                 ["5002 / 5003 / 5004 / 5010", "Error motor X-transfer, Z-transfer, syringe "
+                  "initialisation, or mixer motor.",
+                  "A motor could not be started, or an initialisation failed.",
+                  "Restart once. Check the relevant mechanism for jamming or blockage and that the "
+                  "syringe is correctly installed.",
+                  "Call service.", "Yes.", "Service provider."],
+                 ["7001 / 7002 / 13002 / 13005 / 13009 / 13010", "Instrument Control software "
+                  "exception / software error.",
+                  "A software fault.",
+                  "Restart the system.",
+                  "Export the log files with the system still in the error condition and call "
+                  "service. Note the code: it identifies the fault.",
+                  "Yes, until service has the log.", "Service provider; supervisor exports the "
+                  "log."],
+                 ["Any code not in this table", "—", "—",
+                  "Stop. Record the exact code and message text from the screen.",
+                  "Call service quoting the code and send the system log.",
+                  "Yes.", "Supervisor."],
+             ],
+             [1.7, 2.7, 3.0, 3.2, 2.8, 1.4, 1.6]),
+            ("p", "The 5040 entry is the reason the laboratory's own analyser is away for repair and "
+                  "the reason a report cannot be produced on it today. It is recorded here so that "
+                  "the next occurrence is recognised in seconds rather than after a service visit, "
+                  "and so that nobody at the bench spends a shift attempting a repair the "
+                  "manufacturer reserves for a service engineer."),
+        ]),
+        ("8. GeneXpert Dx system", [
+            ("p", "The GeneXpert is the analyser the laboratory uses for everything molecular: "
+                  "tuberculosis, HIV early infant diagnosis, and the hepatitis B and C viral "
+                  "loads. It is also, by the laboratory's own record, the analyser that fails "
+                  "most — 938 failed tests out of 9,460 between February 2022 and April 2025."),
+            ("p", "Two things about its errors are not obvious and both matter. First, the result "
+                  "codes INVALID and NO RESULT are failures with no number, so a table that listed "
+                  "only numeric codes would leave the commonest failures unexplained. Second, a "
+                  "test result of ERROR is not one code: the numeric code is in the Errors tab of "
+                  "the result, and it must be read from there and recorded. An entry that says only "
+                  "\"ERROR\" destroys the information needed to fix it."),
+            ("h2", "8.1 Failures without a numeric code"),
+            ("tbl",
+             ["Result", "Meaning", "Cause (Cepheid)", "Operator action", "If it persists", "Module "
+              "out of service", "Responsible"],
+             [
+                 ["INVALID",
+                  "An internal control failed: the Sample Processing Control, the Sample Adequacy "
+                  "Control or the internal quantification standard, depending on the assay.",
+                  "The reaction was inhibited — blood, food particles or pus in the specimen — or "
+                  "too little specimen was added, or the kit was stored outside its conditions.",
+                  "Check the specimen for blood or particles before repeating; repeat once with a "
+                  "new cartridge from the same specimen.",
+                  "If INVALID repeats, the specimen is inhibiting the assay: do not test it a third "
+                  "time. Request a new specimen and record the event.",
+                  "No, unless it repeats on one module.",
+                  "Operator; supervisor for the repeat specimen request."],
+                 ["NO RESULT",
+                  "The run did not complete and insufficient data were collected.",
+                  "Power interruption during the run, the Stop Test function was used, or the "
+                  "computer froze.",
+                  "Check the power supply and the UPS; repeat with a new cartridge. Do not use Stop "
+                  "Test unless the run must be abandoned, and never leave other applications "
+                  "running on the instrument computer.",
+                  "If NO RESULT follows a power event, record the event and inform the Laboratory "
+                  "Manager — the UPS is at fault, not the cartridge.",
+                  "No.", "Operator."],
+             ],
+             [1.8, 3.0, 3.2, 3.2, 3.0, 1.4, 1.8]),
+            ("h2", "8.2 Failures with a numeric code"),
+            ("p", "Read the code from the Errors tab of the result before removing the cartridge. "
+                  "The Xpert assays in use differ: the TB assays load a liquefied specimen with "
+                  "sample reagent, while the whole-blood and dried-blood-spot assays load a small "
+                  "volume of blood directly, so the viscosity and particle causes below apply "
+                  "mainly to the TB and stool work, and the inhibition causes to the blood work."),
+            ("tbl",
+             ["Code", "Message", "Meaning and cause (Cepheid)", "Operator action", "If it persists",
+              "Module out of service", "Responsible"],
+             [
+                 ["5006 / 5007 / 5008",
+                  "Probe Check failed.",
+                  "The Probe Check Control failed and the run was stopped before amplification. "
+                  "Cause: specimen too viscous or the wrong volume added; the reaction tube "
+                  "improperly filled or containing bubbles; damaged reagents from incorrect "
+                  "cartridge storage; overdue maintenance or Xpert Check.",
+                  "Check that the specimen is completely liquefied and that the volume is the one "
+                  "the assay's instructions require; load without introducing bubbles; use a new "
+                  "cartridge; confirm the cartridges have been stored within their range and are "
+                  "in date.",
+                  "Repeat once more. If 5006 or 5007 recurs on the same module, suspect the module "
+                  "and exclude it; if it recurs across modules, suspect the cartridge lot and "
+                  "quarantine it.",
+                  "Yes if it recurs on one module.", "Operator; supervisor to exclude the module."],
+                 ["5011", "Signal loss detected in the amplification curve.",
+                  "Loss of tube pressure: the cartridge tube is not airtight or the cartridge valve "
+                  "is not working. Can be a module fluidics fault.",
+                  "Repeat with a new cartridge.",
+                  "If 5011 recurs, the module's fluidics are suspect: exclude the module and call "
+                  "service.", "Yes if it recurs.", "Supervisor; service provider."],
+                 ["2008 / 2005", "Abnormal pressure detected. / Pressure exceeds the maximum.",
+                  "The pressure reading exceeded the maximum: the cartridge filter is clogged by a "
+                  "viscous specimen or by particles, or the pressure sensor has failed.",
+                  "Ensure the specimen is fully liquefied and free of solid particles; repeat with "
+                  "a new cartridge.",
+                  "Run a new cartridge with sample reagent only: if the error persists with no "
+                  "specimen, the module is at fault. Exclude it and call service.",
+                  "Yes if it persists without specimen.", "Operator, then supervisor."],
+                 ["2037", "Cartridge integrity test failed.",
+                  "At the start of the run the instrument checks the pressure in the tube; the "
+                  "cartridge is not airtight.",
+                  "Discard the cartridge — do not use it — and repeat with a new one from a "
+                  "different lot if possible.",
+                  "If several cartridges from one lot fail, quarantine the lot, record the lot "
+                  "number and inform the supplier and the Laboratory Manager.",
+                  "No.", "Operator; supervisor for the lot."],
+                 ["2120 / 2122 / 2123 / 2124 / 2126 / 2127",
+                  "Module communication loss detected.",
+                  "Communication between the module and the software was lost: unstable mains or "
+                  "UPS supply, a loose or damaged Ethernet cable, a poor connection at the gateway "
+                  "board, or excessive room temperature.",
+                  "Check and reseat the Ethernet cable between the computer and the instrument; "
+                  "restart the system; check the room temperature.",
+                  "Check the UPS and fit a surge protector. If the code returns, the gateway board "
+                  "or a cable is at fault: call service.",
+                  "Yes if it recurs.", "Operator; supervisor for the UPS; service provider."],
+                 ["1001 / 1002 / 2014 / 4009 / 4010 / 4017 / 3074 / 3075",
+                  "Temperature or heater failure.",
+                  "A heater component in a module has failed, the ambient temperature is outside "
+                  "the range, or a fan has failed or its filter is blocked.",
+                  "Check the room temperature (the instrument requires 15–30 °C), that there is "
+                  "10–15 cm clearance on every side, that the rear fan runs and that the filter is "
+                  "clean. Check the module temperature in the Maintenance menu.",
+                  "If the error follows one module, that module's heater has failed: exclude it and "
+                  "call service.", "Yes, the affected module.", "Operator, then service."],
+                 ["Any other code", "—",
+                  "Not in this SOP.",
+                  "Stop. Record the exact code, the module and the assay.",
+                  "Look the code up in the current GeneXpert Dx Operator Manual, chapter 9, and in "
+                  "the manufacturer's troubleshooting guide; if it is not there, call service "
+                  "quoting it. Report it to the Laboratory Manager so it is added here by "
+                  "amendment.",
+                  "Yes until it is understood.", "Supervisor."],
+             ],
+             [2.2, 2.6, 3.2, 3.0, 3.0, 1.5, 1.7]),
+            ("h2", "8.3 Module out of service, and the stuck cartridge"),
+            ("p", "A module is taken out of service by excluding it in the software — Setup, then "
+                  "System configuration, then Select Modules — and the exclusion is recorded in the "
+                  "instrument log with the reason and the code. An excluded module that has been "
+                  "repaired is not returned to use until it has completed the manufacturer's check "
+                  "and a control has passed; the exclusion is then removed and the removal "
+                  "recorded."),
+            ("p", "A cartridge stuck in a module is a supervisor-level event. The door is first "
+                  "opened from the software (Maintenance, Open Module Door). Only if that fails, and "
+                  "only with the service provider's instruction and in consultation with the "
+                  "Laboratory Manager, is the manual removal the manufacturer describes performed. "
+                  "The instrument must be disconnected from power and the computer first, and it "
+                  "must never be turned upside down or on its side: spilled cartridge contents "
+                  "destroy the module."),
+            ("h2", "8.4 Error rate"),
+            ("p", "The laboratory's objective is an error rate at or below 5% per assay per month, "
+                  "which is the figure the World Health Organization gives for molecular "
+                  "diagnostics. The rate is calculated from the instrument log and reviewed "
+                  "monthly. An assay above the objective for two consecutive months is a "
+                  "nonconformity and is investigated by cause, which is only possible because the "
+                  "numeric code is now recorded."),
+        ]),
+        ("9. Alere Pima CD4 analyser", [
+            ("p", "The Pima reports a failure as an invalid test with a numeric code, and it "
+                  "initialises with a self-test that reports its own codes. Published evaluations of "
+                  "this analyser in routine use found 10% to 13% of tests invalid, most of them "
+                  "attributable to how the cartridge was filled rather than to the instrument — "
+                  "which is why the operator actions below concentrate on filling and on which "
+                  "specimen type is being used."),
+            ("tbl",
+             ["Code", "Meaning", "Cause", "Operator action", "If it persists", "Out of service",
+              "Responsible"],
+             [
+                 ["810", "Invalid test — channel filling error.",
+                  "The cartridge channel was not filled correctly with blood.",
+                  "Repeat with a new cartridge, filling slowly to the mark and without bubbles; do "
+                  "not squeeze the finger repeatedly and do not use a clotted specimen.",
+                  "If it recurs on venous specimens, suspect the cartridge lot; if on capillary "
+                  "specimens, retrain the collection technique.",
+                  "No.", "Operator; supervisor reviews the technique."],
+                 ["850", "Invalid test — the most frequently reported Pima code, most often seen "
+                  "with blood applied directly from a finger-stick.",
+                  "Improper loading and filling of the cartridge, or a specimen affected by the "
+                  "collection — haemolysis, interstitial fluid, a clotted or short sample. The "
+                  "cartridge and the analyser cannot be excluded as causes.",
+                  "Repeat with a new cartridge. Prefer blood collected into an EDTA microtube or a "
+                  "venous EDTA tube over direct finger-stick application: the published data show "
+                  "fewer invalid results and the possibility of a repeat without a second prick.",
+                  "If it recurs on one analyser with venous specimens, stop using the analyser and "
+                  "call the distributor; keep a sample of the failing lot.",
+                  "Yes if venous specimens fail repeatedly.", "Operator; supervisor for the "
+                  "analyser."],
+                 ["Other invalid test codes", "An invalid test with a code not in this table.",
+                  "Not established.",
+                  "Record the exact number, repeat once with a new cartridge.",
+                  "Report it to the Laboratory Manager, who obtains the meaning from the "
+                  "distributor and adds it here by amendment.",
+                  "No.", "Supervisor."],
+                 ["Self-test failure code at switch-on", "The analyser failed its initialisation "
+                  "and self-test.",
+                  "A hardware fault, or the analyser was moved or the temperature changed.",
+                  "Switch off, wait, and restart. Allow 30 minutes for temperature equilibration if "
+                  "the analyser has been moved.",
+                  "Record the code and call the distributor. The analyser is maintenance-free and "
+                  "has no user-serviceable parts; it is not opened.",
+                  "Yes.", "Supervisor; distributor."],
+             ],
+             [2.2, 2.8, 3.2, 3.4, 2.9, 1.4, 1.7]),
+            ("p", "A Pima result is reported only from a test the analyser completed. An invalid "
+                  "test is not a low CD4 count, and a repeat that gives a result does not mean the "
+                  "first attempt may be forgotten: both attempts are recorded."),
+        ]),
+        ("10. Failures of the specimen rather than the instrument", [
+            ("p", "Some of what arrives at the bench as an instrument error is a specimen problem "
+                  "that the instrument has correctly detected. These are handled here only far "
+                  "enough to tell them apart; the rejection criteria themselves belong to the "
+                  "examination SOP of each section and are not repeated."),
+            ("tbl",
+             ["What is seen", "Instrument or specimen?", "How to tell", "What happens next"],
+             [
+                 ["Clotted specimen; short sample",
+                  "Specimen.",
+                  "Visible clot, or a fill volume below the tube's minimum.",
+                  "Reject, record in the specimen rejection log, and request a new specimen. Do not "
+                  "repeat on the analyser hoping for a result."],
+                 ["Repeated INVALID on the same specimen, or a control passed on the same run",
+                  "Specimen (inhibition), not the instrument.",
+                  "The control is acceptable and the specimen fails repeatedly.",
+                  "Do not test a third time; request a new specimen."],
+                 ["The same code on one module, with the other modules working",
+                  "Module.",
+                  "The other modules run the same assay correctly.",
+                  "Exclude that module, record it, and call service."],
+                 ["The same code on every module or the whole analyser",
+                  "Instrument, environment or consumable lot.",
+                  "Check the room temperature, the power supply and the cartridge or reagent lot.",
+                  "Stop, record, and follow sections 5 to 9 and the maintenance SOP."],
+                 ["One operator's failures much higher than the others",
+                  "Neither: technique.",
+                  "The monthly review in 4.4 shows it.",
+                  "Retraining and supervised re-assessment, recorded in the training file."],
+             ],
+             [3.4, 2.6, 4.0, 6.0]),
+        ]),
+        ("11. Reagents, controls and consumables", [
+            ("b", [
+                "An error is not treated as a reagent fault until the obvious has been excluded: "
+                "expiry, storage temperature, lot number, and whether the kit was opened and "
+                "handled as the manufacturer directs.",
+                "A lot that produces the same code repeatedly across more than one module is "
+                "quarantined, the lot number is recorded, and the supplier is informed. The "
+                "Laboratory Manager decides whether the remaining stock is used and records the "
+                "decision.",
+                "A defect in a reagent, kit or device that could have affected a patient result is "
+                "reported to the Laboratory Manager, who records it and informs the supplier and, "
+                "where required, the Rwanda Food and Drugs Authority and the national reference "
+                "programme.",
+            ]),
+        ]),
+        ("12. Quality control, and what a passed control does not prove", [
+            ("p", "A passed control shows that the analyser and the reagents were working when the "
+                  "control ran. It does not show that a failed test was caused by the specimen, and "
+                  "it does not authorise the release of a result that came with an error. The two "
+                  "questions are separate: the control is evidence about the run, the error code is "
+                  "evidence about the test."),
+            ("p", "When quality control fails, the preparation is stopped and the failure is "
+                  "handled as nonconforming work under the quality control procedure of the "
+                  "section. Nothing produced since the last acceptable control is released until it "
+                  "has been reviewed."),
+        ]),
+        ("13. Nonconforming work and the corrective action that follows", [
+            ("p", "Every error that is not cleared by the manufacturer's stated operator action is a "
+                  "nonconformity, and so is every error that recurs, every module taken out of "
+                  "service and every error rate above the objective. The procedure is the "
+                  "laboratory's: stop the affected work; do not release what it produced; record "
+                  "the event; assess whether results already released are affected and act on them; "
+                  "identify the cause; take the corrective action; check that the action worked, "
+                  "using the same error-rate review that raised it."),
+            ("p", "The cause is recorded as one of four, because these four need four different "
+                  "responses: specimen, operator technique, consumable or reagent, instrument. "
+                  "Until this SOP, the laboratory could not assign a cause at all, because the code "
+                  "was not recorded."),
+        ]),
+        ("14. Records", [
+            ("tbl", ["Record", "Where kept", "Retention"],
+             [
+                 ["Instrument error log — code, date and time, module, assay, action, outcome, "
+                  "initials", "Instrument logbook of each analyser",
+                  "At least 10 years"],
+                 ["Exclusion and return of a module", "Instrument logbook and maintenance log",
+                  "At least 10 years"],
+                 ["Service call, intervention report and engineer's report",
+                  "Equipment file of each analyser", "Life of the instrument"],
+                 ["System log export (cobas, GeneXpert) sent to the manufacturer",
+                  "Equipment file", "Life of the instrument"],
+                 ["Monthly error-rate review and the corrective actions raised from it",
+                  "Quality file", "As the laboratory records policy requires"],
+                 ["Nonconformity and corrective action records", "Quality file", "As above"],
+                 ["Training and re-assessment after a technique-related failure",
+                  "Personnel file", "Duration of employment plus the period national rules "
+                  "require"],
+             ],
+             [6.0, 5.0, 5.0]),
+            ("p", "Records are made at the time of the activity, in ink, and corrected as described "
+                  "in section 4.3. Records are legible, traceable to the person or the user account, "
+                  "and retrievable (ISO 15189:2022, 8.4; "
+                  f"{ADM_DOC_CONTROL})."),
+        ]),
+        ("15. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and provide the resources to apply it",
+                  "Hospital Director General"],
+                 ["Ensure every user is trained, assessed as competent and authorised, and that "
+                  "this is recorded; review this SOP at least every two years",
+                  "Laboratory Manager"],
+                 ["Read the code, record it, act on it within the limits of section 4.2, and "
+                  "escalate at the point the table says",
+                  "Authorised Laboratory Biotechnologists"],
+                 ["Exclude a module; authorise resumption of testing; decide the fate of a "
+                  "quarantined lot; review the monthly error rate",
+                  "Laboratory Manager or Senior Biotechnologist"],
+                 ["Call the service provider and keep the equipment file complete",
+                  "Laboratory Manager and Quality Officer"],
+                 ["Report a defect in a reagent, kit or device to the supplier and the authority",
+                  "Laboratory Manager"],
+                 ["Add a newly observed code to this SOP by amendment", "Laboratory Manager"],
+             ],
+             [8.5, 8.5]),
+            ("p", "Authorisation. Only staff trained on this SOP, assessed as competent and "
+                  "authorised by the Laboratory Manager act on an error code. Staff in training act "
+                  "under direct supervision, and the supervisor countersigns. Training, competence "
+                  "and authorisation are recorded in the personnel file "
+                  f"({code('training')})."),
+        ]),
+        ("16. Training and competence for this SOP", [
+            ("b", [
+                "A new member of staff is trained on the analysers they will use, not on all of "
+                "them, and on this SOP once.",
+                "Competence includes: finding the code on the instrument; recording it correctly; "
+                "choosing the right row of the table; knowing the point at which they must stop; "
+                "and knowing who to call.",
+                "A competence assessment is repeated when a new analyser is introduced, when this "
+                "SOP is amended, and after a failure attributed to technique.",
+            ]),
+        ]),
+        ("17. Risk Management, Nonconforming Work and Contingency", [
+            ("tbl", ["Risk", "Control measure"],
+             [
+                 ["A result released from a failed test",
+                  "An error is never a result; the release check in each examination SOP; the "
+                  "recording rule in 4.3"],
+                 ["The code is not recorded, so the failure cannot be investigated",
+                  "Section 4.3 and the monthly review in 4.4 — the specific gap this SOP closes"],
+                 ["The same fault is fixed repeatedly without the cause being found",
+                  "The four-way cause classification in section 13 and the monthly review"],
+                 ["A module deteriorates while the others mask it",
+                  "Error rate by module, reviewed monthly; exclusion at the second recurrence"],
+                 ["An operator works outside the manufacturer's limits and damages the instrument",
+                  "Section 4.2; the service call instead of the improvised repair"],
+                 ["A quarantined lot is put back into use",
+                  "Quarantine is recorded and the Laboratory Manager alone releases it"],
+                 ["Testing stops and the requester is not told",
+                  "Every escalation includes informing the requester of the delay"],
+                 ["The instrument is unavailable and specimens expire",
+                  "Refer specimens as the examination SOP's contingency requires; storage limits "
+                  "are those in that SOP"],
+             ],
+             [6.0, 11.0]),
+        ]),
+        ("18. Supporting Documents and References", [
+            ("h2", "18.1 Controlled documents of this laboratory"),
+            ("b", [
+                f"Document and Record Control ({ADM_DOC_CONTROL}).",
+                f"Signing of SOPs, and the Training, Competence and Authorisation Record "
+                f"({code('training')}).",
+                f"Use, Care and Preventive Maintenance of Hematology Analysers ({ADM_EQUIP_MAINT}).",
+                f"Use, Care and Preventive Maintenance of the GeneXpert Dx System "
+                f"({code('genexpert_maint')}).",
+                f"Examination of Blood by the Sysmex XN-330 ({code('xn330')}); by the Sysmex XQ-320 "
+                f"({code('xq320')}).",
+                f"CD4 Enumeration by the Alere Pima CD4 Analyser ({code('pima')}).",
+                f"Glucose Testing using Cobas c 111 ({code('glucose')}).",
+                f"HIV Early Infant Diagnosis, and the hepatitis B and C viral loads, on the "
+                f"GeneXpert: MOL-SOP-002, -003 and -004, in the new MOL series "
+                f"(RliDHL-{'MOL'}-SOP).",
+                "Laboratory Waste Management procedure; procedure for nonconformities and "
+                "corrective action; quality control procedure; Laboratory Safety Manual.",
+            ]),
+            ("h2", "18.2 Manufacturer documentation consulted for this SOP"),
+            ("p", "The codes, causes and corrective actions in sections 5 to 9 are taken from these "
+                  "documents. A copy of each is held at the bench and in the equipment file, and the "
+                  "revision in force is the one cited by the examination SOP of the section."),
+            ("b", [
+                "Sysmex. Automated Hematology Analyzer XN-L Series XN-530/XN-430/XN-330, Basic "
+                "Operation; and the XN Series Instruction for Use, chapter \"Troubleshooting\", "
+                "error message list. Sysmex Corporation, Kobe.",
+                "Sysmex. XN-L Series Flagging Guide, document 1399-LSS — for the IP messages that "
+                "section 5 states are not errors.",
+                "Sysmex. Automated Hematology Analyzer XQ-320 Instructions for Use — the message "
+                "list and maintenance intervals.",
+                "Roche Diagnostics. cobas c 111 Operator's Manual, version 3.0, chapter 9, "
+                "\"Messages and alarms\", and the list of alarm messages from which every code in "
+                "section 7 is taken — including 5040, the Peltier element fault.",
+                "Cepheid. GeneXpert Dx System Operator Manual, chapter 9, troubleshooting; and the "
+                "Genexpert Dx troubleshooting guidance for INVALID, NO RESULT, 5006/5007, 2008, "
+                "2037, 2127, 5011 and the temperature codes.",
+                "Global Laboratory Initiative. Xpert MTB/RIF Training Package, Module 9: "
+                "Troubleshooting — the source for the corrective actions on the code table and for "
+                "the NO RESULT and INVALID definitions.",
+                "Abbott (Alere). Pima Analyser User Guide, sections 8 and 9 — error codes and "
+                "troubleshooting; WHO Prequalification public report PQDx 0099-032-00, Pima CD4 "
+                "Test.",
+                "Evidence for the invalid-test rates quoted in sections 8 and 9: published "
+                "evaluations of the Pima CD4 analyser in routine use, including the multi-country "
+                "study reporting 13.1% invalid results and the specimen-type evaluation reporting "
+                "error 850 as the most frequent code.",
+            ]),
+            ("h2", "18.3 Standards"),
+            ("b", [
+                "ISO 15189:2022 — Medical laboratories: requirements for quality and competence, in "
+                "particular 7.3.1, 7.3.6, 7.3.7, 7.5 and 8.4 to 8.7.",
+                "WHO. Laboratory Quality Management System (LQMS) Handbook — equipment "
+                "troubleshooting and maintenance.",
+            ]),
+        ]),
+    ],
+}
+
+# ---------------------------------------------------------------------------
+# ADM SOP 025 -- External Quality Assessment and Proficiency Testing
+#
+# Serial 025, taken on the Laboratory Manager's instruction to fill the gap
+# between ADM-024 and ADM-026 rather than skip past it.
+#
+# Written against what the laboratory actually does, which is recorded in
+# docs/register/tb-ept-register-transcript.md: Dried Tube Specimen HIV serology
+# PT from RBC/NRL, MTB PT on GeneXpert, and the quarterly NRL biochemistry and
+# haematology PT that covers creatinine, glucose, ALT and the full blood count.
+#
+# The content follows ISO 15189:2022 7.3.7 (and 7.3.7.3 for EQA specifically),
+# which is not a suggestion: 7.3.7.3 requires participation in EQA appropriate
+# to the examinations performed, review of the data at regular intervals against
+# pre-defined acceptability criteria, and defined action where performance falls
+# outside them, including an assessment of whether the nonconformance is
+# clinically significant. It also follows the SLIPTA checklist items 8.20 and
+# 8.21, which are what the accreditation assessor will score.
+# ---------------------------------------------------------------------------
+
+EQ = REGISTER["eqa_pt"]
+EQ_CODE = code("eqa_pt")
+EQ_EFF = "14/11/2026"
+EQ_REV = "14/11/2028"
+
+EQA = {
+    "meta": {"doc_no": EQ_CODE, "title": EQ["title"], "version": EQ["vers"]},
+    "out_stem": f"{EQ_CODE} - External Quality Assessment and Proficiency Testing",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", EQ["vers"], EQ_EFF,
+         "First issue. The laboratory takes part in EQA for HIV serology, TB on GeneXpert, "
+         "biochemistry and the full blood count, and no controlled document governed it: who "
+         "enrols, who tests the panels, who submits the results, what happens when a result is "
+         "unsatisfactory, and how the annual plan is made were all held in one person's head. "
+         "Written to ISO 15189:2022, 7.3.7 and 7.3.7.3."],
+    ],
+    "control_rows": [
+        ("SOP Number", EQ_CODE),
+        ("SOP Title", EQ["title"]),
+        ("Version", EQ["vers"]),
+        ("Effective Date", EQ_EFF),
+        ("Next Review Date", EQ_REV),
+        ("Supersedes", "— (first issue; no previous SOP covered EQA or PT)"),
+        ("Document Owner", "Kelvin SAMAHANI — Laboratory Manager"),
+        ("Applies to", "Every examination the laboratory performs, including point-of-care "
+                       "testing, and every examination referred to a laboratory whose EQA covers it"),
+        ("Classification", "Controlled document — master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "Internal quality control tells the laboratory whether a run was under control. It "
+                  "cannot tell the laboratory whether its results are right in the way another "
+                  "laboratory's results are right. Two laboratories can each be perfectly in control "
+                  "of an assay that both have calibrated wrongly, and both will report the same wrong "
+                  "answer with complete confidence. Only comparison with an outside body detects "
+                  "that, and that comparison is external quality assessment."),
+            ("p", "This laboratory already participates. The records show Dried Tube Specimen "
+                  "proficiency testing for HIV serology from the National Reference Laboratory of the "
+                  "Rwanda Biomedical Centre, MTB proficiency testing on the GeneXpert, and the "
+                  "quarterly NRL biochemistry and haematology programme covering creatinine, glucose, "
+                  "ALT and the full blood count. In the January–March 2026 event the laboratory's "
+                  "peers included 56 public hospital laboratories and 36 private laboratories."),
+            ("p", "What was missing was not participation but governance. No document said who "
+                  "enrols for what, who tests the panel, who signs the submission, what must happen "
+                  "when a result is unsatisfactory, or how the laboratory knows that it is enrolled "
+                  "in EQA for everything it reports. This SOP supplies that. It does not replace the "
+                  "provider's instructions; where this SOP and the provider's instructions differ, "
+                  "the provider's instructions govern that event and the difference is recorded."),
+            ("p", "The reason this matters beyond the certificate: an unsatisfactory EQA result is "
+                  "the clearest early warning a laboratory gets that patients may be receiving wrong "
+                  "results. Handled as a formality it becomes a tick in a file. Handled as this SOP "
+                  "requires, it becomes the trigger for finding out what went wrong and whether a "
+                  "patient was affected."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To set out how this laboratory plans, performs, records, reviews and acts on "
+                  "external quality assessment and proficiency testing, so that participation is "
+                  "complete and demonstrable, the panels are tested exactly as patient specimens are "
+                  "tested, every unsatisfactory result is investigated to its cause, and corrective "
+                  "action is verified as effective rather than merely declared."),
+        ]),
+        ("3. Scope", [
+            ("p", "This SOP applies to every examination on the laboratory's Scope of Test list "
+                  "that is performed at Ruli District Hospital, including point-of-care examinations, "
+                  "and to examinations referred to another laboratory where the referring laboratory "
+                  "relies on that laboratory's EQA. It covers the full EQA cycle: the annual plan, "
+                  "enrolment, receipt and handling of panels, testing, submission, review of the "
+                  "report, investigation and corrective action, verification of effectiveness, and "
+                  "the reports to management."),
+            ("p", "**It governs one direction of quality assessment only: the assessment of this "
+                  "laboratory.** The laboratory takes part in programmes run by the National "
+                  "Reference Laboratory and other providers, and this SOP is about that "
+                  "participation — the panel arrives, the laboratory tests it, the result goes back, "
+                  "the report is reviewed."),
+            ("p", "**It does not govern the assessment the laboratory performs on others.** The "
+                  "laboratory also acts as a **referral laboratory** for the eight health centres in "
+                  "its network: it re-reads their stained slides, compares its reading with theirs, "
+                  "scores the discordance and reports back. That is a different activity, running in "
+                  "the opposite direction, with different criteria, different records and a different "
+                  "regulator's interest. It is governed by the relevant **examination SOP of the "
+                  "section performing it** — for malaria films, `PAR-SOP-008`; for TB smear, "
+                  "`TB-SOP-002` and `TB-SOP-003` — with the records kept as the records of those "
+                  "examinations."),
+            ("p", "**The two are never combined in one figure.** A health-centre discordance rate is "
+                  "not the laboratory's EQA performance, and the laboratory's PT z-scores are not a "
+                  "statement about the health centres. Where both appear in the same management "
+                  "report they appear in separate sections, separately titled, with the subject of "
+                  "each stated: **\"External quality assessment of this laboratory\"** and "
+                  "**\"Re-reading of health-centre slides performed by this laboratory\"**. A single "
+                  "composite score mixing them is not permitted, because it would describe neither."),
+            ("p", "It does not govern internal quality control, which is required by the quality "
+                  "control procedure and by the examination SOPs of each section. Nor does it govern "
+                  "the laboratory's participation in a provider's **on-site assessment or mentorship "
+                  "visit**, which is handled under the nonconformity and improvement procedure even "
+                  "where the same provider is involved."),
+        ]),
+        ("4. Definitions", [
+            ("tbl", ["Term", "Meaning in this laboratory"],
+             [
+                 ["External quality assessment (EQA)",
+                  "Evaluation of the laboratory's performance against pre-established criteria by "
+                  "comparison with other laboratories — ISO 15189:2022, 3.10. Encompasses "
+                  "proficiency testing, re-testing and onsite assessment."],
+                 ["Proficiency testing (PT)",
+                  "EQA in which samples of known but undisclosed composition are circulated and "
+                  "participants' results are scored against the expected values or against the "
+                  "consensus of participants."],
+                 ["Panel / survey",
+                  "One distribution of EQA material, with its provider code, shipment code and "
+                  "closing date."],
+                 ["Target value",
+                  "The value against which the participant's result is scored: a reference value, "
+                  "the consensus value of the peer group, or the value assigned by the scheme "
+                  "organiser."],
+                 ["SDI / z-score",
+                  "The standard deviation index or the standard score used by the scheme to express "
+                  "how far the result lies from the target, in units of the acceptable standard "
+                  "deviation. Different schemes use different names for the same idea."],
+                 ["Satisfactory / unsatisfactory",
+                  "Satisfactory means inside the acceptability criteria the scheme publishes and "
+                  "this SOP adopts. Unsatisfactory means outside them. The laboratory does not "
+                  "redefine a provider's criteria to make a result satisfactory."],
+                 ["Re-testing / re-reading (as performed by this laboratory)",
+                  "The laboratory re-reads slides or re-tests samples **of the health centres it "
+                  "serves**, and reports the discordance back. This is quality assessment performed "
+                  "**for others**. It is not this laboratory's own EQA and is governed by the "
+                  "examination SOP concerned."],
+                 ["Slide re-reading (as performed on this laboratory)",
+                  "Where a provider re-reads **this laboratory's** slides, the laboratory is the "
+                  "participant and the activity is EQA under this SOP, even though no panel of "
+                  "manufactured samples is involved."],
+                 ["Alternative approach",
+                  "Where no EQA programme exists for an examination: comparison with another "
+                  "laboratory, re-testing, analysis of commutable reference material, clinical "
+                  "correlation, or a blind re-test, with the rationale recorded — "
+                  "ISO 15189:2022, 7.3.7.3, note."],
+             ],
+             [4.5, 12.0]),
+        ]),
+        ("5. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and provide the funds for enrolment and participation",
+                  "Hospital Director General"],
+                 ["Own the EQA programme: the annual plan, the enrolment, the register of panels, "
+                  "the reports to management, and this SOP", "Laboratory Manager"],
+                 ["Prepare the annual EQA plan against the Scope of Test list and check that every "
+                  "examination is covered or has a recorded alternative", "Laboratory Manager and "
+                  "Quality Officer"],
+                 ["Receive, log and store the panel; test it; submit the results by the closing date",
+                  "Section head or designated authorised biotechnologist"],
+                 ["Approve the submission before it is sent", "Laboratory Manager or Senior "
+                  "Biotechnologist"],
+                 ["Review each provider report and assess it against 8.4", "Laboratory Manager"],
+                 ["Investigate an unsatisfactory result, identify the cause, propose and implement "
+                  "the corrective action", "Section head, with the Laboratory Manager"],
+                 ["Verify that the corrective action was effective", "Quality Officer and "
+                  "Laboratory Manager"],
+                 ["Assess whether any patient result may have been affected, and act if so",
+                  "Laboratory Manager"],
+                 ["Keep the EQA file complete and retrievable", "Quality Officer"],
+             ],
+             [8.0, 9.0]),
+            ("p", "Authorisation. Only staff trained on this SOP and authorised by the Laboratory "
+                  "Manager plan or review EQA. Any authorised biotechnologist of the section "
+                  "performs the panel, because the whole value of the exercise is that the panel is "
+                  "handled by the person who handles patients' specimens "
+                  f"({code('training')})."),
+        ]),
+        ("6. The annual EQA plan", [
+            ("p", "Before the end of each calendar year the Laboratory Manager prepares an EQA plan "
+                  "for the coming year. It is a controlled record, approved by the Hospital Director "
+                  "General, and it is the document an assessor asks for first."),
+            ("p", "The plan is built from the Scope of Test list, not from memory. Every examination "
+                  "on that list is entered against one of three columns: **covered by an EQA "
+                  "programme** (naming the programme and the provider), **covered by a recorded "
+                  "alternative approach** (naming it, with the rationale), or **not covered** "
+                  "(naming the reason and the action being taken to close it). An examination in the "
+                  "third column is a finding, and it is reported to management review."),
+            ("tbl", ["Examination", "Programme and provider", "Frequency", "Status"],
+             [
+                 ["HIV serology — rapid testing per the national algorithm",
+                  "Dried Tube Specimen PT for HIV antibody diagnostics, RBC / National Reference "
+                  "Laboratory", "Per NRL survey schedule",
+                  "In place. Panels on file for 2022, 2023 and 2024."],
+                 ["TB — Xpert MTB/RIF Ultra on GeneXpert",
+                  "MTB proficiency testing, RBC / National Reference Laboratory",
+                  "Per NRL survey schedule",
+                  "In place. Panels on file for 2023 and 2024."],
+                 ["TB — smear microscopy (ZN and auramine bacilloscopy)",
+                  "Where the provider re-reads **this laboratory's own** slides: the laboratory is "
+                  "the participant and the activity is EQA under this SOP",
+                  "As the provider schedules it",
+                  "**Not evidenced.** No report was found of a provider re-reading this laboratory's "
+                  "TB slides. The reports on file are the laboratory re-reading the health centres' "
+                  "slides — the opposite direction, governed by `TB-SOP-002`/`TB-SOP-003`, not by "
+                  "this SOP. Recorded as a gap in section 6.4."],
+                 ["Malaria — thick and thin film microscopy",
+                  "Where the provider re-reads **this laboratory's own** slides",
+                  "As the provider schedules it",
+                  "**Not evidenced**, for the same reason. The malaria re-reading reports on file "
+                  "assess the health centres, not this laboratory; they belong to `PAR-SOP-008`."],
+                 ["Biochemistry — creatinine, glucose, ALT",
+                  "NRL biochemistry and haematology EQA, quarterly",
+                  "Quarterly", "In place. January–March 2026 report on file."],
+                 ["Haematology — full blood count: RBC, Hb, Hct, WBC, platelet count",
+                  "NRL biochemistry and haematology EQA, quarterly",
+                  "Quarterly", "In place. January–March 2026 report on file."],
+                 ["HIV early infant diagnosis (Xpert HIV-1 Qual XC)",
+                  "No PT report held by the laboratory", "—",
+                  "**GAP.** Either enrolled with RBC/NRL and the reports are not filed, or not "
+                  "enrolled. The Laboratory Manager establishes which, within one month of this SOP "
+                  "taking effect, and records the answer."],
+                 ["HBV viral load, HCV viral load, TB LAM", "No PT report held", "—",
+                  "**GAP.** Same action. If no programme exists, an alternative approach under "
+                  "section 9 is designed and recorded."],
+                 ["CD4 enumeration (Alere Pima)", "PT results on file from 2023", "—",
+                  "Confirm the programme is still active and file the intervening reports."],
+             ],
+             [4.2, 4.6, 2.4, 5.3]),
+        ]),
+        ("6.4 Gaps in this laboratory's own EQA coverage", [
+            ("p", "The following examinations are on the Scope of Test list but **no assessment of "
+                  "this laboratory** was found on file for them. Each is either an enrolment to be "
+                  "confirmed or a participation to be arranged, and none may be closed by pointing "
+                  "at the re-reading the laboratory performs for its health centres — that is a "
+                  "different activity and gives no evidence about this laboratory's own performance:"),
+            ("tbl",
+             ["Examination", "What was searched", "Position at 15 November 2026", "Action and owner"],
+             [
+                 ["TB smear microscopy (ZN and auramine)",
+                  "NRL re-reading and PT reports held by the laboratory",
+                  "**No report of this laboratory's own slides being re-read.** The four NRL TB "
+                  "microscopy reports on file assess Nyange HC and Rwankuba HC, not Ruli DH",
+                  "Confirm with NRL whether the laboratory is enrolled for its own slides; record "
+                  "the answer either way. Quality Manager, within one month"],
+                 ["Malaria film microscopy",
+                  "NRL re-reading and PT reports held by the laboratory",
+                  "**No report of this laboratory's own slides being re-read.** The four NRL "
+                  "malaria reports on file assess the eight health centres",
+                  "As above. Quality Manager, within one month"],
+                 ["HBV viral load, HCV viral load, HIV early infant diagnosis, TB LAM",
+                  "PT reports and provider correspondence",
+                  "No PT report held for any of the four",
+                  "Establish whether the laboratory is enrolled and the reports are unfiled, or not "
+                  "enrolled at all. Laboratory Manager, within one month"],
+             ],
+             [3.8, 3.4, 5.2, 4.6]),
+            ("p", "**Why this section exists.** It is easy to read a quarterly NRL report with the "
+                  "laboratory's name in the header and treat it as the laboratory's EQA result. It is "
+                  "not. On both malaria and TB microscopy the subject of those reports is the health "
+                  "centre, the reader is this laboratory, and the beneficiary is the health centre's "
+                  "patient. If this laboratory is never itself assessed on smear microscopy, that is "
+                  "a genuine gap in its own quality assurance and it is recorded here as one."),
+        ]),
+        ("7. Enrolment and participation", [
+            ("b", [
+                "The laboratory is enrolled in a programme for every examination in the first column "
+                "of the plan. Enrolment is renewed before it lapses; the renewal date is entered in "
+                "the EQA register so that a lapse is visible before it happens.",
+                "Where a provider allocates a participant code and a site code, both are recorded and "
+                "used on every submission. The laboratory's participant code on the MTB programme "
+                "the laboratory holds is **20044**; a submission under any other code is traced "
+                "before it is sent.",
+                "Where two laboratories share a programme, or an examination is performed on more "
+                "than one analyser, the panel is tested on the analyser in routine use for patients "
+                "and the submission states which one was used.",
+                "Where the laboratory starts a new examination, the plan is amended and an EQA route "
+                "identified before results are reported — not after the first accreditation visit.",
+                "The laboratory does not share its panel, its result or its expected values with "
+                "another laboratory, and does not accept another laboratory's results as its own.",
+            ]),
+        ]),
+        ("8. Handling a panel", [
+            ("h2", "8.1 On receipt"),
+            ("p", "The panel is opened by the section head, who records on the EQA register: the "
+                  "provider, the programme, the survey or shipment code, the date received, the "
+                  "storage conditions the provider requires, the closing date for results, and who "
+                  "is assigned to test it. Any damage, delay in transit or breach of the transport "
+                  "conditions is recorded at once and reported to the provider before testing."),
+            ("p", "NRL's own recommendation is that PT panels are tested **immediately upon "
+                  "receipt**, within one day. A panel left in a refrigerator while routine work is "
+                  "done is being assessed as a different sample from the one the provider intended."),
+            ("h2", "8.2 Testing — the rule that gives the exercise its value"),
+            ("p", "The panel is tested exactly as a patient specimen is tested, by the person who "
+                  "normally performs that examination, using the routine method, the routine "
+                  "reagents, the routine calibrators and the routine analyser, in the routine run, "
+                  "with the same quality control as a patient run. It is **not** given to the most "
+                  "senior member of staff, **not** repeated until it agrees with an expectation, "
+                  "**not** run on a different analyser chosen for the occasion, and **not** discussed "
+                  "with another laboratory before submission."),
+            ("p", "The panel's results are entered in the same worksheet or record the examination "
+                  "uses for patients, marked as EQA, so that both the panel and the patient run "
+                  "carry the same traceable record."),
+            ("h2", "8.3 Review and submission"),
+            ("b", [
+                "Before submission, the Laboratory Manager or a Senior Biotechnologist reviews the "
+                "result sheet for completeness: every sample answered, every required field "
+                "completed — including the kit name, the lot number and the expiry date of the "
+                "reagent used, which are among the commonest causes of a submission being rejected.",
+                "The submission is made through the channel the provider requires, before the "
+                "closing date, and the date sent and the person who sent it are recorded. NRL asks "
+                "for feedback within **two weeks** of receipt of the panel.",
+                "A copy of the submitted result sheet is kept in the EQA file, whether it was "
+                "submitted on paper, by e-mail or in an electronic system.",
+                "A submission that is late or incomplete is a nonconformity and is recorded as one, "
+                "even if the result itself would have been satisfactory.",
+            ]),
+        ]),
+        ("9. Where no EQA programme exists", [
+            ("p", "ISO 15189:2022, 7.3.7.3 permits an alternative approach where no EQA programme is "
+                  "available, provided the rationale is justified and the effectiveness of the "
+                  "alternative is shown. The laboratory may use, in this order of preference:"),
+            ("b", [
+                "A comparison with another laboratory performing the same examination on "
+                "commutable material — the National Reference Laboratory by preference.",
+                "Re-testing of the same material by a second person, on a second analyser or by a "
+                "second method.",
+                "Analysis of certified reference material that is commutable with patient samples, "
+                "where such material exists for the examination.",
+                "A blind re-test of previously examined patient material with known results, "
+                "organised so that the person performing it does not know which specimens they are.",
+                "Clinical correlation, where no material can be compared and the examination's "
+                "interpretation is the thing being assessed.",
+            ]),
+            ("p", "The choice, the reason for it and the evidence that it worked are recorded in the "
+                  "EQA plan. An alternative approach that is claimed but never performed is worse "
+                  "than an acknowledged gap, because it looks like coverage."),
+        ]),
+        ("10. Reviewing the provider's report", [
+            ("p", "Each report is reviewed by the Laboratory Manager within **one month** of receipt, "
+                  "and the review is recorded with a date and a signature. The review answers four "
+                  "questions for every examination in the report."),
+            ("tbl", ["Question", "What the reviewer does"],
+             [
+                 ["Did the laboratory take part?",
+                  "Checks that the report shows the laboratory per programme and per examination, "
+                  "and that the participation rate is 100%. A nil return or an absence from the "
+                  "report is followed up with the provider on the same day."],
+                 ["Was the performance satisfactory?",
+                  "Applies the acceptability criteria in 8.4. Every result outside them is listed, "
+                  "not just the overall score: a satisfactory overall score can hide one badly wrong "
+                  "result among four correct ones."],
+                 ["Is there a trend?",
+                  "Reads the current result against the previous reports for the same examination. A "
+                  "**satisfactory** result that is consistently positive or consistently negative of "
+                  "the target is a bias and is investigated as an adverse trend, even though it "
+                  "passes."],
+                 ["Could a patient have been affected?",
+                  "Considers every unsatisfactory or biased result against the results the laboratory "
+                  "reported in the same period, under 8.5."],
+             ],
+             [5.0, 12.0]),
+            ("p", "The review is not a formality performed for the file. Where the answer to any of "
+                  "the four questions is not a clean yes, an investigation is opened."),
+        ]),
+        ("11. Acceptability criteria, and what counts as unsatisfactory", [
+            ("h2", "11.1 The criteria the laboratory uses"),
+            ("b", [
+                "The scheme's own criteria govern, where it publishes them. The NRL biochemistry "
+                "and haematology programme scores against **± 2 SDI**: a result outside ± 2 SDI from "
+                "the target is outside the acceptable range.",
+                "The Dried Tube Specimen HIV serology programme scores on the **number of correct "
+                "reports** across the five-sample panel, and on whether the reported result matches "
+                "the expected result for each sample. A single wrong sample on a qualitative panel "
+                "is a serious error, not a rounding error.",
+                "Where a scheme publishes no numeric criterion, the laboratory adopts the criterion "
+                "the provider states in its instructions and records it in the plan.",
+                "The laboratory may set a stricter internal target; it may never set a laxer one.",
+            ]),
+            ("h2", "11.2 What makes a result unsatisfactory"),
+            ("p", "Any of the following is an unsatisfactory EQA result and is handled as a "
+                  "nonconformity:"),
+            ("b", [
+                "A result outside the scheme's acceptability criteria.",
+                "A qualitative result reported wrongly, on any sample of the panel.",
+                "A result reported for the wrong sample, or two samples transposed.",
+                "A result that could not be scored because a required field — kit name, lot, expiry "
+                "date — was missing.",
+                "A panel not tested, or tested but not submitted by the closing date.",
+                "A satisfactory result showing a bias or a trend against previous reports.",
+                "A report showing that the laboratory did not in fact participate for an examination "
+                "on its scope.",
+            ]),
+        ]),
+        ("12. Investigation and corrective action", [
+            ("p", "An unsatisfactory result is investigated to its cause, not explained away. The "
+                  "investigation is recorded on the nonconformity record, and it follows "
+                  "ISO 15189:2022, 8.7: contain the effect, find the cause, decide whether corrective "
+                  "action is needed, take it, and **verify that it worked**."),
+            ("h2", "12.1 First: contain"),
+            ("b", [
+                "Establish whether the affected examination is still producing results and whether "
+                "those results can be relied on. If not, stop reporting for that examination.",
+                "Inform the Laboratory Manager the same day and, where patients may be affected, the "
+                "Hospital Director General.",
+                "Do not wait for the root cause before containing the risk.",
+            ]),
+            ("h2", "12.2 Then: find the cause"),
+            ("p", "The investigation works through the whole examination process, in this order, "
+                  "because that is the order in which the causes are commonest:"),
+            ("tbl", ["Stage", "What is examined", "Examples of a finding"],
+             [
+                 ["Pre-examination",
+                  "The panel's own handling: receipt date, storage, whether it was tested "
+                  "immediately, whether the panel was reconstituted as the instructions require, "
+                  "whether it was tested within the stated time after reconstitution",
+                  "A rehydrated Dried Tube Specimen tested outside the hours the instructions "
+                  "allow — one of the corrective actions NRL's own report required"],
+                 ["Examination — the method",
+                  "Whether the result was produced by the routine method; whether the national "
+                  "testing algorithm was followed for a serology panel; whether the correct assay "
+                  "definition file or programme was selected",
+                  "A rapid test read against the wrong algorithm; the wrong assay file loaded for a "
+                  "whole-blood versus dried-blood-spot EID panel"],
+                 ["Examination — the reagent",
+                  "Kit and lot in use, expiry, storage temperature, whether the same lot was in "
+                  "routine use for patients, whether a new lot was introduced in the period",
+                  "An expired kit in routine use — a finding about patients, not only about the "
+                  "panel"],
+                 ["Examination — the equipment",
+                  "Calibration status, the analyser's recent internal quality control, the error "
+                  "rate and error codes for the period, module performance where the analyser has "
+                  "modules",
+                  "A module that has been failing and was masked by the others; a calibration that "
+                  "was overdue"],
+                 ["Examination — the person",
+                  "Whether the panel was tested by the person who normally performs the "
+                  "examination; their training, competence and authorisation record; whether the "
+                  "failure mode has appeared before for that person",
+                  "A tester whose failure rate is high — the same signal the GeneXpert error review "
+                  "produces"],
+                 ["Post-examination",
+                  "Transcription of the result, transposition of samples, the units reported, "
+                  "rounding, the fields submitted",
+                  "Two samples transposed on the submission sheet; a result reported in the wrong "
+                  "unit"],
+             ],
+             [2.8, 7.0, 7.2]),
+            ("p", "The cause is recorded in one of the four categories the laboratory uses "
+                  "everywhere — **specimen**, **operator technique**, **consumable or reagent**, "
+                  "**instrument** — plus a fifth for EQA, **the submission itself**, which covers "
+                  "transcription, transposition and missing fields. A cause that cannot be "
+                  "established is recorded as not established, with what was excluded; it is not "
+                  "invented to close the record."),
+            ("h2", "12.3 Then: corrective action"),
+            ("b", [
+                "The action addresses the cause, not the symptom. Re-testing the panel is not a "
+                "corrective action; it is a re-check, and on a PT panel it is not even permissible "
+                "after submission.",
+                "Where the cause is technique, the action is retraining and re-assessment, recorded "
+                "in the personnel file, with the effectiveness checked by supervised work or a "
+                "further blind comparison.",
+                "Where the cause is a reagent or a lot, the action includes reviewing the patient "
+                "results produced with the same lot, informing the supplier, and, where required, "
+                "the Rwanda Food and Drugs Authority.",
+                "Where the cause is the instrument, the action is the service intervention and the "
+                "verification the maintenance and troubleshooting SOPs require.",
+                "Where the cause is the submission, the action is a change to the review step that "
+                "let it through.",
+            ]),
+            ("h2", "12.4 Finally: verify effectiveness, and report"),
+            ("p", "Corrective action is not closed when it is implemented; it is closed when it is "
+                  "shown to have worked. Effectiveness is verified by the **next EQA event for the "
+                  "same examination** being satisfactory, or, where the next event is too far away, "
+                  "by a defined internal check — a blind comparison, a supervised batch, or a review "
+                  "of internal quality control over the intervening period. The verification is "
+                  "recorded against the original nonconformity."),
+            ("p", "Where the provider conducts an onsite corrective-action visit — NRL does so within "
+                  "three weeks of issuing a report — the visit's findings and the laboratory's "
+                  "response are filed with the nonconformity."),
+        ]),
+        ("13. Patient results, and what an EQA failure means for them", [
+            ("p", "This is the section that makes EQA worth doing. An unsatisfactory EQA result may "
+                  "mean that patients examined in the same period received wrong results, and the "
+                  "laboratory is required to assess that, not to assume it is not so "
+                  "(ISO 15189:2022, 7.3.7.3 h and 7.5)."),
+            ("p", "The assessment starts from the cause. Where the cause is confined to the panel — a "
+                  "storage error affecting only the EQA material, a submission error — the "
+                  "assessment is short and states why patients are not affected. Where the cause "
+                  "could have affected patient work — a reagent lot, a calibration, an instrument "
+                  "fault, a person's technique — the assessment covers every result the laboratory "
+                  "reported in the period the cause was active, and answers:"),
+            ("b", [
+                "Which patients' results could have been wrong, and how many?",
+                "How wrong could they have been, in the units the clinician acts on?",
+                "Is the error clinically significant — would it have changed a decision about this "
+                "patient?",
+                "Do the results need to be repeated, and can the specimen be obtained again?",
+                "Does the requester, and the patient's clinician, need to be told, and a corrected "
+                "report issued?",
+            ]),
+            ("p", "Where a patient result is found to have been affected, a corrected report is issued "
+                  "under the laboratory's procedure for reporting, the requester is informed, and the "
+                  "event is recorded. A corrected report states plainly that it replaces an earlier "
+                  "report and why. The laboratory does not quietly withdraw a result."),
+        ]),
+        ("14. Records", [
+            ("tbl", ["Record", "Where kept", "Retention"],
+             [
+                 ["EQA annual plan, approved", "Quality file (EQA section)", "At least 6 years"],
+                 ["EQA register — every panel: provider, code, dates received and submitted, "
+                  "assignee", "Quality file", "At least 6 years"],
+                 ["Panels as received, and the result sheet as submitted", "Quality file",
+                  "At least 6 years"],
+                 ["Provider reports and the record of the review, with date and signature",
+                  "Quality file", "At least 6 years"],
+                 ["Investigation, cause, corrective action and verification of effectiveness",
+                  "Nonconformity file, cross-referenced", "At least 6 years"],
+                 ["Assessment of the effect on patient results", "Nonconformity file",
+                  "At least 6 years"],
+                 ["Reports to management review", "Quality file", "At least 6 years"],
+                 ["Records of training and re-assessment arising from an EQA failure",
+                  "Personnel file", "Duration of employment plus the period national rules "
+                  "require"],
+             ],
+             [6.4, 5.0, 4.6]),
+            ("p", "Records are made at the time of the activity, in ink where paper, corrected by a "
+                  "single line through the entry with the correction beside it and initials and date "
+                  f"({ADM_DOC_CONTROL}). Electronic records are held with a backup and are "
+                  "attributable to a named user account."),
+        ]),
+        ("15. Reporting to management and to the authority", [
+            ("b", [
+                "Every EQA report and the outcome of its review is an input to the management "
+                "review (ISO 15189:2022, 8.9.2 c and e): participation, performance by examination, "
+                "trends, unsatisfactory results, the corrective actions and whether they worked.",
+                "An annual summary states, for every examination on the scope, whether EQA was "
+                "available, whether the laboratory participated, the results obtained and the status "
+                "of any open corrective action. An examination with no EQA and no recorded "
+                "alternative is shown as such — that is the finding, not a paragraph to be softened.",
+                "Where the provider or the regulator requires the laboratory to submit its results "
+                "or its corrective action, the submission is made within the stated period and "
+                "recorded.",
+                "Where a scheme is withdrawn, changes its scoring, or ceases to be offered, the plan "
+                "is amended and the change recorded.",
+            ]),
+        ]),
+        ("16. Risk Management, Nonconforming Work and Contingency", [
+            ("tbl", ["Risk", "Control measure"],
+             [
+                 ["The laboratory believes it is enrolled and is not",
+                  "The annual plan is built from the Scope of Test list and the renewal date is "
+                  "held in the EQA register"],
+                 ["An examination on the scope has no EQA at all",
+                  "The three-column plan makes the gap visible; an alternative approach under "
+                  "section 9 is designed and recorded"],
+                 ["The panel is tested as a special exercise, so the result says nothing about "
+                  "patient work", "Section 8.2: routine person, routine method, routine analyser"],
+                 ["The panel is repeated until it agrees, or discussed with another laboratory",
+                  "Section 8.2 prohibits both; the submission is reviewed before it is sent"],
+                 ["A submission is late or incomplete",
+                  "The closing date and the review step in 8.3; a late submission is recorded as a "
+                  "nonconformity"],
+                 ["An unsatisfactory result is explained rather than investigated",
+                  "Section 12: cause, corrective action and verification, on the nonconformity "
+                  "record"],
+                 ["Corrective action is declared effective without evidence",
+                  "Section 12.4: effectiveness is verified by the next event or a defined internal "
+                  "check"],
+                 ["Patients were affected and nobody looked",
+                  "Section 13: the effect on patient results is assessed every time, and a corrected "
+                  "report issued where needed"],
+                 ["A satisfactory result with a bias is ignored",
+                  "Section 10 and 11.2: a trend against previous reports is investigated even when "
+                  "it passes"],
+                 ["The EQA file cannot be produced at an assessment",
+                  "Section 14: the file is a defined record set, held in one place, retrievable"],
+                 ["The provider's report is received and filed unread",
+                  "Section 10: review within one month, recorded with a date and a signature"],
+             ],
+             [6.0, 11.0]),
+        ]),
+        ("17. Supporting Documents and References", [
+            ("h2", "17.1 Controlled documents of this laboratory"),
+            ("b", [
+                f"Document and Record Control ({ADM_DOC_CONTROL}).",
+                f"Signing of SOPs, and the Training, Competence and Authorisation Record "
+                f"({code('training')}).",
+                f"Troubleshooting of laboratory analysers — error codes, causes and corrective "
+                f"action ({code('trouble')}).",
+                "Quality Control and Quality Assurance ({code('qca')}) — internal quality "
+                "control, with which this SOP is used and which it does not replace.",
+                f"Pre-Examination Procedure ({ADM_PRE_EXAM}).",
+                "Laboratory Scope of Test ({code('scope_test')}) — the list the annual plan is built "
+                "from.",
+                "Laboratory Critical Results (ADM-GUID-002); Normal Ranges for Laboratory "
+                "Tests (RliDHL-ADM-GUID-003).",
+                f"Laboratory Quality Control Manual ({code('qc_manual')}); Laboratory Safety "
+                f"Manual ({code('safety_manual')}).",
+                "The examination SOPs of every section, each of which states the EQA the section "
+                "takes part in.",
+                "Procedure for nonconformities and corrective action; procedure for reporting and "
+                "release of results; Laboratory Waste Management procedure.",
+            ]),
+            ("h2", "17.2 Standards and external references"),
+            ("b", [
+                "ISO 15189:2022 — Medical laboratories: requirements for quality and competence, "
+                "in particular 7.3.7 (and 7.3.7.3, external quality assessment), 7.5, 8.4, 8.7, "
+                "8.8 and 8.9.",
+                "ISO/IEC 17043 — Conformity assessment: general requirements for proficiency "
+                "testing, which governs what a provider of PT must do.",
+                "ASLM / SLIPTA Checklist version 3:2023, items 8.20 (procedure for EQA) and 8.21 "
+                "(participation in EQA), which are scored during accreditation preparation.",
+                "WHO. Laboratory Quality Management System (LQMS) Handbook — the EQA chapter.",
+                "Rwanda Biomedical Centre / National Reference Laboratory. Biochemistry and "
+                "Haematology External Quality Assessment Proficiency Testing performance report, "
+                "January–March 2026 (RBC/AG. DIVISION MANAGER OF NRL/17302/2026), including its "
+                "recommendations on immediate testing of panels, feedback within two weeks, and "
+                "onsite corrective action within three weeks.",
+                "RBC / National Reference Laboratory. Proficiency Testing Program for HIV Antibody "
+                "Diagnostics using Dried Tube Specimen — all participants summary reports.",
+                "RBC / National Reference Laboratory. MTB proficiency testing reports, participant "
+                "code 20044.",
+                "The current instructions, scheme description and acceptability criteria of each "
+                "EQA provider the laboratory uses, held with the EQA file.",
+            ]),
+        ]),
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# ADM-SOP-050 -- Re-reading of health-centre slides and re-testing of
+# health-centre samples.
+#
+# This is the OTHER direction of quality assessment. ADM-025 governs the
+# laboratory being assessed. This document governs the laboratory assessing the
+# eight health centres in its network: it re-reads their stained slides,
+# compares its reading with theirs, scores the discordance and reports back.
+#
+# The two must never be merged into one figure. A health-centre discordance rate
+# says nothing about this laboratory's own accuracy.
+# ---------------------------------------------------------------------------
+
+HCR = REGISTER["hc_slide_review"]
+HCR_CODE = code("hc_slide_review")
+HCR_EFF = "14/11/2026"
+HCR_REV = "14/11/2028"
+
+HC_REVIEW = {
+    "meta": {"doc_no": HCR_CODE, "title": HCR["title"], "version": HCR["vers"]},
+    "out_stem": f"{HCR_CODE} - Re-reading of Health-Centre Slides and Re-Testing of "
+                "Health-Centre Samples",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", HCR["vers"], HCR_EFF,
+         "First issue. The laboratory re-reads the stained slides of the eight health centres "
+         "in its network and reports the discordance back to the National Reference "
+         "Laboratory, but no controlled document governed the activity: who selects the "
+         "slides, who reads them, how the discordant rate is calculated, what happens when a "
+         "site fails and what the laboratory may conclude from a sample of two slides were all "
+         "unwritten. Written to ISO 15189:2022, 7.3.7, and kept deliberately separate from "
+         "ADM-SOP-025, which governs the assessment of this laboratory."],
+    ],
+    "control_rows": [
+        ("SOP Number", HCR_CODE),
+        ("SOP Title", HCR["title"]),
+        ("Version", HCR["vers"]),
+        ("Effective Date", HCR_EFF),
+        ("Next Review Date", HCR_REV),
+        ("Supersedes", "\u2014 (first issue; the activity was performed without a controlled "
+                       "document)"),
+        ("Document Owner", "Kelvin SAMAHANI \u2014 Laboratory Manager"),
+        ("Applies to", "The re-reading and re-testing the laboratory performs FOR its health "
+                       "centres. NOT to the assessment of this laboratory, which is "
+                       "ADM-SOP-025"),
+        ("Classification", "Controlled document \u2014 master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "There are two directions of quality assessment in this laboratory's work and "
+                  "they are easily confused. In one, an outside body assesses **this laboratory**: "
+                  "a panel arrives, the laboratory tests it, the result goes back and a report "
+                  f"follows. That is governed by the EQA and proficiency testing SOP "
+                  f"({code('eqa_pt')}), and it is about this laboratory's own accuracy."),
+            ("p", "In the other, **this laboratory assesses its health centres**. The health centres "
+                  "stain slides and read them; the slides come to Ruli; the laboratory re-reads them "
+                  "blind; the two readings are compared slide by slide; the discordance is scored "
+                  "and reported back to the National Reference Laboratory. The subject of that "
+                  "assessment is the health centre. **The laboratory is the reader, not the "
+                  "participant.**"),
+            ("p", "This document governs the second direction. It exists because the activity was "
+                  "being performed to a real standard without a controlled procedure behind it: the "
+                  "reports on file show it working, quarter after quarter, and show four reporting "
+                  "defects and two coverage problems that no procedure caught."),
+            ("p", "**The two must never be merged.** A health-centre discordance rate is not this "
+                  "laboratory's EQA performance. A PT z-score is not a statement about the health "
+                  "centres. In any management report they appear under separate headings with the "
+                  "subject stated, and no composite score mixes them \u2014 a blended figure would "
+                  "describe neither and would mislead an assessor in the direction the laboratory "
+                  "would least like."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To define how the laboratory selects, re-reads, scores and reports back the "
+                  "slides and samples of its health centres, so that the comparison is blind, "
+                  "representative, arithmetically sound and actionable \u2014 and so that a failing "
+                  "site is identified early rather than after a patient is misdiagnosed."),
+        ]),
+        ("3. Scope", [
+            ("p", "**In scope:** malaria thick and thin films from the eight health centres in the "
+                  "network \u2014 Ruli, Coko, Nyange, Minazi, Rushashi, Muyongwe, Rwankuba and "
+                  "Muhondo; TB smear microscopy from the centres that send slides; and any other "
+                  "slide-based or sample-based re-testing the laboratory is asked to perform for a "
+                  "health centre, including chemistry and haematology re-testing where a site's "
+                  "result is queried."),
+            ("p", "**Out of scope:** the assessment of this laboratory, which is the EQA and "
+                  "proficiency testing SOP; internal quality control within the laboratory, which "
+                  "is the quality control SOP; and the laboratory's own examination procedures for "
+                  "malaria and TB, which are `PAR-SOP-008` for Giemsa malaria and `TB-SOP-002` and "
+                  "`TB-SOP-003` for auramine and Ziehl-Neelsen microscopy. This SOP governs the "
+                  "**programme**, not the staining or the reading technique."),
+        ]),
+        ("4. Definitions", [
+            ("tbl", ["Term", "Meaning in this laboratory"],
+             [
+                 ["Re-reading", "Reading a slide a second time to compare two independent readings. "
+                                "The second reader must not know the first result."],
+                 ["Blind re-reading", "Re-reading without sight of the original result or the "
+                                      "patient's identity. Without this the comparison measures "
+                                      "nothing."],
+                 ["Discordant rate", "The number of slides on which the two readings disagree, "
+                                     "divided by the number of slides read, expressed as a "
+                                     "percentage. It is calculated, never estimated."],
+                 ["Concordant", "The two readings agree. For TB this means the same category \u2014 "
+                                "positive, scanty or negative \u2014 not merely both non-negative."],
+                 ["Scanty", "The TB smear grade between negative and 1+ (1\u20139 acid-fast bacilli "
+                            "per 100 fields). **A category in its own right**, scored as such and "
+                            "never folded into positive or negative."],
+                 ["Passing rate", "The tolerance printed on the provider report. On TB microscopy "
+                                  "it is 90 per cent, equivalently a discordant rate at or below "
+                                  "10 per cent. On malaria no tolerance is printed and a discordant "
+                                  "rate of zero is recorded."],
+                 ["False negative (TB)", "A slide the health centre called negative that the "
+                                         "laboratory reads as positive or scanty. **The most "
+                                         "dangerous error in the programme**, because the patient "
+                                         "was sent home."],
+                 ["False positive (TB)", "A slide the health centre called positive that the "
+                                         "laboratory reads as negative. Costs unnecessary "
+                                         "treatment and a notification that should not have been "
+                                         "made."],
+                 ["Quantification error", "A discrepancy in the grade rather than in the presence of "
+                                          "the organism \u2014 printed on the NRL TB report as QE."],
+                 ["Site", "A health centre in the network. The unit at which results are scored and "
+                          "reported back."],
+             ],
+             [4.6, 11.9]),
+        ]),
+        ("5. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and resource the programme", "Laboratory Manager"],
+                 ["Own the programme, hold the schedule, keep the reports", "Quality Manager"],
+                 ["Select slides for re-reading", "Section head, Parasitology / TB"],
+                 ["Perform the blind re-reading",
+                  "A competent reader who did not report the original result"],
+                 ["Second-read a discordant slide before it is reported",
+                  "Quality Manager or a second competent reader"],
+                 ["Compile the quarterly return and check its arithmetic", "Quality Manager"],
+                 ["Sign the return", "Laboratory Manager"],
+                 ["Send the return and the queries to the provider", "Quality Manager"],
+                 ["Notify a health centre of a clinically significant discordance",
+                  "Laboratory Manager, within one working day of the discrepancy being confirmed"],
+                 ["Feed a confirmed discrepancy into the health centre's corrective action",
+                  "Quality Manager with the district laboratory focal person"],
+             ],
+             [8.8, 8.2]),
+        ]),
+        ("6. The slide sample", [
+            ("p", "The comparison is only as good as the sample, and this is where the programme on "
+                  "file is weakest. **A site re-read on two slides cannot be judged.** The procedure:"),
+            ("steps", [
+                ("1.", "Slides are taken from the site's routine work for the quarter as they come, "
+                       "in the order they were reported. They are **never** chosen for appearance, "
+                       "for being clearly positive, or for being the ones the site got right."),
+                ("2.", "A **minimum of fifteen slides per site per quarter** is the target, and no "
+                       "site is scored on fewer than **ten**. Where a site reported fewer than ten "
+                       "slides in the quarter, **every slide it reported** is re-read and the return "
+                       "states that the sample was the whole of the site's work, not a sample of it."),
+                ("3.", "The sample must contain both positive and negative slides **in roughly the "
+                       "proportion the site reported**, so that neither a false negative nor a false "
+                       "positive can hide. A quarter that is entirely negative slides is recorded as "
+                       "a **sampling limitation**, not as a clean quarter."),
+                ("4.", "At least the **scanty** slides reported by the site are included, because "
+                       "scanty is where readings diverge most."),
+                ("5.", "Every slide is identified by the site, the quarter and a re-reading number, "
+                       "with the patient identifier removed from the re-reading sheet. The reader "
+                       "sees neither the identity nor the original result."),
+                ("6.", "The numbers sent, the numbers received and the numbers readable are "
+                       "recorded. A slide that has deteriorated in transit or storage is recorded as "
+                       "**unreadable**, not as concordant."),
+            ]),
+            ("p", "**Coverage.** All eight health centres are in scope on malaria. On TB the "
+                  "programme on file covers only Nyange and Rwankuba; widening it to every site that "
+                  "sends TB smears is an action of this SOP, and until it is widened every return "
+                  "states the coverage limitation in words."),
+        ]),
+        ("7. Performing the re-reading", [
+            ("steps", [
+                ("1.", "The re-reader examines the slide independently, using the same method the "
+                       "health centre used, and records a result **before** the original is looked at."),
+                ("2.", "The result is recorded in the same categories the site used: for TB, "
+                       "negative, scanty or positive with a grade; for malaria, negative or positive "
+                       "with the species, and the parasite density where the site reported one."),
+                ("3.", "Staining quality is recorded on a three-point scale and commented on where "
+                       "the slide is difficult to read. **A finding about staining is a finding**, "
+                       "even where the reading agrees, because the next slide from that site may be "
+                       "unreadable."),
+                ("4.", "The original result is then revealed and the pair recorded as concordant or "
+                       "discordant, with the direction of the discordance."),
+                ("5.", "Every **discordant** slide, and every slide on which staining quality was "
+                       "poor, is read a second time by a different reader before it is reported. Two "
+                       "readers agreeing that a site was wrong is evidence; one reader alone is an "
+                       "opinion."),
+                ("6.", "The second reading and its reader are recorded. Where the two laboratory "
+                       "readers disagree, the slide is referred to the National Reference Laboratory "
+                       "and is not counted against the site."),
+            ]),
+            ("p", "**The person who reported the original must not re-read it.** Where the only "
+                  "competent reader for a site is the person who read it first, the slide is sent "
+                  "to NRL instead. This is the single rule most likely to be broken in a laboratory "
+                  "of eight staff, and it is the rule that decides whether the programme means "
+                  "anything."),
+        ]),
+        ("8. Calculating and scoring", [
+            ("p", "The arithmetic is done in full on a worksheet that travels with the return, and "
+                  "it is recomputed by the Quality Manager. **A return whose rows do not balance is "
+                  "not sent.**"),
+            ("tbl",
+             ["Quantity", "How it is calculated", "Where it is recorded"],
+             [
+                 ["Slides received", "Count of slides that arrived from the site", "Worksheet 1"],
+                 ["Slides readable", "Received minus unreadable, with each unreadable slide listed "
+                                     "and the reason", "Worksheet 2"],
+                 ["Positives and negatives, site side",
+                  "As the site reported them; they must sum to the slides read", "Worksheet 3"],
+                 ["Positives and negatives, laboratory side",
+                  "As the laboratory read them; they must sum to the same total", "Worksheet 4"],
+                 ["Discordant count",
+                  "Slides on which the two readings differ, listed by slide number", "Worksheet 5"],
+                 ["Discordant rate",
+                  "Discordant count \u00f7 slides readable \u00d7 100, to one decimal place",
+                  "Worksheet 6"],
+                 ["Score", "100 minus the discordant rate, on the provider's convention",
+                  "Worksheet 7"],
+                 ["Verdict", "Pass where the discordant rate is at or below the tolerance printed "
+                             "on the report; otherwise Fail", "Worksheet 8"],
+             ],
+             [4.3, 8.0, 4.7]),
+            ("p", "**Tolerances.** TB microscopy: a discordant rate at or below **10 per cent**, "
+                  "which the NRL report states as a passing rate of 90 per cent. Malaria: the NRL "
+                  "report prints **no tolerance**; the discordant rate is recorded and a rate of "
+                  "zero passes. Where a provider prints a criterion, the **provider's** criterion "
+                  "governs and is quoted on the return. Where none is printed, the laboratory "
+                  "applies the TB tolerance and says on the return that it has done so \u2014 it "
+                  "does not invent a silent one."),
+            ("p", "**Consistency checks before the return is signed.** The following are checked "
+                  "every quarter and the check is initialled on the return: the rows add up on both "
+                  "sides; the slide counts match on both sides; the discordant rate reproduces from "
+                  "the numbers in the row; the verdict matches the criterion printed on the report; "
+                  "the quarter on the tab matches the quarter in the text; and every site that "
+                  "should appear does appear. **A site that has dropped out of a quarter is a "
+                  "finding, not a blank.**"),
+        ]),
+        ("9. Reporting back", [
+            ("p", "The quarterly return goes to the National Reference Laboratory and to each health "
+                  "centre, and it contains for every site: the slides read, the two readings, the "
+                  "discordant count with the slides listed, the discordant rate, the verdict against "
+                  "the printed criterion, and a comment. A verdict is never sent without the numbers "
+                  "that produced it."),
+            ("p", "**Clinically significant discrepancies are notified before the return.** Where the "
+                  "laboratory finds a **false negative** on a TB smear, or a missed malaria positive, "
+                  "the health centre is telephoned the same working day and the patient is traced. "
+                  "The return then records what was done. A quarterly cycle is far too slow to "
+                  "correct a patient who is being sent home with a wrong answer."),
+            ("p", "**What the laboratory may and may not conclude.** A pass at a site means the "
+                  "reading agreed on the slides re-read in that quarter, at that sample size, and "
+                  "nothing more. It is not a statement that the site's microscopy is accurate, it "
+                  "is not a competence assessment of an individual, and it is not a licence to "
+                  "reduce supervision. A fail means the sample contained discordance that needs a "
+                  "cause, not that the site is bad."),
+        ]),
+        ("10. When a site fails, or a discrepancy is confirmed", [
+            ("p", "A discordance is investigated to its cause in the same way an unsatisfactory PT "
+                  "result is, and the cause is sought at the site rather than assumed:"),
+            ("b", [
+                "**Pre-analytical** \u2014 was the slide made from a good sample, at the right "
+                "thickness, and fixed properly?",
+                "**Staining** \u2014 was the stain fresh, correctly filtered, correctly timed, "
+                "correctly decolourised? Is the site's stain control slide in place and read?",
+                "**Reading** \u2014 did the reader examine enough fields, at the right "
+                "magnification, for long enough?",
+                "**Materials and equipment** \u2014 is the microscope clean and correctly adjusted, "
+                "is the objective intact, is the light right?",
+                "**Person** \u2014 is the reader competent for this examination, and when was that "
+                "last verified?",
+            ]),
+            ("p", "Corrective action is agreed **with the site**, has an owner and a date, and its "
+                  "**effectiveness is verified on the next quarter's re-reading** \u2014 not on a "
+                  "declaration that it was done. A site that fails the same way twice goes to the "
+                  "Laboratory Manager and into the district performance review."),
+        ]),
+        ("11. Records", [
+            ("tbl",
+             ["Record", "Who keeps it", "How long"],
+             [
+                 ["The re-reading worksheet, with both readings and the arithmetic",
+                  "Quality Manager", "6 years"],
+                 ["The signed quarterly return, as sent and as returned by the provider",
+                  "Quality Manager", "6 years"],
+                 ["The list of slides, their identifiers and their fate", "Section head", "6 years"],
+                 ["Second-reading records for every discordant slide", "Quality Manager", "6 years"],
+                 ["Notifications of clinically significant discrepancies, with the time and the "
+                  "person told", "Quality Manager", "6 years"],
+                 ["Corrective action records for each failing site", "Quality Manager",
+                  "6 years, and until effectiveness is verified"],
+             ],
+             [7.6, 4.4, 5.0]),
+            ("p", "Records are held so that any quarter can be reconstructed: which slides, read by "
+                  "whom, with what result, against what original, and with what arithmetic. A return "
+                  "that cannot be reconstructed from the file is treated as not having been made."),
+        ]),
+        ("12. Defects found in the programme as it stands", [
+            ("p", "The review of 15 November 2026 read every re-reading report on file. Five matters "
+                  "were found. They are recorded here rather than corrected on the provider's "
+                  "behalf, and each is raised with NRL in writing:"),
+            ("tbl",
+             ["Finding", "Why it matters", "Action and owner"],
+             [
+                 ["Malaria Q3 2025/26 does not add up: Coko HC is reported 8 positive and 7 "
+                  "negative against 8 and 7 yet carries a discordant rate of 0 and a pass; "
+                  "Muyongwe reads 3 and 12 against 3 and 10; Rushashi 5 and 10 against 5 and 12",
+                  "A quarter whose rows do not balance cannot be signed as a pass, and a zero "
+                  "computed from unbalanced rows is not a measured zero",
+                  "Query to NRL with the rows reproduced; hold the quarter **unverified** until "
+                  "answered. Quality Manager, within one month"],
+                 ["Two TB sheets are both headed \"Quarter II\" \u2014 Q4 2024/25, whose tab and "
+                  "dates make it Quarter IV, and Q3 2025/26",
+                  "Two quarters carrying one label cannot be trended, and a report filed under the "
+                  "wrong quarter misstates the year",
+                  "Query the labelling; file by tab and date range and annotate. Quality Manager"],
+                 ["TB Q4 2024/25 marks both sites **False** with a discordant rate of **0**, which "
+                  "on the printed 90 per cent passing rate should read Pass",
+                  "Either a transcription error or a criterion other than the printed one; the "
+                  "difference decides whether a site was wrongly failed",
+                  "Query with NRL; if the fail stands, obtain and record the criterion applied. "
+                  "Quality Manager"],
+                 ["TB re-reading covers two of eight centres, and Nyange's sample ran 11, then "
+                  "**2**, then 5, then 8 slides",
+                  "A two-slide quarter supports no conclusion about that site, and six sites are "
+                  "not covered at all",
+                  "Widen coverage and enforce the ten-slide floor from section 6. Laboratory "
+                  "Manager, from the next quarter"],
+                 ["No tolerance is printed on the malaria report",
+                  "A pass with no stated criterion cannot be defended to an assessor or to a site "
+                  "that disputes it",
+                  "Apply the TB tolerance and state it on every malaria return until NRL prints "
+                  "one. Quality Manager"],
+             ],
+             [5.6, 5.4, 6.0]),
+        ]),
+        ("13. Supporting documents and references", [
+            ("b", [
+                "ISO 15189:2022, 7.3.7 \u2014 external quality assessment, and the requirement that "
+                "where results fall outside pre-defined criteria the laboratory acts under 8.7 "
+                "including an assessment of clinical significance.",
+                "ISO 15189:2022, 7.4 \u2014 reporting of results, which governs how a discrepancy "
+                "is communicated to a health centre.",
+                "ISO 15189:2022, 8.7 \u2014 nonconforming work, under which a confirmed discrepancy "
+                "in a reported patient result is handled.",
+                "ASLM SLIPTA Checklist v3:2023, items 8.20 and 8.21 \u2014 the procedure for EQA "
+                "and participation in it, which the assessor scores.",
+                "NRL quarterly evaluation reports for malaria and TB microscopy re-testing of "
+                "health centres \u2014 the provider format this SOP works to.",
+            ]),
+        ]),
+    ],
+}
+
+# ---------------------------------------------------------------------------
+# ADM-SOP-066 -- Quarterly performance evaluation of the health centres.
+#
+# Built from the instrument the laboratory actually uses: six domains, nine
+# scored questions, 25 points, a weighted index, a quarterly visit calendar and
+# a recorded recommendation per site. The register has no SOP for it.
+# ---------------------------------------------------------------------------
+
+PBF = REGISTER["pbf_hc"]
+PBF_CODE = code("pbf_hc")
+PBF_EFF = "14/11/2026"
+PBF_REV = "14/11/2028"
+
+PBF_REVIEW = {
+    "meta": {"doc_no": PBF_CODE, "title": PBF["title"], "version": PBF["vers"]},
+    "out_stem": f"{PBF_CODE} - Quarterly Performance Evaluation of Health Centres",
+    "revision_rows": [
+        ["Kelvin SAMAHANI", PBF["vers"], PBF_EFF,
+         "First issue. The laboratory evaluates all eight health centres in its network every "
+         "quarter against a nine-question, 25-point instrument across six domains, and reports an "
+         "index with a recommendation per site. No controlled document governed the evaluation: "
+         "how a question is scored, what evidence is acceptable, how the index is derived from 25 "
+         "points on a 100-point scale, what happens when a visit slips or a site is not visited, "
+         "and how a recommendation is verified were all unwritten. Written to ISO 15189:2022."],
+    ],
+    "control_rows": [
+        ("SOP Number", PBF_CODE),
+        ("SOP Title", PBF["title"]),
+        ("Version", PBF["vers"]),
+        ("Effective Date", PBF_EFF),
+        ("Next Review Date", PBF_REV),
+        ("Supersedes", "\u2014 (first issue; the evaluation was performed without a controlled "
+                       "document)"),
+        ("Document Owner", "Kelvin SAMAHANI \u2014 Laboratory Manager"),
+        ("Applies to", "The quarterly performance evaluation of the eight health centres in the "
+                       "Ruli District Hospital laboratory network, performed by the hospital "
+                       "laboratory"),
+        ("Classification", "Controlled document \u2014 master copy: document control system "
+                           f"({ADM_DOC_CONTROL})"),
+    ],
+    "body": [
+        ("1. Introduction", [
+            ("p", "This laboratory is not only a laboratory. It is the reference point for eight "
+                  "health centres \u2014 Ruli, Coko, Nyange, Minazi, Rushashi, Muyongwe, Rwankuba and "
+                  "Muhondo \u2014 whose microscopy, rapid tests and specimen handling determine what "
+                  "a patient in those catchment areas is told. A result reported at Coko is a result "
+                  "this district acts on."),
+            ("p", "Once a quarter the laboratory therefore evaluates each site, scores it against a "
+                  "fixed instrument, and reports an index together with the actions the site must "
+                  "take. That evaluation is currently performed competently and without a controlled "
+                  "procedure behind it. This SOP supplies the procedure."),
+            ("p", "**This is the third document in a set, and the three measure different things.** "
+                  "`ADM-SOP-025` governs the assessment **of this laboratory** by an external "
+                  "provider. `ADM-SOP-050` governs the re-reading **this laboratory performs** on "
+                  "health-centre slides. This SOP governs the **whole-site evaluation** of a health "
+                  "centre \u2014 its quality system, turnaround, commodities, infrastructure and "
+                  "records \u2014 of which slide re-reading is one source of evidence. A site can "
+                  "score 100 on re-reading and fail this evaluation, and the reverse; neither "
+                  "substitutes for the other."),
+        ]),
+        ("2. Purpose", [
+            ("p", "To define how the quarterly evaluation is planned, conducted, scored, reported "
+                  "and followed up, so that the index means the same thing at every site and in every "
+                  "quarter, so that a finding produces an action with an owner, and so that the "
+                  "action is verified as **effective** rather than merely declared complete."),
+            ("p", "The purpose is not the score. A score that is not followed by a verified change "
+                  "is a number. The purpose is that the weakest site improves and that the "
+                  "laboratory can show a district officer, an assessor or a patient what changed and "
+                  "how it knows."),
+        ]),
+        ("3. Scope", [
+            ("p", "**In scope:** every health centre in the network, every quarter of the fiscal "
+                  "year, against the instrument in section 7. It covers the planning of the visit "
+                  "calendar, the conduct of the visit, the evidence required for each question, the "
+                  "scoring and the derivation of the index, the report and the feedback to the site, "
+                  "the corrective action, and the verification of that action at the following "
+                  "quarter."),
+            ("p", "**Out of scope:** the hospital laboratory's own assessment, which is "
+                  "`ADM-SOP-025`; the slide and sample re-reading the laboratory performs for the "
+                  "sites, which is `ADM-SOP-050` and supplies evidence into this evaluation but is "
+                  "not repeated by it; and the internal quality control of the hospital laboratory, "
+                  "which is the quality control SOP."),
+            ("p", "**What this SOP is not.** It is not a substitute for the national supervision "
+                  "instrument, and it does not claim the authority of the national performance-based "
+                  "financing framework. Where the district or the Ministry evaluates a site with its "
+                  "own tool, that evaluation stands on its own and this one is additional. Where the "
+                  "two disagree, the disagreement is reconciled in writing and both records are "
+                  "kept \u2014 neither is quietly discarded."),
+        ]),
+        ("4. Definitions", [
+            ("tbl", ["Term", "Meaning in this laboratory"],
+             [
+                 ["Health centre (site)", "One of the eight peripheral facilities in the network. "
+                                          "The unit evaluated."],
+                 ["Instrument", "The fixed set of domains, questions and maximum points in "
+                                "section 7. It is version-controlled: a change to it starts a new "
+                                "version and the quarter boundary is recorded."],
+                 ["Domain", "A group of questions scored together: quality management, turnaround "
+                            "and referral, commodity security, infrastructure and safety, data, and "
+                            "human resources."],
+                 ["Maximum points", "The most a question can score. Non-integer maxima are used and "
+                                    "are not rounded."],
+                 ["Partial credit", "A score between zero and the maximum where the evidence meets "
+                                    "part of the question. The rule for each question is in "
+                                    "section 7; the assessor does not improvise one."],
+                 ["Index", "The site's score expressed out of 100, derived from the points earned as "
+                           "section 9 defines. The figure reported to the site and the district."],
+                 ["Recommendation", "The action recorded against a site at the end of the visit. It "
+                                    "has an owner and a date, and it is not a description of the "
+                                    "finding."],
+                 ["On-time compliance", "Whether the visit happened on or before the planned date. "
+                                        "Recorded per visit, because a quarterly cycle that slips "
+                                        "silently is not quarterly."],
+                 ["Verification of effectiveness", "Evidence at the next quarter that the action "
+                                                   "worked. Completion of the action is not "
+                                                   "effectiveness."],
+             ],
+             [4.4, 12.1]),
+        ]),
+        ("5. Responsibilities and Authorisation", [
+            ("tbl", ["Task", "Responsible Person(s)"],
+             [
+                 ["Authorise this SOP and the visit calendar", "Laboratory Manager"],
+                 ["Own the instrument and its version control", "Laboratory Manager"],
+                 ["Plan and publish the quarterly calendar", "Quality Manager"],
+                 ["Conduct the visits", "Designated assessor, recorded on every visit"],
+                 ["Score the site and derive the index", "Assessor, recomputed by the Quality "
+                                                         "Manager"],
+                 ["Sign the site report", "Laboratory Manager"],
+                 ["Deliver the feedback to the site in person", "Assessor, with the site in-charge"],
+                 ["Agree the recommendation and its date with the site", "Assessor and site "
+                                                                        "in-charge"],
+                 ["Track the recommendations to closure", "Quality Manager"],
+                 ["Verify effectiveness at the next quarter", "Assessor, recorded at the next visit"],
+                 ["Escalate a site that repeats a finding", "Laboratory Manager"],
+             ],
+             [9.0, 8.0]),
+        ]),
+        ("6. Planning the quarter", [
+            ("steps", [
+                ("1.", "Before the quarter begins, the Quality Manager publishes a calendar giving "
+                       "every site a planned visit date. **Every site appears.** A site with no "
+                       "planned date has been dropped, and a dropped site is a finding against the "
+                       "laboratory, not against the site."),
+                ("2.", "The calendar is sequenced so that no two sites are visited on the same day, "
+                       "and so that a visit is not scheduled on a market day or a public holiday at "
+                       "that site. The site is told the week of the visit, not the day: the "
+                       "evaluation is of the site's routine work, and a site that knows the day can "
+                       "present a tidied version of itself."),
+                ("3.", "The visit is recorded as **on time** where it happened on or before the "
+                       "planned date, and **late** otherwise, with the number of days and the "
+                       "reason. A late visit is not hidden by moving the planned date afterwards."),
+                ("4.", "A site that cannot be visited in the quarter is recorded as **not visited**, "
+                       "with the reason and the person who decided. It is not given a score, and it "
+                       "is not carried into the district index as though it had one."),
+                ("5.", "The calendar, the actual dates, the on-time status and the reasons are one "
+                       "record, and they are reported to the district with the indices. A quarter "
+                       "that covered six of eight sites says so."),
+            ]),
+        ]),
+        ("7. The instrument, and how each action is evaluated", [
+            ("p", "The instrument is a fixed set of **nine scored questions carrying 25 points** "
+                  "across **six domains**. It is applied unchanged at every site in a quarter. The "
+                  "questions, their maxima and the evidence required are set out below, and they are "
+                  "the authority for the visit: an assessor scores what is listed, and does not add "
+                  "a question or a mark of their own. A question that must be added or changed is a "
+                  "change of instrument, handled at 7.3."),
+            ("p", "**7.1 Quality management \u2014 5 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Results of the quarterly quality control are present and score above 95 %",
+                  "2",
+                  "The site's QC records for the quarter, with the results and the review "
+                  "signature. For a site using rapid tests, the external QC or the national "
+                  "scheme result.",
+                  "**2** where the records are present for every month and every result is above "
+                  "95 %; **1** where present but a result falls below 95 % and an investigation is "
+                  "recorded; **0** where records are missing, or a result is below 95 % with no "
+                  "investigation."],
+                 ["Evidence of quality control of rapid malaria diagnostic tests",
+                  "3",
+                  "The site's rapid-test QC record: positive and negative control results per lot, "
+                  "with the lot number and the date.",
+                  "**3** where every lot in the quarter has a recorded positive and negative "
+                  "control; **1.5** where some lots are missing; **0** where there is no record or "
+                  "QC was not performed."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.2 Turnaround and referral \u2014 2 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Assessment of specimen collection and result turnaround time",
+                  "2",
+                  "The site's register or dispatch book for the quarter, from which collection "
+                  "dates and dispatch or result dates can be compared.",
+                  "**2** where turnaround can be demonstrated for a sample of at least ten "
+                  "specimens and is inside the stated target; **1** where it can be demonstrated "
+                  "but exceeds the target, with an investigation recorded; **0** where the site "
+                  "cannot demonstrate turnaround at all."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.3 Commodity security \u2014 11.5 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Equipment and supplies are available and functional",
+                  "5",
+                  "Physical check of the analysers and equipment in use, and the consumables on "
+                  "the shelf, with the expiry dates.",
+                  "Scored against the checklist at 7.4. **5** where every item is present and "
+                  "within expiry; **0** where a reagent required for a test the site reports is out "
+                  "of stock or expired."],
+                 ["Availability of the annual equipment inventory, the quarterly maintenance plan "
+                  "and the maintenance or repair execution report",
+                  "3",
+                  "Three documents: the annual inventory, the quarter's maintenance plan, and the "
+                  "record that the planned maintenance happened.",
+                  "**3** where all three are present; **1** where some are present; **0** where "
+                  "none is. Missing headings on a document count against it."],
+                 ["No stock-out of reagents and consumables during the quarter",
+                  "3.5",
+                  "The stock card and the daily or weekly stock record, reconciled against the "
+                  "tests performed.",
+                  "**3.5** where there is no stock-out; **1.5** where a stock-out of a "
+                  "non-critical item occurred and was managed; **0** where a test the site reports "
+                  "could not be performed because of a stock-out."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.4 Infrastructure and safety \u2014 8.5 points**"),
+            ("tbl",
+             ["Question", "Max", "Evidence required", "Scoring rule"],
+             [
+                 ["Waste segregation and sharps disposal are correct",
+                  "2",
+                  "Direct observation of the bins, the sharps container and the disposal route, "
+                  "plus the disposal record.",
+                  "**2** where segregation is correct and the sharps container is not overfilled "
+                  "and is closed; **1** where one defect is found; **0** where sharps are "
+                  "recapped, the container is overfilled or open, or general waste holds "
+                  "infectious material."],
+                 ["Presence of an appropriate wastewater or liquid-waste disposal system",
+                  "2",
+                  "Direct observation of the sink, the trap or the collection vessel, and the "
+                  "discharge route.",
+                  "**2** where liquid waste is disposed of without contaminating the water supply "
+                  "or the ground; **0** where it is not."],
+                 ["Availability of a separate, well-ventilated room for sputum collection, smear "
+                  "preparation and staining",
+                  "2.5",
+                  "Direct observation. The room must be separate from the general working area and "
+                  "ventilated.",
+                  "**2.5** where all three activities have a separate ventilated space; **1** "
+                  "where the space is separate but ventilation is inadequate; **0** where smear "
+                  "preparation happens in the general working area."],
+             ],
+             [4.6, 0.9, 5.4, 6.1]),
+            ("p", "**7.5 Data \u2014 no surviving question.** The instrument carries two weighted "
+                  "domains for which the question set is currently empty: **data (20)** and "
+                  "**human resources (20)**. Until questions exist, neither can contribute. This is "
+                  "recorded as an instrument defect at 12, not worked around."),
+            ("p", "**7.6 Version control of the instrument.** The instrument is dated and versioned. "
+                  "A question may not be added, removed, reworded or re-weighted in the middle of a "
+                  "quarter: where it must change, the change starts a new version at the next "
+                  "quarter boundary, and the version used at every site is recorded on the visit "
+                  "record. **Scores made with different versions of the instrument are not "
+                  "compared**, and where a quarter contains more than one version the report says "
+                  "so and the indices are not ranked against each other."),
+        ]),
+        ("8. Conducting the visit", [
+            ("steps", [
+                ("1.", "Arrive unannounced on the day. Present identification, and ask for the "
+                       "site in-charge. The evaluation is of the routine work, so it starts from the "
+                       "records already on the bench, not from a folder produced for the visit."),
+                ("2.", "Walk the working area first, before looking at any document. Observe waste, "
+                       "sharps, ventilation and the state of the equipment as they are."),
+                ("3.", "Take a sample of records rather than a single example: at least ten "
+                       "specimens for turnaround, every reagent lot for the rapid-test QC, every "
+                       "month of the quarter for the QC results. One well-kept month is not a "
+                       "quarter."),
+                ("4.", "Score each question against the rule at section 7, with the evidence "
+                       "recorded beside the score. **A score without recorded evidence is not a "
+                       "score** and is struck out at review."),
+                ("5.", "Where a score is zero, say why in one sentence that the site can act on "
+                       "\u2014 \"no positive control recorded for lot 4471 in August\", not "
+                       "\"QC inadequate\"."),
+                ("6.", "Agree the recommendation with the site in-charge before leaving, with an "
+                       "owner, a date and what evidence will show it is done. The site's own view "
+                       "is recorded, including disagreement, and a disagreement is not a reason to "
+                       "change the score."),
+                ("7.", "Record the visit: date, planned date, on-time status, assessor, instrument "
+                       "version, answers, index, recommendation and the names of the people present."),
+                ("8.", "Leave a copy of the findings with the site in-charge. A visit that ends with "
+                       "the findings in the assessor's bag does not change anything."),
+            ]),
+            ("p", "**What the assessor may not do.** Score from memory after leaving. Score a "
+                  "document they did not see. Accept a report of an activity without the record of "
+                  "it. Carry a finding from the previous quarter forward as though it had been "
+                  "re-observed. Adjust a score because the site is understaffed or the roads were "
+                  "bad \u2014 those are recorded as context beside the score, and the score stands."),
+        ]),
+        ("9. Scoring and the index", [
+            ("steps", [
+                ("1.", "Add the points earned for the nine questions. The maximum is **25**."),
+                ("2.", "Convert to the index: **index = points earned \u00f7 25 \u00d7 100**, to one "
+                       "decimal place. If the instrument's maximum changes, the divisor changes "
+                       "with it and the change is recorded."),
+                ("3.", "Record the domain subtotals beside the index, so that a site and the "
+                       "district can see **where** the points were lost and not only how many."),
+                ("4.", "Where a site was not visited, there is **no index**. It is reported as not "
+                       "visited, with the reason, and it is excluded from the district average with "
+                       "the exclusion stated."),
+                ("5.", "Recompute the index independently before the report is signed. An index "
+                       "that cannot be reproduced from the answers is a defect in the report and the "
+                       "report is not issued."),
+            ]),
+            ("p", "**Worked example, Q1 2026/27.** Ruli HC scored 2 (QC results) + 0 (rapid-test "
+                  "QC) + 0 (turnaround) + 5 (equipment and supplies) + 1 (inventory, plan, "
+                  "execution) + 3.5 (no stock-out) + 2 (waste) + 2 (wastewater) + 2.5 (sputum "
+                  "room) = **18 of 25**, giving an index of **72.0**. The subtotals show the loss "
+                  "is concentrated in quality (0 of 5) and turnaround (0 of 2), which is what the "
+                  "recommendation must address."),
+            ("p", "**The index is not a grade of the staff.** It is a statement about the site's "
+                  "systems at the moment of the visit. A low index at a single-staffed site is a "
+                  "finding about support and supervision, and the report says which of the lost "
+                  "points the laboratory itself could have prevented."),
+        ]),
+        ("10. The report and the feedback", [
+            ("p", "The report contains, for each site: the visit date, the planned date and the "
+                  "on-time status; the instrument version; the answer and evidence for all nine "
+                  "questions; the domain subtotals; the index; the recommendation with owner and "
+                  "date; the site's own comment; and the status of the previous quarter's "
+                  "recommendation. The laboratory's index across all sites visited is reported with "
+                  "the coverage stated \u2014 six of eight is reported as six of eight."),
+            ("p", "The feedback is given **in person** at the site, at the end of the visit and "
+                  "again when the written report is issued. It names the two or three findings that "
+                  "matter most and the action for each. A site is never told its index without being "
+                  "told what produced it."),
+        ]),
+        ("11. Corrective action and verification of effectiveness", [
+            ("p", "Every zero and every partial score produces a recommendation. The "
+                  "recommendation has four parts and none is optional: **what** will be done, "
+                  "**who** will do it, **by when**, and **what evidence** will show it is done."),
+            ("p", "**Verification is the point.** At the next quarter's visit the assessor checks "
+                  "the previous recommendation first, and records one of four outcomes: "
+                  "**effective** (the evidence exists and the score has moved), **done but not "
+                  "effective** (the action was taken and the situation did not change \u2014 which "
+                  "means the cause was wrong), **not done** (with the reason), or **no longer "
+                  "applicable** (with the reason). Completion is not effectiveness, and a site that "
+                  "receives a mark for having done the action while the finding persists has been "
+                  "failed by the evaluation."),
+            ("p", "A recommendation that is **not done** at two consecutive quarters goes to the "
+                  "Laboratory Manager and into the district review, with the laboratory's own "
+                  "contribution to the failure recorded: a site that was never given the reagent, "
+                  "never trained and never followed up has not failed on its own."),
+        ]),
+        ("12. Defects found in the instrument and the cycle, November 2026", [
+            ("p", "The review of 15 November 2026 examined the instrument, the visit records for "
+                  "Q1 2026/27 and the previous rounds. Six matters are recorded. They are recorded "
+                  "rather than corrected silently, because each changes what a score means:"),
+            ("tbl",
+             ["Finding", "Why it matters", "Action and owner"],
+             [
+                 ["The instrument changed **during** Q1 2026/27. Seven questions carrying 25 points "
+                  "each were removed on 22 October 2026 at 14:08, 15:02, 15:04 and 15:08 \u2014 "
+                  "after visits had already taken place on 20 and 21 October",
+                  "Visits made before and after the change were not made with the same instrument, "
+                  "so the quarter's indices are not comparable and must not be ranked",
+                  "Record the version and date against every visit; report Q1 2026/27 as a "
+                  "transition quarter with no ranking. Laboratory Manager"],
+                 ["Two of eight sites were **not visited** in Q1 2026/27: Rushashi (planned "
+                  "29 October) and Muyongwe (planned 28 October). At 15 November neither has a "
+                  "recorded visit or a recorded reason",
+                  "A quarterly cycle covering six of eight sites is not a quarterly cycle, and the "
+                  "two missing sites are invisible in an average",
+                  "Visit both, or record the reason and the decision; report coverage as six of "
+                  "eight until then. Quality Manager"],
+                 ["The domain weights **total 70, not 100**, and there are six weighted domains of "
+                  "which four carry questions",
+                  "An index derived from a 25-point instrument and an index derived from weighted "
+                  "domains out of 70 are two different numbers; which one is reported is not "
+                  "written anywhere",
+                  "Adopt one derivation, state it on the report, and correct the weights or the "
+                  "question set so that they reconcile. Laboratory Manager"],
+                 ["The **data (20)** and **human resources (20)** domains carry weight but no "
+                  "questions, so 40 per cent of the nominal instrument can never be scored",
+                  "A site cannot be credited for records management or staffing, and the index "
+                  "silently omits them",
+                  "Write the questions or withdraw the weight. Until then the index is stated as "
+                  "covering four domains. Quality Manager"],
+                 ["Every site in Q1 2026/27 answered the **same nine questions**, and three sites "
+                  "scored zero on rapid-test QC while one recorded no turnaround evidence \u2014 "
+                  "yet the recorded recommendations are general (\"adding the missing headings to "
+                  "documents\")",
+                  "A recommendation that does not name the failed question cannot be verified as "
+                  "effective at the next visit",
+                  "Bind each recommendation to the question it answers, as section 11 requires. "
+                  "Assessor, from the next quarter"],
+                 ["The instrument's non-integer maxima (3.5, 2.5) are correct and must be kept, "
+                  "but nothing states the rounding of the index",
+                  "Two assessors can report 72.0 and 72 from the same answers",
+                  "Index to one decimal place, as section 9.1 states. Quality Manager"],
+             ],
+             [5.4, 5.6, 6.0]),
+        ]),
+        ("13. Records", [
+            ("tbl",
+             ["Record", "Who keeps it", "How long"],
+             [
+                 ["The quarterly visit calendar, with planned dates", "Quality Manager", "6 years"],
+                 ["The visit record: answers, evidence, scores, index, assessor, instrument version",
+                  "Quality Manager", "6 years"],
+                 ["The site report as issued, with the site's comment", "Quality Manager", "6 years"],
+                 ["The recommendation log, with owner, date and closure evidence", "Quality Manager",
+                  "6 years, and until effectiveness is verified"],
+                 ["The verification record at the following quarter", "Quality Manager", "6 years"],
+                 ["The instrument, every version, with the date each took effect",
+                  "Laboratory Manager", "Permanently"],
+             ],
+             [7.8, 4.2, 5.0]),
+            ("p", "Any quarter must be reconstructible from the file: which instrument version, "
+                  "which questions, what evidence, what score, and what was recommended. A quarter "
+                  "that cannot be reconstructed is treated as not having been evaluated, and the "
+                  "site is told so rather than being given a number it cannot rely on."),
+        ]),
+        ("14. References", [
+            ("b", [
+                "ISO 15189:2022, 4.1 \u2014 the laboratory's responsibility for the examinations it "
+                "reports, including those performed at peripheral sites, and its duty to ensure "
+                "they are performed under a defined quality system.",
+                "ISO 15189:2022, 6.2 \u2014 personnel: competence, training and the records of both, "
+                "which is what the human-resources domain is meant to test.",
+                "ISO 15189:2022, 6.3 \u2014 facilities and environmental conditions, which is what "
+                "the sputum-room and ventilation question tests.",
+                "ISO 15189:2022, 6.4 and 6.5 \u2014 equipment and its maintenance, and the reagent "
+                "and consumable records, which the commodity and equipment questions test.",
+                "ISO 15189:2022, 7.3.7 \u2014 external quality assessment and interlaboratory "
+                "comparison, the evidence source for the quality-management domain.",
+                "ISO 15189:2022, 7.4 and 7.8 \u2014 reporting of results and the control of records, "
+                "which the data domain is meant to test.",
+                "ISO 15189:2022, 8.5 \u2014 actions to address risks and opportunities, and 8.7 "
+                "\u2014 nonconforming work, under which a zero score is handled.",
+                "ISO 15189:2022, 8.9 \u2014 evaluation and improvement: the requirement that "
+                "improvement be evaluated for effectiveness, which section 11 of this SOP "
+                "implements.",
+                "ISO 15189:2022, 7.3.7.3 and the national supervision framework \u2014 where a "
+                "peripheral site performs testing, the laboratory's oversight of it, including "
+                "participation in EQA.",
+                "ASLM SLIPTA Checklist v3:2023 \u2014 the operational criteria that underpin the "
+                "question set, used where a national criterion is not stated.",
+            ]),
+        ]),
+    ],
+}
+
+DOCUMENTS = [VENOUS, GLUCOSE, XN330, XQ320, PIMA, TROUBLE, EQA, HC_REVIEW, PBF_REVIEW]
 
 # ---------------------------------------------------------------------------
 # DOCX builder

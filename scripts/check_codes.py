@@ -66,6 +66,20 @@ RETIRED: dict[tuple[str, str], dict[str, str]] = {
         "035": "retired — never used; the register skips from 034 to 036 "
                "(SOP-PROGRAMME-HANDOFF §8). Under the no-gap convention this is "
                "recorded so it is not mistaken for a lost document.",
+        # ---- corrected against the 2026 register, 15/11/2026 -----------------
+        # The 2026 register (MASTER LIST - 2024 - 2025.docx, modified 17/02/2026)
+        # lists only ADM-SOP 001, 002, 009, 020, 024 and 034. The absence of a
+        # serial from it is NOT proof that the serial is free: the register is the
+        # laboratory's working list, and a document can exist on a shelf without a
+        # row. These are therefore declared unprovable, not retired, and none of
+        # them may be allocated on the strength of absence. 035 alone is retired:
+        # no document ever held it.
+        **{f"{n:03d}": "unprovable — absent from the 2026 register (MASTER LIST - "
+                       "2024 - 2025.docx, 17/02/2026), which lists only ADM-SOP 001, "
+                       "002, 009, 020, 024 and 034. Absent is not free: the register "
+                       "is a working list and an unregistered document may exist."
+           for n in (3,5,6,7,8,10,11,12,13,14,15,16,17,18,19,21,22,23,26,27,28,
+                     29,30,31,32,33,36,37,38,39,40,42,43,44,45,46,47,48,49)},
         "053": "unprovable — files exist above 052 that were never registered, so "
                "this range cannot be shown to be free. The Nov 2026 pack starts at "
                "060 instead. Not a decision; a limit.",
