@@ -20,7 +20,7 @@ from build_sop import LOGO_PATH, LETTERHEAD  # noqa: E402
 
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
@@ -57,11 +57,16 @@ def rule(paragraph, size=6):
     pPr.append(pbdr)
 
 
-def cell_margins(table, top=0, bottom=0):
+def cell_margins(table, top=0, bottom=0, left=None, right=None):
     """Trim the cell padding so the table rules stay tight to the text."""
     tblPr = table._tbl.tblPr
     mar = OxmlElement("w:tblCellMar")
-    for side, val in (("top", top), ("bottom", bottom)):
+    sides = [("top", top), ("bottom", bottom)]
+    if left is not None:
+        sides.append(("left", left))
+    if right is not None:
+        sides.append(("right", right))
+    for side, val in sides:
         el = OxmlElement(f"w:{side}")
         el.set(qn("w:w"), str(val))
         el.set(qn("w:type"), "dxa")
@@ -85,8 +90,8 @@ def build():
     sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
     sec.top_margin = Cm(1.0)
     sec.bottom_margin = Cm(1.2)
-    sec.left_margin = Cm(2.0)
-    sec.right_margin = Cm(2.0)
+    sec.left_margin = Cm(1.2)
+    sec.right_margin = Cm(1.2)
 
     # ---- letterhead: logo, then the address block --------------------------
     p = doc.add_paragraph()
@@ -157,14 +162,18 @@ def build():
         ("Governed by", "ADM-064 (signing of SOPs; training, competence and authorisation "
                         "of staff)"),
     ]
+    # The label column is sized to the longest label -- "Reference documents" --
+    # so the value column starts immediately after it instead of leaving a gutter.
     t = doc.add_table(rows=0, cols=2)
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
     t.autofit = False
-    cell_margins(t, 5, 5)
+    cell_margins(t, 6, 6, 40, 40)
+    LABEL_W = 3.4
+    VALUE_W = 18.6 - LABEL_W
     for label, value in particulars:
         row = t.add_row().cells
-        row[0].width = Cm(4.1)
-        row[1].width = Cm(12.9)
+        row[0].width = Cm(LABEL_W)
+        row[1].width = Cm(VALUE_W)
         pa = row[0].paragraphs[0]
         ra = pa.add_run(label)
         ra.font.size, ra.font.bold = Pt(8.5), True
@@ -179,21 +188,23 @@ def build():
     # ---- attendance table ---------------------------------------------------
     heading(doc, "ATTENDANCE", space_before=6)
 
-    headers = ["No.", "Full name (write in block letters)", "Designation / Department",
-               "Date", "Signature"]
-    widths = [1.0, 6.6, 3.6, 2.2, 3.6]
-    assert abs(sum(widths) - 17.0) < 2e-9, sum(widths)
+    headers = ["No.", "Full name", "Designation / Department", "Date", "Signature"]
+    widths = [0.5, 12.4, 2.5, 1.3, 1.9]
+    assert abs(sum(widths) - 18.6) < 2e-9, sum(widths)
     t = doc.add_table(rows=1, cols=5)
     t.style = "Table Grid"
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
     t.autofit = False
+    cell_margins(t, 2.5, 2.5, 0, 20)
     hdr = t.rows[0].cells
     for i, h in enumerate(headers):
         hdr[i].width = Cm(widths[i])
         pa = hdr[i].paragraphs[0]
         pa.alignment = WD_ALIGN_PARAGRAPH.CENTER
         ra = pa.add_run(h)
-        ra.font.size, ra.font.bold = Pt(8.5), True
+        # "No." has to sit inside a 0.5 cm column: 6.5 pt is the largest that fits.
+        ra.font.size = Pt(6.5) if i == 0 else Pt(8)
+        ra.font.bold = True
         ra.font.color.rgb = RGBColor.from_string("FFFFFF")
         pa.paragraph_format.space_after = Pt(2)
         shade(hdr[i], INK)
@@ -206,23 +217,18 @@ def build():
             if i == 0:
                 pa.alignment = WD_ALIGN_PARAGRAPH.CENTER
             ra = pa.add_run(value)
-            ra.font.size = Pt(9)
-            pa.paragraph_format.space_after = Pt(3.2)
-            pa.paragraph_format.space_before = Pt(3.2)
+            ra.font.size = Pt(9) if i else Pt(7)
+            pa.paragraph_format.space_after = Pt(13.5)
+            pa.paragraph_format.space_before = Pt(13.5)
 
-    # ---- training content and sign-off, side by side ----------------------
-    # The sheet has to be one page. Content runs in the left column and the
-    # facilitator block sits beside it in the right, so nothing is stranded in
-    # a band of white space below the list.
-    outer = doc.add_table(rows=1, cols=2)
-    outer.autofit = False
-    outer.alignment = WD_TABLE_ALIGNMENT.CENTER
-    left, right = outer.rows[0].cells
-    left.width, right.width = Cm(11.6), Cm(5.4)
-    for cell in (left, right):
-        cell.paragraphs[0].paragraph_format.space_after = Pt(0)
-        for edge in ("top", "bottom", "left", "right"):
-            pass
+    # ---- page two: content covered and sign-off ---------------------------
+    # The attendance list takes the whole first page; the record of what was
+    # covered, and the facilitator's sign-off, follow on a second page.
+    brk = doc.add_paragraph()
+    brk.paragraph_format.space_after = Pt(0)
+    brk.add_run().add_break(WD_BREAK.PAGE)
+
+    heading(doc, "CONTENT COVERED", space_before=0)
 
     content = [
         "Principle of the GeneXpert Dx system and the Xpert MTB/RIF Ultra assay; what the "
@@ -244,62 +250,44 @@ def build():
         "What the operator may fix, and what must be escalated to the Laboratory Manager and "
         "the supplier.",
     ]
-
-    p = left.paragraphs[0]
-    p.paragraph_format.space_before = Pt(5)
-    p.paragraph_format.space_after = Pt(2.5)
-    r = p.add_run("CONTENT COVERED")
-    r.font.size, r.font.bold = Pt(10), True
-    r.font.color.rgb = RGBColor.from_string(INK)
-
     for i, item in enumerate(content, 1):
-        p = left.add_paragraph()
-        p.paragraph_format.left_indent = Cm(0.55)
-        p.paragraph_format.space_after = Pt(0.8)
-        p.paragraph_format.line_spacing = 0.96
+        p = doc.add_paragraph()
+        p.paragraph_format.left_indent = Cm(0.7)
+        p.paragraph_format.space_after = Pt(10)
+        p.paragraph_format.line_spacing = 1.12
         r = p.add_run(f"{i}.  ")
-        r.font.size, r.font.bold = Pt(8.5), True
+        r.font.size, r.font.bold = Pt(11), True
         r.font.color.rgb = RGBColor.from_string(INK)
         r = p.add_run(item)
-        r.font.size = Pt(8.5)
+        r.font.size = Pt(11)
 
-    # sign-off block, right column
-    p = right.paragraphs[0]
-    p.paragraph_format.space_before = Pt(5)
-    p.paragraph_format.space_after = Pt(2.5)
-    r = p.add_run("SIGN-OFF")
-    r.font.size, r.font.bold = Pt(10), True
-    r.font.color.rgb = RGBColor.from_string(INK)
+    heading(doc, "SIGN-OFF", space_before=40)
 
-    p = right.add_paragraph()
-    p.paragraph_format.space_after = Pt(6)
-    r = p.add_run("Facilitator")
-    r.font.size, r.font.bold = Pt(8.5), True
-    r.font.color.rgb = RGBColor.from_string(GREY)
-    p = right.add_paragraph()
-    p.paragraph_format.space_after = Pt(10)
-    r = p.add_run("Kelvin SAMAHANI\nLaboratory Manager")
-    r.font.size = Pt(8.5)
+    t = doc.add_table(rows=1, cols=3)
+    t.style = "Table Grid"
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    t.autofit = False
+    w = [7.3, 6.0, 4.5]
+    assert abs(sum(w) - 17.8) < 2e-9
+    hdr = t.rows[0].cells
+    for i, h in enumerate(["Facilitator", "Signature", "Date"]):
+        hdr[i].width = Cm(w[i])
+        pa = hdr[i].paragraphs[0]
+        pa.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        ra = pa.add_run(h)
+        ra.font.size, ra.font.bold = Pt(9.5), True
+        ra.font.color.rgb = RGBColor.from_string("FFFFFF")
+        pa.paragraph_format.space_after = Pt(2)
+        shade(hdr[i], INK)
 
-    p = right.add_paragraph()
-    p.paragraph_format.space_after = Pt(2)
-    rule(p, 4)
-    p = right.add_paragraph()
-    p.paragraph_format.space_before = Pt(1)
-    p.paragraph_format.space_after = Pt(6)
-    r = p.add_run("Signature")
-    r.font.size = Pt(8.5)
-    r.font.color.rgb = RGBColor.from_string(GREY)
-
-    p = right.add_paragraph()
-    p.paragraph_format.space_after = Pt(2)
-    r = p.add_run("Date")
-    r.font.size, r.font.bold = Pt(8.5), True
-    r.font.color.rgb = RGBColor.from_string(GREY)
-    p = right.add_paragraph()
-    p.paragraph_format.space_after = Pt(0)
-    r = p.add_run(DATE_SHORT)
-    r.font.size = Pt(8.5)
+    cells = t.add_row().cells
+    for i in range(3):
+        cells[i].width = Cm(w[i])
+        pa = cells[i].paragraphs[0]
+        pa.paragraph_format.space_before = Pt(42)
+        pa.paragraph_format.space_after = Pt(42)
+    cells[0].paragraphs[0].add_run("Kelvin SAMAHANI\nLaboratory Manager").font.size = Pt(10)
+    cells[2].paragraphs[0].add_run(DATE_SHORT).font.size = Pt(10)
 
     # ---- footer ---------------------------------------------------------------
     footer = sec.footer.paragraphs[0]
