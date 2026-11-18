@@ -30,17 +30,12 @@ GREY = "595959"
 RULE = "B4C6E7"
 
 TITLE = "Use and Maintenance of the GeneXpert Machine"
-DATE_LONG = "Sunday, 15 November 2026"
-ATTENDEES = [
-    ("1", "Kelvin SAMAHANI", "Laboratory Manager"),
-    ("2", "Jean Paul NSENGIYUMVA", "Laboratory Quality Manager"),
-    ("3", "Aurelie YANSONEYE", "HIV Laboratory Quality Coordinator"),
-    ("4", "Beatrice NGEZEKURE", "Lab Technologist \u2014 Reception and Phlebotomy"),
-    ("5", "Patrick ISHIMWE", "Lab Technician"),
-    ("6", "Bernadette MUHAWENIMANA", "Lab Technician"),
-    ("7", "Jeanne Claudine UWAYISABA", "Lab Technician"),
-    ("8", "Dieudonne NIYIDUHABYOSE", "Laboratory Safety Officer"),
-]
+DATE_LONG = "Wednesday, 18 November 2026"
+DATE_SHORT = "18 / 11 / 2026"
+# No names: the sheet goes to the room blank so each person writes their own
+# name and signs against it. Twenty rows covers the eight laboratory staff with
+# room for a facilitator, a hospital officer or a late arrival.
+BLANK_ROWS = 20
 
 
 def shade(cell, hex_fill):
@@ -176,8 +171,9 @@ def build():
     r.font.size, r.font.bold = Pt(10.5), True
     r.font.color.rgb = RGBColor.from_string(INK)
 
-    headers = ["No.", "Full name", "Designation", "Signature"]
-    widths = [1.3, 5.6, 4.6, 5.5]
+    headers = ["No.", "Full name (write in block letters)", "Designation / Department",
+               "Signature"]
+    widths = [1.3, 6.0, 4.7, 5.0]
     t = doc.add_table(rows=1, cols=4)
     t.style = "Table Grid"
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -193,24 +189,26 @@ def build():
         pa.paragraph_format.space_after = Pt(2)
         shade(hdr[i], INK)
 
-    for no, name, role in ATTENDEES:
+    for n in range(1, BLANK_ROWS + 1):
         cells = t.add_row().cells
-        for i, value in enumerate((no, name, role, "")):
+        for i, value in enumerate((str(n), "", "", "")):
             cells[i].width = Cm(widths[i])
             pa = cells[i].paragraphs[0]
             if i == 0:
                 pa.alignment = WD_ALIGN_PARAGRAPH.CENTER
             ra = pa.add_run(value)
             ra.font.size = Pt(9)
-            pa.paragraph_format.space_after = Pt(5)
-            pa.paragraph_format.space_before = Pt(5)
+            pa.paragraph_format.space_after = Pt(7)
+            pa.paragraph_format.space_before = Pt(7)
 
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(6)
     p = doc.add_paragraph()
-    r = p.add_run("Eight (8) active laboratory staff. A member of staff who attends and "
-                  "cannot sign on the day signs against their name within 24 hours; the "
-                  "facilitator initials the late signature.")
+    r = p.add_run("Please write your full name in block letters and sign beside it. "
+                  "Twenty rows are provided. The eight laboratory staff are expected; "
+                  "a member of staff who arrives after the sheet has been collected signs "
+                  "against their name within 24 hours and the facilitator initials the late "
+                  "signature.")
     r.font.size = Pt(8)
     r.font.italic = True
     r.font.color.rgb = RGBColor.from_string(GREY)
@@ -295,7 +293,7 @@ def build():
         pa.paragraph_format.space_before = Pt(14)
         pa.paragraph_format.space_after = Pt(14)
     cells[0].paragraphs[0].add_run("Kelvin SAMAHANI\nLaboratory Manager").font.size = Pt(8.5)
-    cells[2].paragraphs[0].add_run("15 / 11 / 2026").font.size = Pt(8.5)
+    cells[2].paragraphs[0].add_run(DATE_SHORT).font.size = Pt(8.5)
 
     # ---- footer ------------------------------------------------------------
     footer = sec.footer.paragraphs[0]
@@ -307,7 +305,7 @@ def build():
     r.font.color.rgb = RGBColor.from_string(GREY)
 
     out = ROOT / "forms" / ("Ruli DH Laboratory - Attendance List - GeneXpert Refresher "
-                            "Training - 15 November 2026.docx")
+                            "Training - 18 November 2026.docx")
     out.parent.mkdir(parents=True, exist_ok=True)
     doc.save(out)
     print("written:", out)
